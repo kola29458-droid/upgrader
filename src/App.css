@@ -24,18 +24,15 @@ body {
   overflow-y: auto;
 }
 
-/* Фон сайта — адаптация под ширину экрана */
+/* Фон сайта */
 .site-background {
-  position: relative;
-  width: 100vw;
-  min-width: 100vw;
   min-height: 200vh;
-
+  width: 100%;
   background-image: url('/background.png');
-  background-size: 100% auto;
+  background-size: cover;
   background-position: center top;
-  background-repeat: repeat-y;
-  background-attachment: scroll;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* Верхняя панель */
@@ -4672,19 +4669,3 @@ input.custom-range::-moz-range-thumb {
   color: #a7a7af;
 }
 
-@media (max-width: 950px) and (orientation: landscape) {
-  html,
-  body,
-  #root {
-    width: 100%;
-    min-width: 100%;
-    overflow-x: hidden;
-  }
-
-  .site-background {
-    width: 100vw;
-    min-width: 100vw;
-    background-size: 100% auto;
-    background-position: center top;
-  }
-}

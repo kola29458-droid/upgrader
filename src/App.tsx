@@ -693,18 +693,54 @@ const [adminOpen, setAdminOpen] = useState(false)
 const [forceNext, setForceNext] = useState<'win' | 'lose' | null>(null)
 const [adminFastSpin, setAdminFastSpin] = useState(false)
 
+
 useEffect(() => {
   const handleShortcut = (event: KeyboardEvent) => {
-    if (event.shiftKey && event.key.toLowerCase() === 'g' && !event.repeat) {
-  event.preventDefault()
-  setAdminOpen((open) => !open)
-}
+    const target = event.target as HTMLElement
+
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target.isContentEditable
+    ) {
+      return
+    }
+
+    if (
+      event.ctrlKey &&
+      event.key.toLowerCase() === 'x' &&
+      !event.repeat
+    ) {
+      event.preventDefault()
+      setForceNext('win')
+      return
+    }
+
+    if (
+      event.ctrlKey &&
+      event.key.toLowerCase() === 'z' &&
+      !event.repeat
+    ) {
+      event.preventDefault()
+      setForceNext('lose')
+      return
+    }
+
+    if (
+      event.shiftKey &&
+      event.key.toLowerCase() === 'g' &&
+      !event.repeat
+    ) {
+      event.preventDefault()
+      setAdminOpen((open) => !open)
+    }
   }
 
   window.addEventListener('keydown', handleShortcut)
 
   return () => window.removeEventListener('keydown', handleShortcut)
 }, [])
+
 
   // Крутка: idle (ждём) -> spinning (стрелка крутится) -> result (показываем итог 3 секунды) -> idle
   const [phase, setPhase] = useState<'idle' | 'spinning' | 'result'>('idle')
@@ -745,17 +781,28 @@ useEffect(() => {
     const target = selectedSkin
     const spinChance = chance
     const randomStop = Math.random() * 360
+const winLimit = Math.min(180, Math.max(0, spinChance * 1.8))
+
+const randomWinStop =
+  Math.random() < 0.5
+    ? Math.random() * winLimit
+    : 360 - Math.random() * winLimit
+
+const loseWidth = 360 - winLimit * 2
+
+const randomLoseStop =
+  winLimit + Math.random() * loseWidth
 
 const win = forceNext === 'win'
   ? true
   : forceNext === 'lose'
     ? false
-    : Math.min(randomStop, 360 - randomStop) <= spinChance * 1.8
+    : Math.min(randomStop, 360 - randomStop) <= winLimit
 
 const stop = forceNext === 'win'
-  ? 0
+  ? randomWinStop
   : forceNext === 'lose'
-    ? 180
+    ? randomLoseStop
     : randomStop
 
 const duration = adminFastSpin || quickSettings.fastScroll ? 3500 : 6500
