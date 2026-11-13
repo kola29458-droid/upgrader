@@ -24,14 +24,17 @@ body {
   overflow-y: auto;
 }
 
-/* Фон сайта */
+/* Фон сайта — адаптация под ширину экрана */
 .site-background {
+  position: relative;
+  width: 100vw;
+  min-width: 100vw;
   min-height: 200vh;
-  width: 100%;
+
   background-image: url('/background.png');
-  background-size: 100% 100%;
+  background-size: 100% auto;
   background-position: center top;
-  background-repeat: no-repeat;
+  background-repeat: repeat-y;
   background-attachment: scroll;
 }
 
@@ -4669,18 +4672,19 @@ input.custom-range::-moz-range-thumb {
   color: #a7a7af;
 }
 
-/* FIX: убрать лишнюю ширину на телефоне в горизонтальном режиме */
-@media screen and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 950px) and (orientation: landscape) {
   html,
   body,
   #root {
     width: 100%;
-    min-width: 0 !important;
-    max-width: 100%;
+    min-width: 100%;
     overflow-x: hidden;
   }
 
-  body {
-    margin: 0;
+  .site-background {
+    width: 100vw;
+    min-width: 100vw;
+    background-size: 100% auto;
+    background-position: center top;
   }
 }
