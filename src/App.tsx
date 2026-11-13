@@ -804,7 +804,7 @@ const stop = forceNext === 'win'
     ? randomLoseStop
     : randomStop
 
-const duration = adminFastSpin || quickSettings.fastScroll ? 3500 : 6500
+const duration = adminFastSpin || quickSettings.fastScroll ? 1000 : 6500
 
 setForceNext(null)
     // Скины и ставка списываются сразу
