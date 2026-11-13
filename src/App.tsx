@@ -14,8 +14,7 @@ import SkinCatalog from './components/SkinCatalog'
 import type { Skin } from './components/SkinCatalog'
 import SelectedSkinPanel from './components/SelectedSkinPanel'
 import SkinsPanel from './components/SkinsPanel'
-import { useInventory } from './hooks/useInventory'
-import type { OwnedSkin } from './hooks/useInventory'
+import { useInventory, type OwnedSkin } from './hooks/useInventory'
 import UpgraderWheel from './components/UpgraderWheel'
 import FastAmountBar from './components/FastAmountBar'
 import ImproveButton from './components/ImproveButton'
@@ -983,7 +982,20 @@ setForceNext(null)
   )
 }
 
-function ProfilePage() {
+function ProfilePage({
+  inventory,
+  onSellAll,
+}: {
+  inventory: OwnedSkin[]
+  onSellAll: () => void
+}) {
+  const totalCents = inventory.reduce(
+    (sum, skin) => sum + Math.round(skin.price * 100),
+    0
+  )
+
+  const totalPrice = (totalCents / 100).toFixed(2)
+
   return (
     <div className="profile-page">
       <img
@@ -991,11 +1003,34 @@ function ProfilePage() {
         alt="Profile"
         className="profile-reference-image"
       />
+
       <img
         src="/profile-vip.png"
         alt="VIP Club"
         className="profile-vip-image"
       />
+
+      <div className="profile-sell-panel">
+        <div className="profile-sell-title">MY INVENTORY</div>
+
+        <div className="profile-sell-info">
+          <span>Количество скинов:</span>
+          <strong>{inventory.length}</strong>
+        </div>
+
+        <div className="profile-sell-info">
+          <span>Общая стоимость:</span>
+          <strong>{totalPrice} coins</strong>
+        </div>
+
+        <button
+          className="profile-sell-button"
+          onClick={onSellAll}
+          disabled={inventory.length === 0}
+        >
+          SELL ALL
+        </button>
+      </div>
     </div>
   )
 }
@@ -1018,6 +1053,23 @@ function Site() {
   const [isPayScreenOpen, setIsPayScreenOpen] = useState(false)
   const [balance, setBalance] = useState(0)
   const inventory = useInventory()
+
+  function sellAllSkins() {
+  const skins = inventory.items
+
+  if (skins.length === 0) return
+
+  const totalCents = skins.reduce(
+    (sum, skin) => sum + Math.round(skin.price * 100),
+    0
+  )
+
+  inventory.remove(skins.map((skin) => skin.uid))
+
+  setBalance((current) =>
+    Number(((Math.round(current * 100) + totalCents) / 100).toFixed(2))
+  )
+}
 
   function buySkins(skins: Skin[]): boolean {
     const totalCents = skins.reduce((sum, skin) => sum + Math.round(skin.price * 100), 0)
@@ -1444,9 +1496,14 @@ function Site() {
           />
 
           <Route
-            path="/en/profile"
-            element={<ProfilePage />}
-          />
+  path="/en/profile"
+  element={
+    <ProfilePage
+      inventory={inventory.items}
+      onSellAll={sellAllSkins}
+    />
+  }
+/>
         </Routes>
       </main>
 
