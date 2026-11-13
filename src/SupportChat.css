@@ -1,0 +1,129 @@
+
+.support-widget {
+  position: fixed;
+  right: 24px;
+  bottom: 20px;
+  z-index: 9999;
+  font-family: Arial, sans-serif;
+}
+
+.support-button {
+  width: 58px;
+  height: 58px;
+  border: none;
+  border-radius: 50%;
+  background: #8b5cf6;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  box-shadow: 0 6px 24px #0006;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.support-button:hover {
+  transform: scale(1.07);
+  background: #7c3aed;
+}
+
+
+.support-window {
+  position: absolute;
+  right: -10px;
+  bottom: 72px;
+  width: 410px;
+  max-width: calc(100vw - 32px);
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.97);
+  transform-origin: bottom right;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease;
+}
+
+
+.support-window-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.support-screenshot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+
+.support-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+.support-avatar {
+  display: block;
+  width: 92%;
+  height: 92%;
+  border-radius: 50%;
+  background-image: url("https://image.crisp.chat/avatar/website/fca74a4e-5c4c-4ef5-ac9c-8a82b1d49250/120/?1792923655152");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.support-close-icon {
+  color: white;
+  font-size: 30px;
+  line-height: 1;
+}
+
+
+.support-button {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.support-button:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.support-avatar {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+
+.support-image-container {
+  position: relative;
+  width: 100%;
+}
+
+.support-image-container .support-screenshot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.support-telegram-hotspot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: pointer;
+}

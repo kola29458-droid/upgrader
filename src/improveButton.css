@@ -1,0 +1,66 @@
+/* Обёртка: занимает то же место, что раньше картинка (позиция задаётся в App.css, .upgrader-improve-button) */
+.upgrader-element.improve-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 5;
+}
+
+/* Кнопка Improve */
+.improve-btn {
+  --improve-width: 306px;   /* ширина кнопки */
+  --improve-height: 56px;   /* высота кнопки */
+  --improve-radius: 12px;   /* скругление углов */
+  --improve-font-size: 20px;/* размер текста */
+  --improve-glow: rgba(255, 171, 27, 0.8); /* цвет свечения при наведении */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: var(--improve-width);
+  height: var(--improve-height);
+  padding: 12px 24px;
+  border: 0;
+  border-radius: var(--improve-radius);
+  /* по краям #fbd506, в центре светлее #ffdd22 (слева направо) */
+  background: linear-gradient(90deg, #fbd506 0%, #ffdd22 50%, #fbd506 100%);
+  color: #1c1c20;
+  font-family: "Exo 2", sans-serif;
+  font-size: var(--improve-font-size);
+  font-weight: 600;
+  line-height: 1.25;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: all 200ms;
+}
+
+/* Свечение при наведении */
+.improve-btn:hover:not(:disabled) {
+  box-shadow: 0 0 20px 0 var(--improve-glow);
+}
+
+.improve-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.improve-btn:focus-visible {
+  outline: 2px solid rgba(255, 228, 77, 0.8);
+  outline-offset: 3px;
+}
+
+/* Скин не выбран: кнопка затемнена и не нажимается */
+.improve-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.improve-btn__icon {
+  flex-shrink: 0;
+  width: 12px;
+  height: 14px;
+}

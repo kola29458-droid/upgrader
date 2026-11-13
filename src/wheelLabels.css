@@ -1,0 +1,23 @@
+/* Подписи на колесе (100% / 50% / 0%): лежат поверх цветной дуги, дуга их не закрывает */
+.upgrader-wheel__labels {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.upgrader-wheel__labels text {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 11px;      /* размер подписей */
+  font-weight: 500;     /* толщина */
+  fill: #88888f;        /* цвет, пока дуга до подписи не дошла */
+  text-anchor: middle;
+  transition: fill 200ms ease;
+}
+
+/* Дуга закрыла подпись: подпись светлее */
+.upgrader-wheel__labels text.is-covered {
+  fill: #fffefe7a;        /* цвет подписи поверх дуги */
+}

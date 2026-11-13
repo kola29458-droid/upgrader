@@ -1,0 +1,4671 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tektur:wght@400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+html {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+body {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Фон сайта */
+.site-background {
+  min-height: 200vh;
+  width: 100%;
+  background-image: url('/background.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Верхняя панель */
+.top-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.panel-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Полоса прокрутки */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+/* Области кнопок */
+.hover-area {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Изображения кнопок */
+.hover-area img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* По умолчанию картинки скрыты */
+.hover-image,
+.active-image {
+  opacity: 0;
+}
+
+/* Наведение мышкой */
+.hover-area:hover .hover-image {
+  opacity: 1;
+}
+
+/* Выбранная кнопка остаётся активной */
+.hover-area.selected .hover-image {
+  opacity: 0;
+}
+
+.hover-area.selected .active-image {
+  opacity: 1;
+}
+
+/* BATTLE */
+.battle-area {
+  left: 798px;
+  top: 0px;
+  width: 120px;
+  height: 52px;
+}
+
+/* UPGRADER */
+.upgrader-area {
+  left: 908px;
+  top: 0px;
+  width: 72px;
+  height: 48px;
+}
+
+/* VIP */
+.vip-area {
+  left: 1023px;
+  top: 0px;
+  width: 50px;
+  height: 50px;
+}
+
+
+/* Контент отдельных страниц */
+.page-content {
+  min-height: 200vh;
+  padding-top: 100px;
+  color: white;
+}
+
+
+/* ==================================
+   НАСТРОЙКА PNG ПРИ НАВЕДЕНИИ
+   Меняй значения здесь
+================================== */
+
+/* BATTLE */
+.battle-area .hover-image {
+  width: 84px;
+  height: 30px;
+  left: 20px;
+  top: 18px;
+}
+
+/* UPGRADER */
+.upgrader-area .hover-image {
+  width: 72px;
+  height: 30px;
+  left: 4px;
+  top: 18px;
+}
+
+/* VIP */
+.vip-area .hover-image {
+  width: 75px;
+  height: 75px;
+  left: -16px;
+  top: -5px;
+}
+
+/* Жёлтая линия под выбранной кнопкой */
+.nav-underline {
+  position: absolute;
+  top: 0px;
+  left: 820px;
+  width: 120px;
+  height: 2px;
+  background: #f7cd45;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(12, 12, 12, 0);
+  pointer-events: none;
+  z-index: 3;
+  transition: left 0.30s ease, width 0.30s ease;
+}
+
+/* BATTLE */
+.nav-underline-battle {
+  left: 835px;
+  width: 49px;
+}
+
+/* UPGRADER */
+.nav-underline-upgrader {
+  left: 917px;
+  width: 62px;
+}
+
+/* VIP */
+.nav-underline-vip {
+  left: 1010px;
+  width: 66px;
+}
+ 
+/* BATTLE */
+.battle-area .hover-image {
+  transform: translate(0px, 0px);
+}
+
+.battle-area .active-image {
+  transform: translate(1px, 0px);
+}
+
+/* UPGRADER */
+.upgrader-area .hover-image {
+  transform: translate(0px, 0px);
+}
+
+.upgrader-area .active-image {
+  transform: translate(4px, 10px);
+}
+
+/* VIP */
+.vip-area .hover-image {
+  transform: translate(0px, 0px);
+}
+
+.vip-area .active-image {
+  transform: translate(0px, 0px);
+}
+ 
+.battle-area .active-image {
+  width: 100px;
+  height: 53px;
+  left: 11px;
+  top: -1px;
+}
+
+.battle-area .active-image {
+  transform-origin: center center;
+}
+
+.upgrader-battle-button {
+  position: fixed;
+  left: 1px;
+  top: 69px;
+  width: 205px;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.upgrader-battle-button img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Ручная настройка PNG при наведении */
+.upgrader-battle-button .battle-button-hover {
+  position: absolute;
+  width: 201px;
+  height: auto;
+  left: 3px;
+  top: 1px;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Показать PNG при наведении */
+.upgrader-battle-button:hover .battle-button-hover {
+  opacity: 1;
+}
+
+/* Скрыть обычную PNG при наведении */
+.upgrader-battle-button:hover .battle-button-normal {
+  opacity: 0;
+}
+
+/* ===== СЧЁТЧИКИ ===== */
+
+.counter-online,
+.counter-upgrades,
+.counter-battles {
+  position: fixed;
+  top: 25px;
+  z-index: 1002;
+
+  color: white;
+  font-family: "Exo 2", sans-serif;
+  font-size: 14px;
+  font-weight: 550;
+  white-space: nowrap;
+
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+
+  transform: scaleX(0.95);
+  transform-origin: left center;
+}
+
+/* Положение каждого счётчика меняется независимо */
+
+.counter-online {
+  left: 225px;
+  top: 32px;
+}
+
+.counter-upgrades {
+  left: 305px;
+  top: 32px;
+}
+
+.counter-battles {
+  left: 434px;
+  top: 32px;
+}
+
+.logo-home-button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 190px;
+  height: 45px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 4;
+}
+
+/* Balance widget */
+.balance-widget {
+  position: absolute;
+  top: 14px;
+  right: 215px;
+  z-index: 5;
+
+  display: inline-flex;
+  align-items: stretch;
+
+  width: max-content;
+  height: 40px;
+
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.balance-main,
+.balance-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fedb1a33;
+  background: #fedb1a0d;
+  color: #fff;
+  cursor: pointer;
+}
+
+.balance-main {
+  gap: 2px;
+  padding: 0 7px;
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+  white-space: nowrap;
+}
+
+.balance-coin {
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
+  flex-shrink: 0;
+  transform: translate(3px, 0px);
+}
+
+.balance-amount {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: "Exo 2", sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transform: translateX(2px);
+}
+
+.balance-arrow {
+  /* РАЗМЕР */
+  width: 30px;
+  height: 40px;
+
+  /* ПОЛОЖЕНИЕ */
+  position: relative;
+  left: 0px;       /* влево (-) / вправо (+) */
+  top: 0px;        /* вверх (-) / вниз (+) */
+
+  /* ВНЕШНИЙ ВИД */
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #fedb1a33;
+  border-left: 0;
+  border-radius: 0;
+  background: #fedb1a0d;
+
+  color: #fedc1a00;
+  font-size: 16px;
+  font-weight: 100;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.balance-arrow span {
+  display: inline-block;
+
+  /* ФОРМА СТРЕЛКИ */
+  transform: translate(0px, 0px) scaleX(1.15) scaleY(0.9);
+
+  /* Положение внутри кнопки */
+  transform-origin: center;
+}
+
+.balance-main:hover,
+.balance-arrow:hover {
+  filter: brightness(1.15);
+}
+
+/* Прозрачная область поверх нарисованной TOP UP */
+.top-up-glow {
+  position: absolute;
+
+  /* Пока примерные координаты — настроим под PNG */
+  top: 15px;
+  right: 116px;
+  width: 100px;
+  height: 38px;
+
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+
+  cursor: pointer;
+  z-index: 6;
+  transition: box-shadow 200ms ease;
+}
+
+/* Жёлто-оранжевое свечение */
+.top-up-glow:hover {
+  box-shadow: 0 0 20px 0 rgba(255, 171, 27, 0.8);
+}
+
+.payment-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  background: rgba(0, 0, 0, 0.822);
+
+  opacity: 0;
+  animation: backdrop-appear 200ms ease forwards;
+}
+
+@keyframes backdrop-appear {
+  to {
+    opacity: 1;
+  }
+}
+
+
+.payment-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+.payment-modal {
+  width: min(100%, 500px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: #1e1e22;
+  color: #fff;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
+}
+
+.payment-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.payment-modal-header h2 {
+  margin: 0;
+  font-size: 23px;
+}
+
+.payment-close {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.payment-tabs,
+.payment-presets,
+.payment-methods {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.payment-tabs {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.payment-presets {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.payment-methods {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.payment-tab,
+.payment-presets button,
+.payment-method {
+  padding: 12px;
+  border: 1px solid #39393f;
+  border-radius: 9px;
+  background: #29292f;
+  color: #adadb2;
+  cursor: pointer;
+}
+
+.payment-tab.active,
+.payment-method.selected {
+  border-color: #fcd711;
+  background: #fcd711;
+  color: #1e1e22;
+}
+
+.payment-label {
+  display: block;
+  margin: 16px 0 8px;
+  color: #adadb2;
+  font-size: 13px;
+}
+
+.payment-currency {
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+.payment-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #424249;
+  border-radius: 9px;
+  outline: none;
+  background: #29292f;
+  color: white;
+  font-size: 20px;
+}
+
+.payment-input:focus {
+  border-color: #fcd711;
+}
+
+.payment-method {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+}
+
+.payment-method small {
+  opacity: 0.75;
+}
+
+.payment-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 16px 0;
+  border-top: 1px solid #39393f;
+}
+
+.payment-summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.payment-summary small {
+  color: #adadb2;
+  font-size: 12px;
+}
+
+.payment-summary strong {
+  color: #fcd711;
+  white-space: nowrap;
+}
+
+.payment-pay {
+  width: 100%;
+  padding: 15px;
+  border: 0;
+  border-radius: 10px;
+  background: #fcd711;
+  color: #1e1e22;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.payment-pay:disabled {
+  background: #55555b;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.payment-disclaimer {
+  margin: 12px 0 0;
+  color: #adadb2;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .payment-modal {
+    padding: 18px;
+  }
+
+  .payment-presets {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Top Up reference image */
+.topup-reference {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 95vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+  animation: topup-reference-appear 220ms ease-out;
+}
+
+@keyframes topup-reference-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+.topup-workspace {
+  position: relative;
+  width: fit-content;
+  max-width: 95vw;
+}
+
+.topup-workspace .topup-reference {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 95vw;
+  max-height: 92vh;
+}
+
+.amount-field {
+  position: absolute;
+  left: 60%;
+  top: 17%;
+  width: 36%;
+  height: 64px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border: 1px solid #45454b;
+  border-radius: 12px;
+  background: #1e1e22;
+  color: white;
+  transition: border-color 180ms ease;
+}
+
+.amount-field:focus-within,
+.amount-field.amount-valid {
+  border: 1px solid #f4c542;
+}
+
+.amount-field.amount-invalid {
+  border: 1px solid #e7463d;
+}
+
+.amount-field span,
+.amount-field input {
+  font-family: Tektur, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.amount-field input {
+  min-width: 0;
+  flex: 1;
+  padding-left: 0px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: white;
+}
+
+.amount-field input::placeholder {
+  color: rgb(255 255 255 / 30%);
+}
+
+.amount-field small {
+  flex-shrink: 0;
+  color: #f25959;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.topup-workspace {
+  animation: topup-content-appear 220ms ease-out both;
+  animation-delay: 120ms;
+}
+
+@keyframes topup-content-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.amount-field small {
+  flex-shrink: 0;
+  color: #88888f;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.amount-field small.amount-minimum-error {
+  color: #f25959;
+}
+
+.amount-field .amount-minimum {
+  color: #88888f;
+}
+
+.amount-field .amount-minimum-error {
+  color: #f25959;
+}
+
+.amount-field,
+.amount-field span,
+.amount-field input,
+.amount-field small {
+  font-family: 'Tektur', sans-serif;
+}
+
+
+.email-field {
+  border-radius: 13px;
+background: rgb(255 255 255 / 3%);
+  position: absolute;
+
+  /* Можешь менять эти значения, чтобы двигать поле */
+  left: 632px;
+  top: 53%;
+  width: 38%;
+  height: 40px;
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+
+  border: 1px solid rgb(255 255 255 / 8%);
+  background: transparent;
+  color: white;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.email-field:focus-within {
+  background: rgb(255 255 255 / 3%);
+  border-radius: 13px;
+}
+
+.email-field input {
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: white;
+  font-family: 'Tektur', sans-serif;
+  font-size: 12px;
+}
+
+.email-field input::placeholder {
+  color: #8e8e94;
+}
+
+.email-field.email-invalid {
+  border: 1px solid #e7463d;
+  background: #e7463d1a;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.email-field .email-error {
+  max-width: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f25959;
+  font-size: 10px;
+  text-align: right;
+}
+
+
+.receive-summary {
+  position: absolute;
+  left: 60%;
+  top: 83%;
+  width: 36%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.receive-description {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0px;
+  font-size: 0px;
+  position: relative;
+  left: 0px;
+}
+
+.receive-title {
+  color: white;
+  font-weight: 0;
+}
+
+.receive-fee {
+  color: #8e8e94;
+  font-size: 0px;
+}
+
+.receive-coins {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-family: Tektur, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.receive-coins img {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+}
+
+.pay-button {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 30%;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 12px;
+  background: #fcd711;
+  color: #101012;
+  font-family: Tektur, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+
+.pay-button:hover:not(:disabled) {
+  background: #ffe44d;
+}
+
+.pay-button:active:not(:disabled) {
+  background: #fcd711;
+}
+
+.pay-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pay-button {
+  position: absolute;
+  left: 54%;
+  top: 66%;
+  width: 36%;
+  height: 52px;
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.topup-workspace .pay-button {
+  top: 698px !important;
+  left: 632px !important;
+}
+
+/* Настройка положения и размера Pay */
+.topup-workspace .pay-button {
+  position: absolute !important;
+
+
+  width: 38% !important;
+  height: 48px !important;
+
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+  box-sizing: border-box;
+}
+
+
+/* Полноэкранный экран Pay */
+.pay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #101012;
+  color: #ffffff;
+  font-family: Tektur, sans-serif;
+}
+
+/* Содержимое по центру */
+.pay-screen-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Заголовок Pay */
+.pay-screen-content h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+/* Текст под заголовком */
+.pay-screen-content p {
+  margin: 0;
+  color: #a5a5ad;
+  font-size: 14px;
+}
+
+/* Кружок загрузки */
+.pay-loader {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #38383e;
+  border-top-color: #fcd711;
+  border-radius: 50%;
+  animation: pay-spin 0.8s linear infinite;
+}
+
+@keyframes pay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Социальные сети рядом с балансом */
+.social-links {
+  position: absolute;
+  top: 18px;
+  right: 338px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 5;
+}
+
+.social-links a {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #ffffff0d;
+  transition: filter 200ms ease;
+}
+
+.social-links a:hover {
+  filter: brightness(1.5);
+}
+
+.social-links img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.balance-area {
+  position: absolute;
+  top: 14px;
+  right: 215px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 5;
+}
+
+.balance-area .balance-widget,
+.balance-area .social-links {
+  position: static;
+}
+
+
+
+/* =====================================================
+   UPGRADER — NOTIFICATIONS
+   Основные настройки уведомлений
+===================================================== */
+
+:root {
+  /* Колокольчик */
+  --notif-button-top: 14px;
+  --notif-button-right: 69px;
+  --notif-button-size: 40px;
+  --notif-button-radius: 10px;
+  --notif-button-bg: #202022;
+  --notif-button-hover-bg: #303036;
+  --notif-button-icon-size: 20px;
+
+  /* Панель */
+  --notif-panel-top: 58px;
+  --notif-panel-right: -43px;
+  --notif-panel-width: 360px;
+  --notif-panel-max-width: calc(100vw - 24px);
+  --notif-panel-max-height: min(480px, calc(100vh - 100px));
+  --notif-panel-bg: #1f2022;
+  --notif-panel-border: #29292e;
+  --notif-panel-border-width: 1px;
+  --notif-panel-radius: 12px;
+  --notif-panel-shadow: 0 16px 44px rgb(0 0 0 / 42%);
+  --notif-panel-padding: 0px;
+  --notif-panel-z-index: 20;
+  
+    /* Тёмное полупрозрачное стекло */
+--notif-panel-bg: rgba(25, 26, 29, 0.72);
+--notif-panel-border: rgba(255, 255, 255, 0.13);
+--notif-panel-border-width: 1px;
+--notif-panel-shadow:
+  0 16px 44px rgba(0, 0, 0, 0.42),
+  0 0 20px rgba(255, 215, 40, 0.04);
+
+  /* Анимация */
+  --notif-animation-duration: 220ms;
+  --notif-animation-easing: ease;
+  --notif-animation-offset-y: -8px;
+  --notif-animation-start-scale: 0.98;
+  --notif-animation-origin: top right;
+
+  /* Заголовок */
+  --notif-header-min-height: 58px;
+  --notif-header-padding: 16px 18px;
+  --notif-header-gap: 11px;
+  --notif-header-border: #2b2b30;
+  --notif-header-font: "Exo 2", sans-serif;
+  --notif-header-size: 17px;
+  --notif-header-weight: 500;
+  --notif-header-color: #ffffff;
+
+  /* Список */
+  --notif-list-padding: 0 14px;
+  --notif-list-gap: 0px;
+  --notif-scrollbar-width: 4px;
+  --notif-scrollbar-color: #414147;
+
+  /* Карточки уведомлений */
+--notif-card-bg: rgba(18, 19, 22, 0.24);
+--notif-card-border: rgba(255, 255, 255, 0.07);
+--notif-card-border-width: 1px;
+--notif-card-radius: 0px;
+--notif-card-padding: 11px 12px;
+--notif-card-content-gap: 7px;
+--notif-card-gap: 0px;
+
+  /* Дата */
+  --notif-date-color: #85858f;
+  --notif-date-size: 10px;
+  --notif-date-weight: 600;
+
+  /* Заголовок уведомления */
+  --notif-title-color: #f5f5f7;
+  --notif-title-size: 15.5px;
+  --notif-title-weight: 700;
+
+  /* Описание */
+  --notif-description-color: #a5a5af;
+  --notif-description-size: 12px;
+  --notif-description-weight: 400;
+  --notif-description-gap: 8px;
+
+  /* Сумма и монета */
+  --notif-amount-color: #f0f0f3;
+  --notif-amount-size: 13px;
+  --notif-amount-weight: 600;
+  --notif-coin-size: 17px;
+  --notif-coin-gap: 5px;
+
+  /* Индикатор непрочитанного */
+  --notif-dot-size: 7px;
+  --notif-dot-top: 5px;
+  --notif-dot-right: 5px;
+  --notif-dot-color: #f5cd38;
+  --notif-dot-glow: 0 0 7px #f5cd3870;
+
+  /* Пустой список */
+  --notif-empty-padding: 28px 12px;
+  --notif-empty-color: #92929e;
+  --notif-empty-size: 13px;
+  --notif-empty-bg: transparent;
+}
+
+/* Обёртка колокольчика */
+.notifications-wrapper {
+  position: absolute;
+  top: var(--notif-button-top);
+  right: var(--notif-button-right);
+  z-index: var(--notif-panel-z-index);
+  font-family: "Exo 2", sans-serif;
+}
+
+/* Кнопка колокольчика */
+.notifications-button {
+  position: relative;
+  display: flex;
+  width: var(--notif-button-size);
+  height: var(--notif-button-size);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--notif-button-radius);
+  background: var(--notif-button-bg);
+  cursor: pointer;
+  transition: filter 180ms ease, background-color 180ms ease;
+}
+
+.notifications-button:hover {
+  filter: brightness(1.2);
+}
+
+.notifications-button.active {
+  background: var(--notif-button-hover-bg);
+}
+
+.notifications-button img {
+  display: block;
+  width: var(--notif-button-icon-size);
+  height: var(--notif-button-icon-size);
+  object-fit: contain;
+}
+
+/* Точка нового уведомления */
+.notifications-dot {
+  position: absolute;
+  top: var(--notif-dot-top);
+  right: var(--notif-dot-right);
+  width: var(--notif-dot-size);
+  height: var(--notif-dot-size);
+  border-radius: 50%;
+  background: var(--notif-dot-color);
+  box-shadow: var(--notif-dot-glow);
+}
+
+/* Выпадающая панель */
+.notifications-panel {
+  position: absolute;
+  top: var(--notif-panel-top);
+  right: var(--notif-panel-right);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: var(--notif-panel-width);
+  max-width: var(--notif-panel-max-width);
+  max-height: var(--notif-panel-max-height);
+  overflow: hidden;
+  padding: var(--notif-panel-padding);
+  border: var(--notif-panel-border-width) solid var(--notif-panel-border);
+  border-radius: var(--notif-panel-radius);
+  background:
+  linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.045),
+    rgba(255, 215, 40, 0.045) 35%,
+    rgba(10, 10, 14, 0.48) 75%
+  ),
+  rgba(18, 19, 22, 0.66);
+backdrop-filter: blur(30px) saturate(190%);
+-webkit-backdrop-filter: blur(30px) saturate(190%);
+
+border: 1px solid rgba(255, 255, 255, 0.16);
+
+color: #f5f5f7;
+
+box-shadow:
+  0 16px 44px rgba(0, 0, 0, 0.45),
+  inset 0 1px 1px rgba(255, 255, 255, 0.10);
+
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(var(--notif-animation-offset-y))
+    scale(var(--notif-animation-start-scale));
+  transform-origin: var(--notif-animation-origin);
+
+  transition:
+    opacity var(--notif-animation-duration) var(--notif-animation-easing),
+    transform var(--notif-animation-duration) var(--notif-animation-easing),
+    visibility var(--notif-animation-duration) var(--notif-animation-easing);
+}
+
+.notifications-panel.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* Заголовок панели */
+.notifications-header {
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--notif-header-gap);
+  min-height: var(--notif-header-min-height);
+  padding: var(--notif-header-padding);
+  border-bottom: 1px solid var(--notif-header-border);
+  color: var(--notif-header-color);
+  font-family: var(--notif-header-font);
+  font-size: var(--notif-header-size);
+  font-weight: var(--notif-header-weight);
+}
+
+/* Скрываем иконку слева от Notifications */
+.notifications-header img {
+  display: none;
+}
+
+.notifications-list {
+  box-sizing: border-box;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--notif-scrollbar-color) transparent;
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: var(--notif-scrollbar-width);
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--notif-scrollbar-color);
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: var(--notif-scrollbar-width);
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--notif-scrollbar-color);
+}
+
+.notification-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--notif-card-content-gap);
+  padding: var(--notif-card-padding);
+  border: var(--notif-card-border-width) solid var(--notif-card-border);
+  border-radius: 0;
+  background: var(--notif-card-bg);
+}
+
+/* Разделитель между уведомлениями */
+.notification-item + .notification-item {
+  margin: 0;
+  border-top: 1px solid #2b2b30;
+  padding-left: var(--notif-card-padding-left, 12px);
+  padding-right: 12px;
+}
+
+/* Дата и заголовок */
+.notification-item-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.notification-date {
+  order: -1;
+  color: var(--notif-date-color);
+  font-family: "Exo 2", sans-serif;
+  font-size: var(--notif-date-size);
+  font-weight: var(--notif-date-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+.notification-title {
+  color: var(--notif-title-color);
+  font-family: "Exo 2", sans-serif;
+  font-size: var(--notif-title-size);
+  font-weight: var(--notif-title-weight);
+  transform: translateY(-10px);
+}
+
+/* Описание и сумма */
+.notification-description {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--notif-description-gap);
+  color: var(--notif-description-color);
+  font-family: "Exo 2", sans-serif;
+  font-size: var(--notif-description-size);
+  font-weight: var(--notif-description-weight);
+  line-height: 1.6;
+  transform: translateY(-9px);
+}
+
+.notification-description > span {
+  display: inline;
+}
+
+/* Сумма */
+.notification-amount {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--notif-coin-gap);
+  color: var(--notif-amount-color);
+  font-family: "Exo 2", sans-serif;
+  font-size: var(--notif-amount-size);
+  font-weight: var(--notif-amount-weight);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.notification-amount img {
+  display: block;
+  width: var(--notif-coin-size);
+  height: var(--notif-coin-size);
+  object-fit: contain;
+}
+
+/* Монета внутри описания */
+.notification-inline-coin {
+  display: inline-block;
+  width: var(--notif-coin-size);
+  height: var(--notif-coin-size);
+  margin-left: 5px;
+  vertical-align: middle;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Пустой список — текст должен оставаться видимым */
+.notifications-empty {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--notif-empty-padding);
+  color: var(--notif-empty-color);
+  font-family: "Exo 2", sans-serif;
+  font-size: var(--notif-empty-size);
+  text-align: center;
+  background: var(--notif-empty-bg);
+}
+
+/* Мобильная версия */
+@media (max-width: 600px) {
+  .notifications-wrapper {
+    right: 12px;
+  }
+
+  .notifications-panel {
+    position: fixed;
+    top: 62px;
+    right: 12px;
+    width: var(--notif-panel-width);
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* Уменьшение анимации по настройке системы */
+@media (prefers-reduced-motion: reduce) {
+  .notifications-panel,
+  .notifications-button {
+    transition: none;
+  }
+}
+
+
+/* ===== UPGRADER LOGO ===== */
+
+.upgrader-page-logo {
+  /* РАЗМЕР */
+  width: 177px;
+  height: auto;
+
+  /* ПОЗИЦИЯ */
+  position: absolute;
+  left: 1059px;
+  top: 115px;
+
+  /* СМЕЩЕНИЕ */
+  transform: translate(-50%, 0);
+
+  /* СЛОИ */
+  z-index: 10;
+
+  /* НЕ РАСТЯГИВАТЬ КАРТИНКУ */
+  object-fit: contain;
+
+  /* ПЛАВНОСТЬ */
+  transition: width 0.2s ease;
+}
+
+/* Rewards — размер активной кнопки */
+.vip-area .active-image {
+  width: 74px;
+  height: 74px;
+  left: -16px;
+  top: -3px;
+}
+
+.weekly-drop-widget {
+  position: relative;
+  display: flex;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  background: #202022;
+  color: #fff;
+  text-decoration: none;
+  transition: filter 200ms ease;
+}
+
+.weekly-drop-widget:hover {
+  filter: brightness(1.5);
+}
+
+.weekly-drop-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.weekly-drop-gift {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  pointer-events: none;
+}
+
+.balance-area .social-links,
+.balance-area .weekly-drop-widget {
+  transform: translateX(5px);
+}
+
+.weekly-drop-widget {
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+:root {
+  --rewards-width: 1178px;
+  --rewards-height: auto;
+  --rewards-top: 5px;
+  --rewards-left: 470px;
+  --rewards-scale: 1;
+}
+
+.rewards-reference {
+  display: block;
+  position: relative;
+
+  width: var(--rewards-width);
+  height: var(--rewards-height);
+
+  max-width: none;
+  margin: 0;
+
+  left: var(--rewards-left);
+  top: var(--rewards-top);
+
+  transform: scale(var(--rewards-scale));
+  transform-origin: top left;
+
+  object-fit: contain;
+}
+
+.rewards-page-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.rewards-top-left {
+  position: absolute;
+  top: 41px;
+  left: 1420px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+}
+
+.rewards-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  height: 30px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.rewards-clock {
+  width: 14px;
+  height: 14px;
+  color: #FCD711;
+  flex-shrink: 0;
+}
+
+.rewards-timer-label {
+  color: #ADADB2;
+  font-family: "Exo 2", sans-serif;
+  font-size: 12px;
+  line-height: 17px;
+  white-space: nowrap;
+}
+
+.rewards-timer-value {
+  color: white;
+  font-family: "Tektur", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rewards-settings {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ADADB2;
+  cursor: pointer;
+}
+
+.rewards-settings:hover {
+  background: rgba(252, 215, 17, 0.12);
+  color: #FCD711;
+}
+
+.weekly-wheel-container {
+  position: absolute;
+  top: 222px;
+  left: 751px;
+  z-index: 20;
+  transform: translate(-50%, -50%);
+}
+
+.weekly-wheel {
+  display: block;
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  transform-origin: center center;
+  animation: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+@keyframes wheelRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Стрелка над рулеткой */
+.weekly-wheel-arrow {
+  position: absolute;
+  width: 34px;
+  height: auto;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Колесо */
+.weekly-wheel {
+  position: relative;
+  z-index: 20;
+}
+
+/* Индивидуальная высота страниц */
+.page-upgrader {
+  min-height: 170vh;
+}
+
+.page-rewards {
+  min-height: 150vh;
+}
+
+.page-battles {
+  min-height: 1vh;
+}
+
+.page-profile {
+  min-height: 110vh;
+}
+
+/* Общие настройки */
+.bottom-section {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: 1200px;
+}
+
+.bottom-section-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* UPGRADER */
+.page-upgrader .bottom-section {
+  top: 900px;
+  width: 1200px;
+}
+
+/* REWARDS */
+.page-rewards .bottom-section {
+  top: 1002px;
+  width: 990px;
+}
+
+/* BATTLES */
+.page-battles .bottom-section {
+  top: 520px;
+  width: 1200px;
+}
+
+/* PROFILE */
+.page-profile .bottom-section {
+  top: 950px;
+  width: 1200px;
+}
+
+.bottom-section {
+  position: absolute;
+  top: 910px;
+  left: 1055px;
+  transform: translateX(-50%);
+  width: 1710px !important;
+  z-index: 5;
+}
+
+.bottom-section-image {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Слой процентов вращается вместе с колесом */
+.weekly-wheel-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 25;
+  transform-origin: center center;
+  pointer-events: none;
+  animation: wheelRotate 30s linear infinite;
+}
+
+/* Общий стиль процентов */
+.wheel-percent {
+  position: absolute;
+  display: block;
+  font-family: "Exo 2", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: #9a9a9a;
+  transform: translate(-50%, -50%);
+  animation: wheelCounterRotate 30s linear infinite;
+}
+
+/* 5% — жёлтый */
+.wheel-percent-5 {
+  color: #fcd711;
+  top: 245px;
+  left: 100px;
+}
+
+/* 15% — серый */
+.wheel-percent-15 {
+  color: #9a9a9a;
+  top: 280px;
+  left: 155px;
+}
+
+/* 30% — серый */
+.wheel-percent-30 {
+  color: #9a9a9a;
+  top: 225px;
+  left: 270px;
+}
+
+/* 50% — серый */
+.wheel-percent-50 {
+  color: #9a9a9a;
+  top: 80px;
+  left: 135px;
+}
+
+/* Компенсируем вращение, чтобы текст оставался ровным */
+@keyframes wheelCounterRotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+/* =====================================
+   НИЖНЯЯ СТАТИСТИКА
+===================================== */
+
+.bottom-section {
+  position: absolute;
+}
+
+/* Общий стиль */
+.bottom-counter-online,
+.bottom-counter-upgrades,
+.bottom-counter-battles {
+  position: absolute;
+  z-index: 10;
+
+  color: white;
+  font-family: "Tektur", sans-serif;
+  font-size: 24px;
+  font-weight: 550;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+
+  pointer-events: none;
+  transform: scaleX(0.95);
+  transform-origin: left center;
+}
+
+/* ONLINE */
+.bottom-counter-online {
+  top: 235px;
+  left: 124px;
+}
+
+/* UPGRADER */
+.bottom-counter-upgrades {
+  top: 235px;
+  left:670px;
+}
+
+/* BATTLES */
+.bottom-counter-battles {
+  top: 235px;
+  left: 1218px;
+}
+
+/* Кнопка Top up на Weekly Drop */
+.weekly-drop-topup-button {
+  position: absolute;
+  top: 495px;
+  left: 1343px;
+  transform: translateX(-50%);
+
+  width: 540px;
+  max-width: 540px;
+  height: 52px;
+
+  background: #FCD711;
+  color: #101012;
+  border: none;
+  border-radius: 8px;
+
+  font-family: "Tektur", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: filter 0.2s ease;
+
+  animation: weeklyTopupJump 3s ease-in-out infinite;
+  z-index: 30;
+}
+
+.weekly-drop-topup-button:hover {
+  filter: brightness(1.1);
+}
+
+@keyframes weeklyTopupJump {
+  0%, 75%, 100% {
+    transform: translate(-50%, 0);
+  }
+
+  82% {
+    transform: translate(-50%, -6px);
+  }
+
+  89% {
+    transform: translate(-50%, 0);
+  }
+
+  94% {
+    transform: translate(-50%, -3px);
+  }
+}
+
+.weekly-drop-left-panel {
+  position: fixed;
+  top: 237px;       /* положение сверху */
+  left: 1px;       /* положение слева */
+  width: 202px;     /* ширина панели */
+  height: 720px;    /* высота панели */
+  z-index: 999;
+  pointer-events: none;
+}
+
+.weekly-drop-left-panel img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+}
+
+/* WEEKLY DROP PROGRESS */
+
+:root {
+  --weekly-progress-top: 100px;
+  --weekly-progress-left: 470px;
+  --weekly-progress-width: 500px;
+
+  --weekly-progress-height: 24px;
+  --weekly-progress-gap: 4px;
+  --weekly-progress-radius: 3px;
+}
+
+.weekly-deposit-progress {
+  position: absolute;
+  top: var(--weekly-progress-top);
+  left: var(--weekly-progress-left);
+  width: var(--weekly-progress-width);
+  z-index: 55;
+}
+
+.weekly-deposit-values {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-family: 'Tektur', sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.weekly-deposit-current {
+  color: #FCD711;
+}
+
+.weekly-deposit-divider,
+.weekly-deposit-target {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.weekly-deposit-coin {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.weekly-deposit-bar {
+  display: flex;
+  width: 542px;
+  height: var(--weekly-progress-height);
+  gap: var(--weekly-progress-gap);
+}
+
+.weekly-deposit-segment {
+  position: relative;
+  flex: 1;
+  min-width: 1px;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--weekly-progress-radius);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.weekly-deposit-segment-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(252, 215, 17, 0.9),
+    rgba(252, 215, 17, 0.5)
+  );
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: opacity 0.25s ease;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --weekly-progress-height: 64px;
+    --weekly-progress-radius: 4px;
+  }
+}
+
+.weekly-deposit-values {
+  position: relative;
+  top: 240px;
+  left: 601px;
+}
+
+.weekly-deposit-bar {
+  position: relative;
+  top: 245px;
+  left: 601px;
+}
+
+
+
+/* ======================================
+   BATTLES PAGE — НАСТРОЙКИ
+====================================== */
+
+:root {
+  /* Общая высота страницы */
+  --battles-page-min-height: 1000px;
+
+  /* Заголовок Upgrade Battle */
+  --battles-title-width: 1165px;
+  --battles-title-height: auto;
+  --battles-title-top: 4px;
+  --battles-title-left: 475px;
+
+  /* Основная панель Battle */
+  --battles-panel-width: 1182px;
+  --battles-panel-height: auto;
+  --battles-panel-top: 58px;
+  --battles-panel-left: 470px;
+}
+
+/* Контейнер страницы */
+.battles-page {
+  position: relative;
+  width: 100%;
+  min-height: var(--battles-page-min-height);
+  overflow: visible;
+}
+
+/* Заголовок */
+.battles-title-image {
+  position: absolute;
+  display: block;
+
+  width: var(--battles-title-width);
+  height: var(--battles-title-height);
+
+  top: var(--battles-title-top);
+  left: var(--battles-title-left);
+
+  object-fit: contain;
+}
+
+/* Основная панель */
+.battles-panel-image {
+  position: absolute;
+  display: block;
+
+  width: var(--battles-panel-width);
+  height: var(--battles-panel-height);
+
+  top: var(--battles-panel-top);
+  left: var(--battles-panel-left);
+
+  object-fit: contain;
+}
+
+
+.page-battles .battles-page {
+  min-height: 860px !important;
+  height: auto !important;
+  padding-bottom: 0 !important;
+}
+
+/* BATTLES — TEMPORARILY UNAVAILABLE */
+
+:root {
+  --battles-message-left: 520px;
+  --battles-message-top: 140px;
+  --battles-message-width: 1050px;
+}
+
+.battles-unavailable {
+  position: absolute;
+  left: var(--battles-message-left);
+  top: var(--battles-message-top);
+  width: var(--battles-message-width);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.battles-unavailable h2 {
+  margin: 0 0 12px;
+  font-family: 'Tektur', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.battles-unavailable p {
+  margin: 0 auto;
+  max-width: 650px;
+  font-family: 'Tektur', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #b8c1d0;
+}
+
+.notifications-header {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+
+/* PROFILE BUTTON */
+.profile-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* PROFILE PAGE */
+.profile-page {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ======================================
+   UPGRADER PAGE
+====================================== */
+
+.upgrader-layout {
+  position: relative;
+  width: 100%;
+  min-height: 900px;
+}
+
+/* Общие настройки изображений */
+
+.upgrader-element {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* КОЛЕСО */
+
+.upgrader-wheel-image {
+  width: 365px;
+  height: 365px;
+  left: 879px;
+  top: 90px;
+}
+
+/* MY SKIN */
+.upgrader-my-skin {
+  width: 597px;
+  height: 597px;
+  left: 464px;
+  top: 539px;
+}
+
+/* SELECT SKIN */
+.upgrader-select-skin {
+  width: 373px;
+  height: 373px;
+  left: 477px;
+  top: 87px;
+}
+
+/* SELECT SKIN FOR UPGRADE */
+.upgrader-select-skin-for-upgrade {
+  width: 373px;
+  height: 373px;
+  left: 1265px;
+  top: 87px;
+}
+
+/* SELECTED SKIN */
+.upgrader-selected-skin {
+  width: 595px;
+  height: 595px;
+  left: 1052px;
+  top: 540px;
+}
+
+/* IMPROVE BUTTON */
+
+.upgrader-improve-button {
+  width: 322px;
+  height: 100px;
+  left: 897px;
+  top: 448px;
+}
+
+
+/* UPGRADER — ПОЗИЦИЯ НИЖНЕЙ ПАНЕЛИ */
+
+.page-upgrader .bottom-section {
+  top: 1265px !important;
+}
+
+:root {
+  --profile-image-width: 1170px;
+  --profile-image-height: auto;
+  --profile-image-top: 90px;
+  --profile-image-left: 473px;
+}
+
+.page-profile .profile-page {
+  position: relative;
+  width: 100%;
+  min-height: 110vh;
+}
+
+.page-profile .profile-reference-image {
+  position: absolute;
+  top: var(--profile-image-top);
+  left: var(--profile-image-left);
+  width: var(--profile-image-width);
+  height: var(--profile-image-height);
+  object-fit: contain;
+}
+
+:root {
+  --profile-vip-width: 1158px;
+  --profile-vip-height: auto;
+  --profile-vip-top: 20px;
+  --profile-vip-left: 477px;
+}
+
+.page-profile .profile-vip-image {
+  position: absolute;
+  top: var(--profile-vip-top);
+  left: var(--profile-vip-left);
+  width: var(--profile-vip-width);
+  height: var(--profile-vip-height);
+  object-fit: contain;
+}
+
+/* PROFILE — ПОЗИЦИЯ НИЖНЕЙ ПАНЕЛИ */
+
+.page-profile .bottom-section {
+  top: 750px !important;
+}
+
+/* ======================================
+   КАТАЛОГ СКИНОВ (вставить В КОНЕЦ App.css)
+   Сетка 5 x 4 = 20 клеток: первая пустая, 19 скинов
+====================================== */
+ 
+.skin-catalog {
+  position: absolute;
+  left: 1064px;          /* по центру блоков Upgrader (477..1647): 477 + (1170 - width) / 2 */
+  top: 617px;          /* под my-skin / selected-skin */
+  width: 565px;         /* ширина сетки: меняй здесь, карточки подстроятся */
+  font-family: 'Exo 2', sans-serif;
+  color: #fff;
+  z-index: 6;
+}
+ 
+.skin-catalog__message {
+  padding: 3rem 0;
+  text-align: center;
+  color: #88888f;
+}
+ 
+.skin-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+ 
+/* Зарезервированная клетка в левом верхнем углу (пустая) */
+.skin-grid__reserved {
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+}
+ 
+.skin-card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  cursor: pointer;
+  background:
+    /* логотип за оружием */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='white' fill-opacity='0.07' d='M28.8 38.8 L49.2 24.6 L69.5 38.8 V52.9 L49.2 38.8 L28.8 52.9 Z M33.4 58.3 L49.2 47.2 L65.4 58.3 V69.4 L49.2 58.3 L33.4 69.4 Z'/%3E%3C/svg%3E")
+            2px 0 / 100% 100% no-repeat,
+    /* свечение цвета редкости */
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--rarity) 29%, transparent),
+      transparent 65%
+    ),
+    /* тёмный фон, углы темнее */
+    #17181c;
+}
+ 
+/* Рамка: яркая в левом верхнем углу, к правому нижнему гаснет */
+.skin-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 1.5px;
+  opacity: 0.7; 
+  border-radius: inherit;
+  pointer-events: none;
+    background: linear-gradient(
+    135deg,
+    var(--rarity) 0%,
+    color-mix(in srgb, var(--rarity) 42%, transparent) 50%,
+    rgba(255, 255, 255, 0.027) 75%,
+    rgba(255, 255, 255, 0.027) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+ 
+/* Лёгкое свечение в центре при наведении (цвет редкости) */
+.skin-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--rarity) 38%, transparent),
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+ 
+.skin-card:hover::before {
+  opacity: 1;
+}
+ 
+/* Цена и износ — справа сверху */
+.skin-card__top {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+ 
+.skin-card__price {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.56rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fcd711;
+  white-space: nowrap;
+}
+ 
+.skin-card__price img {
+  width: 13px;
+  height: 13px;
+}
+ 
+.skin-card__wear {
+  font-size: 0.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #a0a0a8;
+}
+ 
+/* Картинка по центру */
+.skin-card__image {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 76%;
+  height: 76%;
+  object-fit: contain;
+  transform: translate(-50%, -52%);
+  z-index: 1;
+  user-select: none;
+  pointer-events: none;
+}
+ 
+/* Оружие и название — снизу по центру */
+.skin-card__bottom {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+ 
+.skin-card__weapon,
+.skin-card__name {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+ 
+.skin-card__weapon {
+  font-size: 0.375rem;
+  line-height: 1.2;
+  color: #88888f;
+}
+ 
+.skin-card__name {
+  font-size: 0.55rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #fff;
+}
+ 
+/* Стрелки пагинации */
+.catalog-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+ 
+.catalog-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  padding: 0 0.75rem;
+  border: none;
+  border-radius: 0.6rem;
+  background: #ffffff0d;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+ 
+.catalog-arrow:hover:not(:disabled) {
+  background: #ffffff1a;
+}
+ 
+.catalog-arrow:disabled {
+  background: #ffffff05;
+  cursor: default;
+}
+ 
+.catalog-arrow__icon {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+ 
+.catalog-arrow__icon--prev { transform: rotate(90deg); }
+.catalog-arrow__icon--next { transform: rotate(-90deg); }
+ 
+.catalog-arrow:disabled .catalog-arrow__icon {
+  opacity: 0.3;
+}
+ 
+/* Нижняя панель сдвигается под каталог, страница становится выше */
+.page-upgrader .bottom-section {
+  top: 1990px !important;
+}
+ 
+.page-upgrader {
+  min-height: 2700px !important;
+}
+ 
+ 
+/* Кнопка сортировки (как sort-button на оригинале) */
+.skin-sort-button {
+  position: absolute;
+  top: -56px;          /* ← выше/ниже: меньше число, выше */
+  left: 127.5px !important;/* ← левее/правее: больше число, правее */
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 2rem;
+  width: 2rem;
+  padding: 0 0.75rem;
+  border: none;
+  border-radius: 0.625rem;
+  background: #ffffff0d;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+ 
+.skin-sort-button:hover {
+  background: #ffffff1a;
+}
+ 
+.skin-sort-button svg {
+  width: 0.51rem;
+  height: 0.31rem;
+}
+ 
+/* ======================================
+   ФИЛЬТРЫ: цена from/to + поиск по названию (лупа)
+   Размеры подогнаны под вашу кнопку сортировки (2rem)
+====================================== */
+ 
+.skin-filter {
+  position: absolute;
+  top: -56px;          /* ← выше/ниже: как у кнопки сортировки */
+  right: 0;            /* ← левее/правее: больше число, левее */
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 15px;            /* расстояние между полями и лупой */
+  height: 2rem;
+}
+ 
+.skin-filter__group {
+  display: flex;
+  transition: opacity 0.2s;
+}
+ 
+/* когда открыт поиск по названию, from/to прячутся под ним */
+.skin-filter--name-open .skin-filter__group {
+  opacity: 0;
+  pointer-events: none;
+}
+ 
+.skin-filter__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.15rem;
+}
+ 
+.skin-filter__field img {
+  position: absolute;
+  left: 6px;            /* ← правее/левее */
+  width: 20px;          /* ← размер монетки (было 11px) */
+  height: 20px;
+  pointer-events: none;
+}
+ 
+.skin-filter__field input {
+  width: 5.8rem;        /* ← ширина поля (было 5rem) */
+  height: 100%;
+  padding: 0 1.3rem 0 1.4rem;   /* последнее число: место под монетку */
+  border: 1px solid #ffffff1a;
+  background: transparent;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;     /* чуть жирнее, как у оригинала */
+  color: #fff;
+  outline: none;
+  -moz-appearance: textfield;
+}
+ 
+.skin-filter__field input::placeholder {
+  color: #fff;
+  opacity: 0.2;        /* темнее подсказка (было 0.5) */
+}
+ 
+/* убрать крутилки у number */
+.skin-filter__field input::-webkit-outer-spin-button,
+.skin-filter__field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+ 
+.skin-filter__field--from input {
+  border-radius: 0.625rem 0 0 0.625rem;
+}
+ 
+.skin-filter__field--to input {
+  margin-left: -1px;   /* общая граница без удвоения */
+  border-radius: 0 0.625rem 0.625rem 0;
+}
+ 
+/* Поле Name: спрятано под лупой, при открытии растягивается влево.
+   Фон НЕПРОЗРАЧНЫЙ, чтобы картинка «Price» под ним не просвечивала.
+   Если оттенок не совпал с панелью, меняйте #1f2024 */
+.skin-filter__name {
+  position: absolute;
+  top: 1;
+  right: 5px;          /* выровнено по лупе (у лупы left: -5px) */
+  z-index: 2;
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 2.1rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.5rem;
+  background:
+    linear-gradient(#ffffff0d, #ffffff0d),
+    #1f2024;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.65rem;
+  color: #fff;
+  outline: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.2s, opacity 0.2s, padding 0.2s;
+}
+ 
+.skin-filter__name::placeholder {
+  color: #fff;
+  opacity: 0.5;
+}
+ 
+.skin-filter--name-open .skin-filter__name {
+  width:  21.565rem; 
+  padding: 0 2.5rem 0 0.7rem;   /* справа место под лупу */
+  opacity: 1;
+  pointer-events: auto;
+}
+ 
+/* Лупа (всегда поверх поля Name) */
+.skin-filter__search {
+  position: relative;
+  left: -5px;     /* ← больше число, правее; отрицательное, левее (например -6px) */
+  top: 0px;      /* ← больше число, ниже; отрицательное, выше (например -3px) */
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 2rem;
+  width: 2rem;
+  border: none;
+  border-radius: 0.625rem;
+  background:
+    linear-gradient(#ffffff0d, #ffffff0d),
+    #1f2024;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+ 
+.skin-filter__search:hover {
+  background:
+    linear-gradient(#ffffff1a, #ffffff1a),
+    #1f2024;
+}
+ 
+.skin-filter__search img {
+  height: 0.875rem;
+  width: auto;
+}
+ 
+.catalog-pagination {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 450px;          /* ← фиксированное место: больше число, ниже стрелки */
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+
+
+/* ======================================
+   ВЫБРАННЫЙ СКИН — ПЛАВНАЯ ВЕРСИЯ
+   (вставить В САМЫЙ КОНЕЦ App.css, прежний блок «ВЫБРАННЫЙ СКИН» удалить)
+====================================== */
+
+/* Жёлтый фон (перекрывает цветное свечение редкости, логотип остаётся) */
+.skin-card__sel-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;          /* ← скорость появления: больше число, медленнее */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='white' fill-opacity='0.07' d='M28.8 38.8 L49.2 24.6 L69.5 38.8 V52.9 L49.2 38.8 L28.8 52.9 Z M33.4 58.3 L49.2 47.2 L65.4 58.3 V69.4 L49.2 58.3 L33.4 69.4 Z'/%3E%3C/svg%3E")
+      2px 0 / 100% 100% no-repeat,
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(251, 213, 8, 0.38),
+      rgba(251, 213, 8, 0.32) 100%
+    ),
+    #17181c;
+}
+
+/* Сплошная жёлтая рамка */
+.skin-card__sel-border {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: inset 0 0 0 2px #fbd508;     /* ← толщина рамки: 2px */
+  transition: opacity 0.25s ease;
+}
+
+.skin-card--selected .skin-card__sel-bg,
+.skin-card--selected .skin-card__sel-border {
+  opacity: 1;
+}
+
+/* Кружок в центре: плавно появляется и слегка увеличивается */
+.skin-card__mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  width: 26%;                               /* ← размер кружка */
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #fdd807;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.skin-card--selected .skin-card__mark {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Галочка и крестик лежат друг на друге и плавно меняются */
+.skin-card__mark svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 80%;                               /* ← размер галочки и крестика внутри кружка */
+  height: 93%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease;
+}
+
+.skin-card__mark-cross {
+  color: #79797a;
+  opacity: 0;
+}
+
+/* Наведение на выбранную карточку: тёмный кружок с крестиком */
+.skin-card--selected:hover .skin-card__mark {
+  background: #202022;
+}
+
+.skin-card--selected:hover .skin-card__mark-check {
+  opacity: 0;
+}
+
+.skin-card--selected:hover .skin-card__mark-cross {
+  opacity: 1;
+}
+
+
+@keyframes selectedSkinIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.selected-skin-panel {
+  --rarity: #b0c3d9;
+  position: absolute;
+  left: 1265px;
+  top: 101px;
+  width: 373px;
+  height: 345px;
+  box-sizing: border-box;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  z-index: 6;
+  font-family: 'Exo 2', sans-serif;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--rarity) 15%, #19191c) 0%,
+    #19191c 90%
+  );
+  /* animation видалено, тому панель з'являтиметься миттєво */
+}
+
+.selected-skin-panel__weapon {
+  position: absolute;
+  top: 7.5%;
+  left: 12%;
+  right: 12%;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #a1a1a8;
+}
+
+.selected-skin-panel__name {
+  position: absolute;
+  top: 12.5%;
+  left: 8%;
+  right: 8%;
+  font-size: 23.7px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.selected-skin-panel__image {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 76%;
+  height: 76%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  pointer-events: none;
+}
+
+.selected-skin-panel__price {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 19px;
+  font-weight: 600;
+  color: #fcd711;
+}
+
+.selected-skin-panel__price img {
+  width: 22px;
+  height: 22px;
+}
+
+.selected-skin-panel__close {
+  position: absolute;
+  top: 3.5%;
+  right: 3.5%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;          /* ← Збільсь ширину кружка (було 29px) */
+  height: 32px;         /* ← Збільсь висоту кружка (було 29px) */
+  border: none;
+  border-radius: 50%;
+  background: #1f1f20;
+  color: #717177;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.selected-skin-panel__close:hover {
+  background: #36363b;
+  color: #fff;
+}
+
+.selected-skin-panel__close svg {
+  width: 130%;          /* Ставимо більше 100%, щоб він примусово збільшився */
+  height: 130%;
+  transform: scale(1.2); /* Додатково збільшуємо через масштаб */
+}
+
+
+/* ======================================
+   ЛЕВАЯ ПАНЕЛЬ: MY SKINS / SHOP
+   (вставить В САМЫЙ КОНЕЦ App.css)
+====================================== */
+
+.skins-panel {
+  position: absolute;
+  left: 475px;           /* ← левее/правее (видимая часть левой панели) */
+  top: 547px;            /* ← выше/ниже */
+  width: 575px;          /* ← ширина панели */
+  height: 580px;         /* ← высота панели */
+  z-index: 6;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  font-family: 'Exo 2', sans-serif;
+  color: #fff;
+}
+
+/* Когда в My skins пусто, панель прозрачная и видна картинка my-skin.png.
+   В магазине и когда скины есть, панель рисуется сама и закрывает картинку. */
+.skins-panel--solid {
+  background: #17181c;
+}
+
+/* ---------- Шапка ---------- */
+
+.sp-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.skins-panel--solid .sp-header {
+  background: #1e1f23;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* Две вкладки */
+.sp-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #17181c;
+}
+
+.sp-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #6b6c72;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sp-tab svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sp-tab:hover {
+  color: #b5b6bb;
+}
+
+.sp-tab--active,
+.sp-tab--active:hover {
+  background: #fbd506;
+  color: #17181c;
+}
+
+.sp-title {
+  margin-right: 2px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Прижать к правому краю (сортировка в My skins) */
+.sp-push {
+  margin-left: auto;
+}
+
+/* Кнопка сортировки */
+.sp-sort {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #292a2e;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sp-sort:hover {
+  background: #323338;
+}
+
+.sp-total {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 13px 0 12px;
+  border-radius: 10px;
+  background: #292a2e;
+  font-size: 0.75rem;      /* ← размер текста: было 0.8125rem */
+  white-space: nowrap;
+}
+
+.sp-total span {
+  color: #8d8e94;
+  font-weight: 500;        /* ← было 600 */
+}
+
+.sp-total b {
+  margin-right: -3px;      /* значение ближе к монетке */
+  color: #fff;
+  font-weight: 600;
+}
+
+.sp-total img {
+  width: 18px;             /* ← было 18px */
+  height: 18px;
+}
+
+/* ---------- Фильтры магазина ---------- */
+
+.sp-filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+}
+
+.sp-price {
+  display: flex;
+  align-items: center;
+  width: 110px;
+  height: 38px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid #ffffff1a;
+  border-radius: 10px;
+  color: #ffffff66;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.sp-range {
+  display: flex;
+  transition: opacity 0.2s;
+}
+
+/* когда открыт поиск по названию, Price и from/to прячутся под ним */
+.sp-filter--open .sp-price,
+.sp-filter--open .sp-range {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sp-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.sp-field img {
+  position: absolute;
+  left: 8px;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.sp-field input {
+  width: 85px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 8px 0 32px;
+  border: 1px solid #ffffff1a;
+  background: transparent;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.sp-field input::placeholder {
+  color: #fff;
+  opacity: 0.25;
+}
+
+.sp-field input::-webkit-outer-spin-button,
+.sp-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sp-field--from input {
+  border-radius: 10px 0 0 10px;
+}
+
+.sp-field--to input {
+  margin-left: -1px;
+  border-radius: 0 10px 10px 0;
+}
+
+/* Поле Name: спрятано под лупой, при открытии растягивается влево.
+   Фон непрозрачный, чтобы Price и from/to под ним не просвечивали. */
+.sp-name {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 38px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #292a2e;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.8125rem;
+  color: #fff;
+  outline: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.2s, opacity 0.2s, padding 0.2s;
+}
+
+.sp-name::placeholder {
+  color: #fff;
+  opacity: 0.5;
+}
+
+.sp-filter--open .sp-name {
+  width: 100%;
+  padding: 0 46px 0 14px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sp-search {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #292a2e;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sp-search:hover {
+  background: #323338;
+}
+
+.sp-search img {
+  height: 16px;
+  width: auto;
+}
+
+/* Корзина в шапке (жёлтая) */
+.sp-cart-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fbd506;
+  color: #17181c;
+}
+
+.sp-cart-btn svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Значок с количеством */
+.sp-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 2px solid #1e1f23;
+  border-radius: 9px;
+  background: #fbd506;
+  color: #17181c;
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ---------- Сетка карточек ---------- */
+
+.sp-grid {
+  position: absolute;
+  left: 6px;
+  top: 70px;             /* ← ряды карточек выше/ниже */
+  width: 563px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+/* Карточка купленного скина: без клика */
+.sp-tile--static {
+  cursor: default;
+}
+
+.sp-empty {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem;                       /* rounded-md */
+  background-color: #17181c;
+  background-image: url('https://s3.upgrader.pro/cdn/fa/item-shadow/usp.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 60%;                     /* высота картинки: клетка минус по 18px сверху и снизу */
+  box-shadow: 0 0 4px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Количество в карточке магазина: ( − ) 1 ( + ) */
+.sp-qty {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 26px;
+  padding: 0 3px;
+  border-radius: 13px;
+  background: #fbd506;
+  cursor: default;
+}
+
+.sp-qty button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #17181c;
+  color: #fbd506;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.sp-qty button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.sp-qty button svg {
+  width: 12px;
+  height: 12px;
+}
+
+.sp-qty span {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #17181c;
+}
+
+/* ---------- Нижняя строка: стрелки, корзина, покупка ---------- */
+
+.sp-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 528px;            /* ← ниже/выше */
+  height: 38px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* когда в корзине есть скины, стрелки уезжают влево */
+.sp-bottom--cart {
+  justify-content: space-between;
+}
+
+.sp-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.sp-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff0d;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sp-arrow:hover:not(:disabled) {
+  background: #ffffff1a;
+}
+
+.sp-arrow:disabled {
+  background: #ffffff05;
+  cursor: default;
+}
+
+.sp-arrow__icon {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.sp-arrow__icon--prev { transform: rotate(90deg); }
+.sp-arrow__icon--next { transform: rotate(-90deg); }
+
+.sp-arrow:disabled .sp-arrow__icon {
+  opacity: 0.3;
+}
+
+.sp-cart-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-trash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #1e1f23;
+  color: #8b8c91;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sp-trash:hover {
+  background: #292a2e;
+  color: #fff;
+}
+
+.sp-trash svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Жёлтая кнопка покупки: ( монета ) 3,28 ( корзина ) */
+.sp-buy {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 10px;
+  background: #fbd506;
+  color: #17181c;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sp-buy svg {
+  width: 19px;
+  height: 19px;
+}
+
+.sp-buy__coin {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0);   /* тёмная монетка на жёлтой кнопке */
+}
+
+.sp-buy .sp-badge {
+  border-color: #17181c;
+}
+
+/* не хватило денег: кнопка трясётся */
+@keyframes spShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.sp-buy--fail {
+  animation: spShake 0.4s ease;
+}
+
+/* ---------- Сообщение и пустое состояние ---------- */
+
+.sp-message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 230px;
+  padding: 0 24px;
+  text-align: center;
+  color: #88888f;
+}
+
+/* Невидимая кнопка поверх кнопки «Shop», нарисованной в my-skin.png */
+.sp-empty-shop {
+  position: absolute;
+  left: 238px;           /* ← левее/правее */
+  top: 318px;            /* ← выше/ниже */
+  width: 100px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+
+.sp-tab svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* нож — увеличить */
+.sp-tab:nth-child(1) svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* домик — уменьшить */
+.sp-tab:nth-child(2) svg {
+  width: 14px;
+  height: 15px;
+}
+
+.sp-tab:nth-child(2) {
+  color: #9a9ba1;
+}
+
+.sp-tabs {
+  position: relative;
+  left: 2px;        /* больше число, правее; отрицательное, левее */
+}
+
+.sp-tab:nth-child(2).sp-tab--active,
+.sp-tab:nth-child(2).sp-tab--active:hover {
+  color: #17181c;
+}
+
+.sp-field input {
+  font-size: 0.70rem;   /* было 0.75rem */
+}
+
+.sp-field input {
+  padding: 0 8px 0 26px;   /* было 0 8px 0 32px */
+}
+
+.sp-field img {
+  transform: translateY(1px);   /* больше число, ниже */
+}
+
+.sp-price {
+  font-size: 0.680rem;    /* было 0.8125rem */
+}
+
+.sp-sort svg {
+  width: 8px;
+  height: 8px;
+}
+
+.sp-sort {
+  gap: 1px;     /* было 3-4px, меньше число, ближе друг к другу */
+}
+
+.sp-total {
+  height: 32px;             /* было 38px */
+  padding: 0 10px 0 10px;   /* было 0 13px 0 12px */
+  gap: 6px;                 /* было 8px */
+  font-size: 0.68rem;       /* было 0.75rem */
+  border-radius: 8px;       /* можно меньше, как ты делал раньше */
+}
+
+.sp-total img {
+  width: 14px;              /* было 18px */
+  height: 14px;
+}
+
+.sp-total b {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.sp-total {
+  height: 38px;      /* выше плашка, подбирай: 36-42px */
+}
+
+.sp-total img {
+  width: 20px;       /* было 14px, подбирай: 18-22px */
+  height: 20px;
+}
+
+.sp-total {
+  padding: 0 8px 0 10px;   /* было 0 10px, меньше число, уже плашка */
+  gap: 5px;                /* было 6px */
+}
+
+.sp-total {
+  border-radius: 10px;   /* подбирай: 12-20px */
+}
+
+.sp-total b {
+  font-size: 0.675rem;
+  font-weight: 550;
+}
+
+.sp-cart-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;                 /* 2.375rem */
+  height: 38px;
+  border: none;
+  border-radius: 10px;         /* 0.625rem */
+  background: #fedb1c;
+  transition: background-color 0.2s;
+}
+
+.sp-cart-btn:hover {
+  background: #fcd500;
+}
+
+.sp-cart-btn img {
+  width: 16px;                 /* h-4 w-4 */
+  height: 16px;
+}
+
+.sp-badge {
+  position: absolute;
+  top: -5.6px;                 /* -0.35rem */
+  right: -5.6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 18px;                 /* 1.125rem */
+  height: 18px;
+  min-width: 0;
+  padding: 0;
+  border: 3px solid #1e1f23;
+  border-radius: 50%;
+  background: linear-gradient(93deg, #fbd506 1.16%, #ffdd23 50.58%, #fbd506 100%);
+  color: #000;
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 10px;
+}
+
+.sp-cart-btn .sp-badge {
+  width: 15px;          /* было 18px */
+  height: 15px;
+  border-width: 2px;    /* было 3px, тоньше тёмная рамка */
+  font-size: 0.55rem;   /* было 0.625rem, меньше цифра */
+  line-height: 1;
+  top: -5px;            /* положение относительно угла */
+  right: -5px;
+}
+
+.sp-name {
+  font-size: 0.654rem;    /* было 0.8125rem */
+}
+
+.sp-name::placeholder {
+  color: #fff;
+  opacity: 0.3;     /* было 0.5, меньше число, темнее */
+}
+
+/* ======================================
+   ТОЛЬКО SHOP (карточки с классом sp-shop-tile)
+====================================== */
+
+/* Меньший шрифт цены и износа */
+.sp-shop-tile .skin-card__price {
+  font-size: 0.5rem;
+}
+
+.sp-shop-tile .skin-card__price img {
+  width: 11px;
+  height: 11px;
+}
+
+.sp-shop-tile .skin-card__wear {
+  font-size: 0.45rem;
+}
+
+
+
+/* Плашка с количеством: спрятана под карточкой */
+.sp-shop-tile .sp-qty {
+  opacity: 0;
+  transform: translateY(150%);
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* При выборе выезжает снизу, при отмене уезжает обратно вниз */
+.sp-shop-tile .sp-qty--show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Название оружия плавно прячется, пока видна плашка */
+.sp-shop-tile .skin-card__bottom {
+  transition: opacity 0.2s ease;
+}
+
+.sp-shop-tile.skin-card--selected .skin-card__bottom {
+  opacity: 0;
+}
+
+.sp-shop-tile .skin-card__sel-bg {
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    rgba(255, 221, 20, 0.75) 0%,
+    rgba(255, 221, 20, 0.52) 30%,
+    rgba(255, 221, 20, 0.26) 60%,
+    rgba(255, 221, 20, 0.07) 85%,
+    rgba(255, 221, 20, 0) 100%
+  );
+}
+
+.sp-shop-tile .sp-qty span {
+  font-size: 0.78rem;    /* было 0.75rem */
+  font-weight: 600;      /* было 800 */
+}
+
+.sp-shop-tile .sp-qty {
+  left: 8px;       /* было 6px, больше число, плашка уже */
+  right: 8px;      /* было 6px */
+  bottom: 7px;     /* было 6px, больше число, плашка выше */
+}
+
+.sp-shop-tile .sp-qty {
+  transition: transform 0.2s ease, opacity 0.2s ease;   /* было 0.3s */
+}
+
+/* Правая карточка: ровная жёлтая заливка поверх скина, без градиента */
+.skin-card:not(.sp-shop-tile) .skin-card__sel-border {
+  background: rgba(255, 220, 20, 0.144);
+}
+
+
+
+/* ======================================
+   SHOP: нижняя строка с анимацией
+   Стрелки уезжают влево, корзина и цена выезжают от центра вправо
+====================================== */
+
+.sp-bottom--shop {
+  display: block;
+}
+
+/* Стрелки: по центру, при выборе скина плавно переезжают влево */
+.sp-bottom--shop .sp-arrows-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: left 0.35s ease, transform 0.35s ease;
+}
+
+.sp-bottom--shop.sp-bottom--cart .sp-arrows-wrap {
+  left: 14px;
+  transform: translateX(0);
+}
+
+/* Корзина и цена: спрятаны, смещены влево (ближе к центру) */
+.sp-bottom--shop .sp-cart-actions {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-70px);
+  transition:
+    transform 0.35s ease,
+    opacity 0.3s ease,
+    visibility 0s linear 0.35s;   /* скрываем после окончания анимации */
+}
+
+/* Выбран скин: выезжают вправо на своё место */
+.sp-bottom--shop.sp-bottom--cart .sp-cart-actions {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition:
+    transform 0.35s ease,
+    opacity 0.3s ease,
+    visibility 0s;
+}
+
+/* Кнопка очистки корзины */
+.sp-trash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff0d;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sp-trash:hover {
+  background: #ffffff1a;
+}
+
+.sp-trash img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Кнопка покупки */
+.sp-buy {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(93deg, #fbd506 1.16%, #ffdd23 50.58%, #fbd506 100%);
+  color: #000;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+
+.sp-buy__price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.sp-buy__price img,
+.sp-buy__shop {
+  width: 16px;
+  height: 16px;
+  filter: none;            /* убираем старое затемнение монетки */
+}
+
+.sp-buy__amount {
+  font-family: 'Tektur', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: normal;
+  color: #000;
+}
+
+/* Значок с количеством на кнопке покупки */
+.sp-buy .sp-badge {
+  top: -5.6px;
+  right: -5.6px;
+  width: 18px;
+  height: 18px;
+  min-width: 0;
+  padding: 0;
+  border: 3px solid #1e1f23;
+  border-radius: 50%;
+  background: linear-gradient(93deg, #fbd506 1.16%, #ffdd23 50.58%, #fbd506 100%);
+  color: #000;
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 10px;
+}
+
+.sp-buy__amount {
+  font-size: 0.78rem;   /* было 0.875rem */
+}
+
+.sp-trash img {
+  width: 14px;     /* было 20px */
+  height: 14px;
+}
+
+.sp-shop-tile .skin-card__price {
+  font-size: 0.56rem;
+}
+
+.sp-shop-tile .skin-card__price img {
+  width: 13px;
+  height: 13px;
+}
+
+.sp-shop-tile .skin-card__wear {
+  font-size: 0.5rem;
+}
+
+/* ======================================
+   ВЫБРАНО 2-6 СКИНОВ (левая верхняя панель)
+====================================== */
+
+.multi-panel {
+  position: absolute;
+  width: 373px;
+  height: 345px;
+  box-sizing: border-box;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  z-index: 6;
+  font-family: 'Exo 2', sans-serif;
+  color: #fff;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(252, 215, 17, 0.1), transparent 60%),
+    #19191c;
+}
+
+/* Область под карточки: всё, кроме строки с суммой */
+.multi-panel__grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 56px;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 112px);   /* ширина карточки */
+  grid-auto-rows: 112px;                               /* высота карточки */
+  gap: 6px;
+  justify-content: center;
+  align-content: center;
+}
+
+.multi-panel__card {
+  cursor: pointer;
+}
+
+/* Сумма снизу по центру */
+.multi-panel__total {
+  bottom: 14px;
+}
+
+.multi-panel__grid {
+  bottom: 4px;    /* было 56px, меньше число, карточки ниже и ближе к сумме */
+}
+
+.multi-panel__total {
+  bottom: 25px;    /* было 14px, больше число, сумма выше */
+}
+
+.multi-panel__grid {
+  grid-template-columns: repeat(var(--cols), 116px);   /* ширина, было 112px */
+  grid-auto-rows: 116px;                               /* высота, было 112px */
+}
+
+.multi-panel .multi-panel__total {
+  font-family: 'Tektur', sans-serif;
+}
+
+.multi-panel__grid {
+  justify-content: start;   /* было center, карточки слева */
+  padding-left: 12px;       /* отступ от левого края панели */
+}
+
+/* ======================================
+   BALANCE AMOUNT (под выбранными скинами)
+====================================== */
+
+.balance-block {
+  position: absolute;
+  width: 373px;
+  box-sizing: border-box;
+  padding: 10px 14px 12px;
+  border-radius: 0.4rem;
+  background: #19191c;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  z-index: 6;
+  font-family: 'Exo 2', sans-serif;
+}
+
+.balance-block__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.balance-block__label {
+  color: #88888f;
+  font-size: 0.75rem;
+}
+
+.balance-block__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-block__value {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #fcd711;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.balance-block__value img {
+  width: 12px;
+  height: 12px;
+}
+
+.balance-block__max {
+  color: #88888f;
+  font-size: 0.625rem;
+}
+
+/* Ползунок */
+.custom-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    #fbd506 var(--range-progress, 0%),
+    rgba(255, 255, 255, 0.14) var(--range-progress, 0%)
+  );
+}
+
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: #fbd506;
+  cursor: pointer;
+}
+
+.custom-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: #fbd506;
+  cursor: pointer;
+}
+
+/* Клетка Bet в сетке */
+.multi-panel__bet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.4rem;
+  background: #17181c;
+}
+
+.multi-panel__bet-title {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.multi-panel__bet-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fcd711;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.multi-panel__bet-value img {
+  width: 14px;
+  height: 14px;
+}
+
+/* Блок без выбранных скинов: затемнён, ничего нельзя трогать */
+.balance-block {
+  transition: opacity 0.25s ease;
+}
+
+.balance-block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.5);       /* сила затемнения: больше число, темнее */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.balance-block--disabled {
+  pointer-events: none;                 /* ничего нельзя нажать */
+}
+
+.balance-block--disabled::after {
+  opacity: 1;
+}
+
+.custom-range:disabled {
+  cursor: default;
+}
+
+/* ======================================
+   BALANCE AMOUNT — как на оригинале
+====================================== */
+
+.balance-block {
+  position: absolute;
+  width: 373px;
+  box-sizing: border-box;
+  padding: 8px 12px 10px;
+  border-radius: 6px;
+  background: #1c1c1f;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  z-index: 6;
+  font-family: 'Exo 2', sans-serif;
+}
+
+.balance-block__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.balance-block__label {
+  color: #88888f;
+  font-size: 0.75rem;
+}
+
+.balance-block__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-block__value {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #fcd711;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.balance-block__value img {
+  width: 12px;
+  height: 12px;
+}
+
+.balance-block__max {
+  color: #88888f;
+  font-size: 0.625rem;
+}
+
+/* Без скинов: панель на месте, содержимое тусклое, трогать нельзя */
+.balance-block__row,
+.custom-range {
+  transition: opacity 0.25s ease;
+}
+
+.balance-block--disabled {
+  pointer-events: none;
+}
+
+.balance-block--disabled .balance-block__row,
+.balance-block--disabled .custom-range {
+  opacity: 0.5;
+}
+
+/* Ползунок */
+.custom-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 16px;                 /* область нажатия под кружок */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+.custom-range:disabled {
+  cursor: default;
+}
+
+/* Линия (Chrome, Edge, Safari) */
+.custom-range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    #fbd506 var(--range-progress, 0%),
+    rgba(255, 255, 255, 0.22) var(--range-progress, 0%)
+  );
+}
+
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;             /* центрирует кружок на линии: (2 - 16) / 2 */
+  border: none;
+  border-radius: 50%;
+  background: #fdd807;
+  cursor: pointer;
+}
+
+/* Firefox */
+.custom-range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.custom-range::-moz-range-progress {
+  height: 2px;
+  border-radius: 2px;
+  background: #fbd506;
+}
+
+.custom-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: #fdd807;
+  cursor: pointer;
+}
+
+/* Панель ниже по высоте */
+.balance-block {
+  padding: 6px 12px 6px;       /* было 8px 12px 10px, меньше число, ниже панель */
+}
+
+.balance-block__row {
+  margin-bottom: 3px;          /* было 8px, ближе к ползунку */
+}
+
+/* Число меньше, монетка больше */
+.balance-block__value {
+  font-size: 0.78rem;          /* было 0.875rem */
+  gap: 3px;
+}
+
+.balance-block__value img {
+  width: 15px;                 /* было 12px */
+  height: 15px;
+}
+
+/* Панель ещё ниже */
+.balance-block {
+  padding: 3px 12px 4px;
+}
+
+.balance-block__row {
+  margin-bottom: 0;
+}
+
+/* Надпись и число поменьше */
+.balance-block__label {
+  font-size: 0.68rem;
+}
+
+.balance-block__value {
+  font-size: 0.72rem;
+}
+
+/* (max ...) меньше */
+.balance-block__max {
+  font-size: 0.55rem;
+}
+
+/* Ползунок ниже, чтобы панель была компактнее */
+.custom-range {
+  height: 14px;
+}
+
+.custom-range::-webkit-slider-thumb {
+  margin-top: -6px;            /* для кружка 14px: (2 - 14) / 2 */
+  width: 14px;
+  height: 14px;
+}
+
+.balance-block__label {
+  font-size: 0.65rem;    /* было 0.66rem, меньше число, мельче текст */
+}
+
+.custom-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+}
+
+.balance-block {
+  top: 467px !important;
+}
+
+.balance-block {
+  padding: 6px 12px 5px;   /* сверху, по бокам, снизу */
+}
+
+.balance-block__value img {
+  width: 16px;      /* было 15px, подбирай 16-20px */
+  height: 16px;
+}
+
+.balance-block__value {
+  gap: 1px;      /* расстояние между цифрой и монеткой, было 3px */
+}
+
+/* Линия ползунка: тонкая светло-серая обводка всегда */
+input.custom-range::-webkit-slider-runnable-track {
+  box-sizing: border-box;
+  height: 4px;
+  border: 1px solid rgba(255, 246, 168, 0.45);   /* цвет и толщина обводки */
+  border-radius: 4px;
+}
+
+input.custom-range::-moz-range-track {
+  box-sizing: border-box;
+  height: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 4px;
+  background: transparent;
+}
+
+input.custom-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 4px;
+  background: #fbd506;
+}
+
+.balance-block::after {
+  background: rgba(0, 0, 0, 0.281);   /* было 0.5 */
+}
+
+.balance-block {
+  background: #19191b;    /* цвет панели */
+}
+
+input.custom-range::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;
+}
+
+input.custom-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+}
+
+.balance-block__label {
+  color: #b5b6bb;
+}
+
+.multi-panel__bet {
+  gap: 10px;
+}
+
+.multi-panel__bet-title {
+  color: #fff;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.multi-panel__bet-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;                         /* белое число */
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.multi-panel__bet-value img {
+  width: 14px;
+  height: 14px;
+}
+
+.multi-panel__bet-value {
+  padding: 5px 8px;      /* было 6px 12px, меньше число, уже плашка */
+  font-size: 0.72rem;    /* было 0.8rem, мельче число */
+  gap: 4px;
+}
+
+.multi-panel__bet-value img {
+  width: 13px;
+  height: 13px;
+}
+
+/* Надпись Bet: меньше и ближе к плашке */
+.multi-panel__bet {
+  gap: 3px;                              /* расстояние между Bet и плашкой, было 10px */
+}
+
+.multi-panel__bet-title {
+  font-size: 0.8rem;                     /* было 0.95rem */
+}
+
+/* Плашка: ниже, темнее внутри, обводка со свечением */
+.multi-panel__bet-value {
+  padding: 0.5px 7px;                      /* меньше число, ниже плашка */
+  background: rgba(24, 24, 24, 0.35);       /* тёмный фон внутри, больше число, темнее */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.18);   /* внешнее свечение обводки */
+}
+
+/* Монетка крупнее */
+.multi-panel__bet-value img {
+  width: 18px;                           /* было 13-14px */
+  height: 18px;
+}
+
+.multi-panel__bet-value {
+  border-radius: 6px;    /* было 8px, меньше число, меньше скругление */
+}
+
+.multi-panel__bet-value {
+  transform: translateY(-4px);    /* больше минус, выше; положительное, ниже */
+}
+
+.multi-panel__grid {
+  padding-left: 6px;    /* было 12px, меньше число, карточки левее */
+}
+
+.upgrader-wheel {
+  position: absolute;
+  left: 879px;
+  top: 90px;
+  width: 365px;
+  height: 365px;
+}
+.upgrader-wheel__bg,
+.upgrader-wheel__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+.upgrader-wheel__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.upgrader-wheel__percent {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(to bottom, #ffe02d, #53db42);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.upgrader-wheel__label {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px;
+  background: linear-gradient(to bottom, #ffe02d, #53db42);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Плавное появление самого блока колеса без дерганий */
+.upgrader-wheel {
+  position: relative;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Отключаем любые корявые transition у путей, чтобы геометрия пересчитывалась чисто и мгновенно без выгибания */
+.upgrader-wheel path {
+  transition: none;
+}
+
+.fast-amount-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 420px;
+  margin: 16px auto 0 auto;
+}
+
+.fast-amount-btn {
+  flex: 1;
+  height: 38px;
+  background: #17181c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transform: skewX(-6deg);
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fast-amount-btn span,
+.fast-amount-icon {
+  transform: skewX(6deg);
+}
+
+.fast-amount-btn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(251, 213, 6, 0.15);
+}
+
+.fast-amount-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.fast-amount-btn--red {
+  border-color: rgba(232, 83, 43, 0.6);
+}
+.fast-amount-btn--red:hover:not(:disabled) {
+  border-color: rgba(232, 83, 43, 1);
+  background: rgba(232, 83, 43, 0.15);
+}
+
+.fast-amount-btn--yellow {
+  border-color: rgba(232, 212, 20, 0.6);
+}
+.fast-amount-btn--yellow:hover:not(:disabled) {
+  border-color: rgba(232, 212, 20, 1);
+  background: rgba(232, 212, 20, 0.15);
+}
+
+.fast-amount-btn--green {
+  border-color: rgba(47, 220, 18, 0.6);
+}
+.fast-amount-btn--green:hover:not(:disabled) {
+  border-color: rgba(47, 220, 18, 1);
+  background: rgba(47, 220, 18, 0.15);
+}
+
+.fast-amount-btn--settings {
+  background: linear-gradient(270deg, #17181c 0%, rgba(23, 24, 28, 0.4) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.fast-amount-btn--settings:hover {
+  background: rgba(251, 213, 6, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.fast-amount-icon {
+  width: 16px;
+  height: 16px;
+  fill: #a1a5b7;
+  transition: fill 0.2s ease;
+}
+
+.fast-amount-btn--settings:hover .fast-amount-icon {
+  fill: #fff;
+}
+
+.fast-amount-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 420px;
+  margin: 16px auto 0 auto;
+}
+
+/* Фикс позиционирования панели быстрых кнопок в upgrader-layout */
+.upgrader-layout .fast-amount-bar {
+  position: absolute;
+  /* Подгони значения top и left под точное место под колесом на твоем макете */
+  top: 480px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  z-index: 20;
+}
+
+.fast-bar-btn {
+  flex: 1;
+  height: 38px;
+  background: #17181c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer !important; /* Принудительно меняем курсор на палец */
+  pointer-events: auto !important; /* Разрешаем клики */
+  transform: skewX(-6deg);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.upgrader-wheel {
+  position: relative; /* Обязательно, чтобы дочерние элементы привязались к колесу */
+}
+
+.wheel-label {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+  color: #88888f;
+  pointer-events: none; /* Чтобы текст не мешал кликам */
+}
+
+/* Точные позиции (если нужно, просто меняй значения в % или px) */
+.wheel-label--top {
+  top: 40px;
+  left: 49.1%;
+  transform: translateX(-50%);
+}
+
+.wheel-label--bottom {
+  bottom: 36px;
+  left: 49.5%;
+  transform: translateX(-50%);
+}
+
+.wheel-label--left {
+  top: 50%;
+  left: 35px;
+  transform: translateY(-50%);
+}
+
+.wheel-label--right {
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+/* (max ...) меньше */
+.balance-block__max {
+  font-size: 0.55rem;
+  color: #a7a7af;
+}
+

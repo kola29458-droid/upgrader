@@ -1,0 +1,53 @@
+/* Стрелка колеса и результат крутки */
+
+/* Стрелка: слой на всё колесо, вращается вокруг центра (точка вращения задаётся в UpgraderWheel.tsx) */
+.upgrader-wheel__arrow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.upgrader-wheel__arrow img {
+  position: absolute;
+  display: block;
+  width: 26px;
+  height: 54px;
+  max-width: none;
+  user-select: none;
+}
+
+/* Результат: проигрыш */
+.upgrader-wheel__result {
+  animation: wheel-result-in 300ms ease-out both;
+}
+
+@keyframes wheel-result-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+.upgrader-wheel__lose {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 36px;            /* размер NO PROBLEM */
+  font-weight: 700;
+  line-height: 1.08;
+  text-align: center;
+  background: linear-gradient(to bottom, #ff6b6b, #ffc9c9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.upgrader-wheel__lose-sub {
+  margin-top: 2px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px;
+  color: #e9dede;
+}
+
+/* Результат: победа (подпись Upgrade successful!) */
+.upgrader-wheel__label--win {
+  background: none;
+  color: #6fd53a;
+}

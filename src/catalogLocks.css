@@ -1,0 +1,72 @@
+/* Заблокированные скины в каталоге Select skin (цель вне допустимого шанса).
+   Внешний вид настраивается переменными ниже. */
+.skin-card.skin-card--locked {
+  --lock-size: 20px;                      /* размер замка (на широких экранах 36px, см. в конце файла) */
+  --lock-color: #a0a0a0;                  /* цвет замка (серый) */
+  --locked-image-opacity: 0.7;            /* прозрачность картинки скина */
+  --locked-image-brightness: 0.42;        /* яркость картинки (меньше = темнее) */
+  --locked-bg-dim: 0;                     /* доп. затемнение фона карточки (0 = нет, 1 = чёрный) */
+  --locked-text-opacity: 0.4;             /* прозрачность цены и названия */
+  --locked-glow: 10%;                     /* слабое свечение цвета редкости (0% = нет) */
+  --locked-frame-opacity: 0.3;            /* яркость рамки карточки */
+
+  cursor: not-allowed;
+
+  /* Слабое свечение цвета редкости, логотип и тёмный фон */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='white' fill-opacity='0.07' d='M28.8 38.8 L49.2 24.6 L69.5 38.8 V52.9 L49.2 38.8 L28.8 52.9 Z M33.4 58.3 L49.2 47.2 L65.4 58.3 V69.4 L49.2 58.3 L33.4 69.4 Z'/%3E%3C/svg%3E")
+      2px 0 / 100% 100% no-repeat,
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--rarity) var(--locked-glow), transparent),
+      transparent 75%
+    ),
+    #17181c;
+}
+
+/* Скин сохраняет свои цвета, просто притемнён */
+.skin-card.skin-card--locked .skin-card__image {
+  filter: brightness(var(--locked-image-brightness));
+  opacity: var(--locked-image-opacity);
+}
+
+.skin-card.skin-card--locked .skin-card__top,
+.skin-card.skin-card--locked .skin-card__bottom {
+  opacity: var(--locked-text-opacity);
+}
+
+.skin-card.skin-card--locked::after {
+  opacity: var(--locked-frame-opacity);
+}
+
+/* Затемнение фона карточки (логотип и свечение редкости) */
+.skin-card.skin-card--locked::before,
+.skin-card.skin-card--locked:hover::before {
+  opacity: 1;
+  background: rgba(0, 0, 0, var(--locked-bg-dim));
+}
+
+.skin-card__lock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  width: var(--lock-size);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  color: var(--lock-color);
+  pointer-events: none;
+}
+
+.skin-card__lock svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* На широких экранах замок крупнее */
+@media (min-width: 1024px) {
+  .skin-card.skin-card--locked {
+    --lock-size: 28px;
+  }
+}
