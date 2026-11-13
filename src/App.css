@@ -4669,3 +4669,18 @@ input.custom-range::-moz-range-thumb {
   color: #a7a7af;
 }
 
+/* FIX: убрать лишнюю ширину на телефоне в горизонтальном режиме */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-width: 0 !important;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    margin: 0;
+  }
+}
