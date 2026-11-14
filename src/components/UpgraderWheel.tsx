@@ -1,6 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import '../wheelLabels.css'
 import '../upgradeSpin.css'
+import { SPIN_PROFILES, makeProgress } from '../spinProfiles'
+import { playSound } from '../sound'
+
+const TICK_STEP = 45         // тик каждые 45° (8 щелчков на оборот, как в образце)
+const TICK_MIN_GAP = 80     // не чаще одного тика за 80 мс, чтобы на пике скорости не было гула
 
 const SIZE = 365
 const C = SIZE / 2
@@ -16,15 +21,18 @@ const OFFSET_Y = 1
 // Стрелка: вращается вокруг центра колеса
 const PIVOT_X = C + OFFSET_X + 0.5   // центр колеса по горизонтали
 const PIVOT_Y = C + OFFSET_Y         // центр колеса по вертикали
-const ARROW_TIP_R = 116              // расстояние от центра до кончика стрелки (внутренний край дуги)
-const ARROW_IMG_TIP_Y = 6            // где в картинке кончик стрелки (сверху, px)
-const ARROW_IMG_CENTER_X = 12        // где в картинке середина стрелки (слева, px)
-const SPIN_EASING = 'cubic-bezier(0.12, 0.55, 0.12, 1)' // быстрый разгон и долгое замедление
+const ARROW_SCALE_X = 1.1            // ширина стрелки (1 = как в картинке, больше = шире)
+const ARROW_SCALE_Y = 0.97            // высота стрелки (меньше = ниже)
+const ARROW_IMG_W = 26 * ARROW_SCALE_X
+const ARROW_IMG_H = 54 * ARROW_SCALE_Y
+const ARROW_TIP_R = 121              // расстояние от центра до кончика стрелки (хвост у тонкого кольца)
+const ARROW_IMG_TIP_Y = 6 * ARROW_SCALE_Y      // где в картинке кончик стрелки (сверху, px)
+const ARROW_IMG_CENTER_X = 12 * ARROW_SCALE_X  // где в картинке середина стрелки (слева, px)
 
 type Props = {
   chance: number
   active: boolean
-  spin?: { id: number; angle: number; duration: number } | null // крутка: угол (градусы) и время (мс)
+  spin?: { id: number; angle: number; duration: number; delay: number; fast: boolean } | null // крутка: угол (градусы), время и пауза перед стартом (мс)
   result?: 'win' | 'lose' | null                                // что показать в центре после крутки
 }
 
@@ -43,7 +51,7 @@ function arcPath(r: number, chance: number) {
     return `M ${C - r} ${C} A ${r} ${r} 0 1 0 ${C + r} ${C} A ${r} ${r} 0 1 0 ${C - r} ${C}`
   }
 
-  const angleDeg = (clamped / 100) * 180
+  const angleDeg = (clamped / 100) * 172
   const angleRad = (angleDeg * Math.PI) / 180
 
   const xLeft = C - r * Math.sin(angleRad)
@@ -51,7 +59,7 @@ function arcPath(r: number, chance: number) {
   const xRight = C + r * Math.sin(angleRad)
   const yRight = C + r * Math.cos(angleRad)
 
-  const largeArc = clamped > 50 ? 1 : 0
+ const largeArc = angleDeg > 90 ? 1 : 0
 
   return `M ${xLeft} ${yLeft} A ${r} ${r} 0 ${largeArc} 0 ${xRight} ${yRight}`
 }
@@ -110,36 +118,67 @@ export default function UpgraderWheel({ chance, active, spin = null, result = nu
     }
   }, [targetChance])
 
-  // Стрелка: стоит внизу, при крутке делает обороты по часовой стрелке
-  const [arrow, setArrow] = useState({ angle: 0, ms: 0 })
-  const arrowRef = useRef(arrow)
-  arrowRef.current = arrow
+  // Стрелка: стоит внизу, при крутке делает обороты по часовой стрелке.
+  // Скорость повторяет профиль из видео-образца (см. spinProfiles.ts): резкий разгон и долгое плавное торможение.
+  const arrowRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    let raf = 0
-    let timer = 0
+    const element = arrowRef.current
+    if (!element) return
 
-    if (spin) {
-      // старт снизу без анимации, затем разгон до нужного угла
-      setArrow({ angle: 0, ms: 0 })
-      raf = requestAnimationFrame(() => {
-        raf = requestAnimationFrame(() => setArrow({ angle: spin.angle, ms: spin.duration }))
-      })
-    } else if (arrowRef.current.angle !== 0) {
-      // крутка закончилась: плавно возвращаем стрелку вниз по ближайшей дороге
-      const rest = arrowRef.current.angle % 360
-      const home = rest > 180 ? 360 : 0
-      setArrow({ angle: rest, ms: 0 })
-      raf = requestAnimationFrame(() => {
-        raf = requestAnimationFrame(() => setArrow({ angle: home, ms: 600 }))
-      })
-      timer = window.setTimeout(() => setArrow({ angle: 0, ms: 0 }), 700)
+    element.getAnimations().forEach((animation) => animation.cancel())
+
+    if (!spin) {
+      element.style.transform = 'rotate(0deg)'
+      return
     }
 
-    return () => {
-      cancelAnimationFrame(raf)
-      window.clearTimeout(timer)
+    const profile = SPIN_PROFILES[spin.fast ? 'fast' : 'normal']
+    const progressAt = makeProgress(profile.points)
+    const startTime = performance.now() + spin.delay
+    let frameId = 0
+    let startPlayed = false
+    let lastTickIndex = 0
+    let lastTickTime = -Infinity
+    let fixedTickIndex = 0
+
+    const animate = (now: number) => {
+      // Стартовый звук идёт чуть раньше движения стрелки (как в образце)
+      if (!startPlayed && now >= startTime - profile.soundLeadMs) {
+        startPlayed = true
+        playSound('start')
+      }
+
+      const elapsed = now - startTime
+      const t = Math.min(1, Math.max(0, elapsed / spin.duration))
+      const angle = spin.angle * progressAt(t)
+      element.style.transform = `rotate(${angle}deg)`
+
+      if (profile.fixedTicksMs) {
+        // Быстрая крутка: тики в заданные моменты
+        while (fixedTickIndex < profile.fixedTicksMs.length && elapsed >= profile.fixedTicksMs[fixedTickIndex]) {
+          fixedTickIndex++
+          playSound('tick')
+        }
+      } else {
+        // Обычная крутка: тик каждый раз, когда стрелка проходит очередное деление
+        const tickIndex = Math.floor(angle / TICK_STEP)
+        if (tickIndex > lastTickIndex) {
+          lastTickIndex = tickIndex
+          if (elapsed >= profile.tickFromMs && now - lastTickTime >= TICK_MIN_GAP) {
+            lastTickTime = now
+            playSound('tick')
+          }
+        }
+      }
+
+      if (t < 1) frameId = requestAnimationFrame(animate)
     }
+
+    element.style.transform = 'rotate(0deg)'
+    frameId = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(frameId)
   }, [spin?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Подпись светлеет, когда цветная дуга дошла до неё.
@@ -160,9 +199,15 @@ export default function UpgraderWheel({ chance, active, spin = null, result = nu
       >
         <defs>
           <linearGradient id="wheel-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={SIZE}>
-            <stop offset="0.12" stopColor="#2fdc12" />
-            <stop offset="0.7" stopColor="#e8d414" />
-            <stop offset="0.90" stopColor="#e8532b" />
+            <stop offset="0.12" stopColor="#25d80d" />
+            <stop offset="0.47" stopColor="#bbd313" />
+            <stop offset="0.54" stopColor="#d8d214" />
+            <stop offset="0.57" stopColor="#e7d215" />
+            <stop offset="0.64" stopColor="#ebc715" />
+            <stop offset="0.73" stopColor="#ecb116" />
+            <stop offset="0.80" stopColor="#e67f1d" />
+            <stop offset="0.83" stopColor="#e36620" />
+            <stop offset="0.90" stopColor="#e24f2a" />
           </linearGradient>
         </defs>
         
@@ -180,21 +225,21 @@ export default function UpgraderWheel({ chance, active, spin = null, result = nu
 
       {/* Стрелка */}
       <div
-        className="upgrader-wheel__arrow"
-        style={{
-          transformOrigin: `${PIVOT_X}px ${PIVOT_Y}px`,
-          transform: `rotate(${arrow.angle}deg)`,
-          transition: arrow.ms ? `transform ${arrow.ms}ms ${SPIN_EASING}` : 'none',
-        }}
-      >
+  ref={arrowRef}
+  className="upgrader-wheel__arrow"
+  style={{
+    transformOrigin: `${PIVOT_X}px ${PIVOT_Y}px`,
+  }}
+>
         <img
-          src="/wheel-arrow.png"
+          src="/arrow.png"
           alt=""
           draggable={false}
           style={{
+            width: ARROW_IMG_W,
+            height: ARROW_IMG_H,
             left: PIVOT_X - ARROW_IMG_CENTER_X,
-            top: PIVOT_Y + ARROW_TIP_R - ARROW_IMG_TIP_Y,
-            transform: 'rotate(180deg)',
+            top: PIVOT_Y + ARROW_TIP_R - ARROW_IMG_TIP_Y - 3,
           }}
         />
       </div>

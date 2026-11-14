@@ -3,13 +3,20 @@
 // Коэффициент шанса: скин 3.32 -> цель 6.64 даёт 50% * 1.03 = 51.50%
 export const CHANCE_MULTIPLIER = 1.03
 
-// Выше этого шанса выкрутить нельзя
+// Выше этого шанса крутить нельзя (кнопка Improve блокируется, ставку выше не поднять)
 export const MAX_CHANCE = 79.99
 
-// Шанс (в процентах) для суммы входа и цены цели
+// Шанс (в процентах) для суммы входа и цены цели.
+// Показывается честно до 100%: если на входе больше, чем стоит цель, колесо заполняется целиком.
 export function calcChance(inputTotal: number, targetPrice: number): number {
   if (targetPrice <= 0 || inputTotal <= 0) return 0
-  return Math.min(MAX_CHANCE, (inputTotal / targetPrice) * 100 * CHANCE_MULTIPLIER)
+  return Math.min(100, (inputTotal / targetPrice) * 100 * CHANCE_MULTIPLIER)
+}
+
+// Шанс слишком мал, цель нельзя выбрать (меньше MIN_CHANCE)
+export function isChanceTooLow(inputTotal: number, targetPrice: number): boolean {
+  if (inputTotal <= 0 || targetPrice <= 0) return false
+  return (inputTotal / targetPrice) * 100 * CHANCE_MULTIPLIER < MIN_CHANCE
 }
 
 // Максимум коинов с баланса, который можно добавить к выбранным скинам,

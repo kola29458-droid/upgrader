@@ -3129,7 +3129,7 @@ box-shadow:
   border: 1px solid #ffffff1a;
   background: transparent;
   font-family: 'Exo 2', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: #fff;
   outline: none;
@@ -3532,7 +3532,7 @@ box-shadow:
 }
 
 .sp-field input {
-  font-size: 0.70rem;   /* было 0.75rem */
+  font-size: 0.65rem;   /* было 0.75rem */
 }
 
 .sp-field input {
@@ -4724,4 +4724,34 @@ input.custom-range::-moz-range-thumb {
 .profile-sell-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+
+
+.notifications-button {
+  position: relative;
+}
+
+.notifications-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+
+  background: #ed3838;
+  color: #fff;
+  border: 1px solid #25252a;
+  border-radius: 20px;
+
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 10;
 }

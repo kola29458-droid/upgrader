@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
 import {
   BrowserRouter,
   Routes,
@@ -14,15 +13,19 @@ import SkinCatalog from './components/SkinCatalog'
 import type { Skin } from './components/SkinCatalog'
 import SelectedSkinPanel from './components/SelectedSkinPanel'
 import SkinsPanel from './components/SkinsPanel'
-import { useInventory, type OwnedSkin } from './hooks/useInventory'
+import { useInventory } from './hooks/useInventory'
+import type { OwnedSkin } from './hooks/useInventory'
 import UpgraderWheel from './components/UpgraderWheel'
 import FastAmountBar from './components/FastAmountBar'
 import ImproveButton from './components/ImproveButton'
+import WheelToolbar from './components/WheelToolbar'
 import SettingsModal from './components/SettingsModal'
 import { loadQuickSettings, saveQuickSettings } from './quickSettings'
 import type { QuickSettings } from './quickSettings'
 import { useSkins } from './hooks/useSkins'
-import { calcChance, isTargetAllowed } from './upgraderMath'
+import { calcChance, isChanceTooLow, MAX_CHANCE } from './upgraderMath'
+import { SPIN_PROFILES } from './spinProfiles'
+import { playSound, preloadSounds, setSoundSettings, unlockAudio } from './sound'
 
 const COUNTER_SETTINGS = {
   onlineMin: 1500,
@@ -312,363 +315,6 @@ function BattlesPage() {
   )
 }
 
-
-function AdminPanel({
-  open,
-  onClose,
-  onForce,
-  forceNext,
-  fastSpin,
-  onFastSpin,
-  onReset,
-}: {
-  open: boolean
-  onClose: () => void
-  onForce: (value: 'win' | 'lose') => void
-  forceNext: 'win' | 'lose' | null
-  fastSpin: boolean
-  onFastSpin: (value: boolean) => void
-  onReset: () => void
-}) {
-  if (!open) return null
-
-  const selectedButton = (active: boolean, color: string): CSSProperties => ({
-    width: '100%',
-    minHeight: '76px',
-    padding: '13px 16px',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    textAlign: 'left',
-    color: '#fff',
-    border: `1px solid ${active ? color : '#343e51'}`,
-    background: active
-      ? `linear-gradient(110deg, ${color}44, ${color}22)`
-      : 'linear-gradient(110deg, #202838, #171e2b)',
-    boxShadow: active ? `0 0 22px ${color}44, inset 0 0 15px ${color}12` : 'none',
-    transition: 'all 0.2s ease',
-  })
-
-  const smallButton: CSSProperties = {
-    border: '1px solid #354258',
-    background: '#202939',
-    color: '#c7d3e5',
-    borderRadius: '8px',
-    padding: '12px',
-    cursor: 'pointer',
-    fontWeight: 800,
-    letterSpacing: '1px',
-  }
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 99998,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-        background: 'rgba(3, 7, 15, 0.86)',
-        backdropFilter: 'blur(9px)',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          width: '390px',
-          maxWidth: '100%',
-          padding: '25px',
-          color: '#fff',
-          borderRadius: '16px',
-          border: '1px solid #344e73',
-          background: 'linear-gradient(145deg, #192538, #0c121e)',
-          boxShadow: '0 0 55px rgba(40, 119, 255, 0.2), 0 25px 80px #000',
-          fontFamily: 'Arial, sans-serif',
-          animation: 'adminAppear 0.2s ease-out',
-        }}
-        onClick={(event) => event.stopPropagation()}
-      >
-        {/* HEADER */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '22px',
-        }}>
-          <div>
-            <div style={{
-              fontSize: '10px',
-              color: '#69aaff',
-              letterSpacing: '2px',
-              fontWeight: 900,
-              marginBottom: '6px',
-            }}>
-              UPGRADER / SYSTEM
-            </div>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 900,
-              letterSpacing: '1px',
-            }}>
-              ADMIN PANEL
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            style={{
-              width: '35px',
-              height: '35px',
-              borderRadius: '8px',
-              border: '1px solid #39475d',
-              background: '#202b3d',
-              color: '#aabbd3',
-              fontSize: '19px',
-              cursor: 'pointer',
-            }}
-          >
-            ×
-          </button>
-        </div>
-
-        {/* CURRENT STATUS */}
-        <div style={{
-          padding: '14px',
-          marginBottom: '20px',
-          borderRadius: '10px',
-          border: `1px solid ${
-            forceNext === 'win' ? '#20c982'
-            : forceNext === 'lose' ? '#ed526c'
-            : '#354258'
-          }`,
-          background: forceNext === 'win'
-            ? 'rgba(24, 180, 112, 0.12)'
-            : forceNext === 'lose'
-              ? 'rgba(220, 55, 82, 0.12)'
-              : 'rgba(100, 120, 150, 0.08)',
-        }}>
-          <div style={{
-            fontSize: '10px',
-            color: '#899bb5',
-            letterSpacing: '1.5px',
-            fontWeight: 800,
-            marginBottom: '7px',
-          }}>
-            NEXT UPGRADE STATUS
-          </div>
-
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 900,
-            color: forceNext === 'win'
-              ? '#48e6a0'
-              : forceNext === 'lose'
-                ? '#ff7188'
-                : '#b8c5d8',
-          }}>
-            {forceNext === 'win'
-              ? '✓ GUARANTEED WIN'
-              : forceNext === 'lose'
-                ? '✕ GUARANTEED LOSE'
-                : '● NORMAL CHANCE'}
-          </div>
-
-          <div style={{
-            fontSize: '11px',
-            color: '#8292aa',
-            marginTop: '6px',
-          }}>
-            {forceNext
-              ? 'Selected mode will apply to the next upgrade'
-              : 'Original chance calculation is active'}
-          </div>
-        </div>
-
-        {/* FORCE WIN */}
-        <div style={{
-          fontSize: '10px',
-          color: '#8495ad',
-          letterSpacing: '1.5px',
-          fontWeight: 800,
-          marginBottom: '9px',
-        }}>
-          RESULT CONTROL
-        </div>
-
-        <button
-          type="button"
-          aria-pressed={forceNext === 'win'}
-          style={selectedButton(forceNext === 'win', '#20d58a')}
-          onClick={() => onForce('win')}
-        >
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <div>
-              <div style={{ fontSize: '15px', fontWeight: 900 }}>
-                🏆 FORCE WIN
-              </div>
-              <div style={{ fontSize: '11px', color: '#a6b6c9', marginTop: '6px' }}>
-                Guarantee the next upgrade wins
-              </div>
-            </div>
-            <div style={{
-              fontSize: '11px',
-              fontWeight: 900,
-              color: forceNext === 'win' ? '#54f0ad' : '#75849a',
-            }}>
-              {forceNext === 'win' ? '✓ ACTIVE' : 'SELECT'}
-            </div>
-          </div>
-        </button>
-
-        {/* FORCE LOSE */}
-        <button
-          type="button"
-          aria-pressed={forceNext === 'lose'}
-          style={{
-            ...selectedButton(forceNext === 'lose', '#f04f70'),
-            marginTop: '10px',
-          }}
-          onClick={() => onForce('lose')}
-        >
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <div>
-              <div style={{ fontSize: '15px', fontWeight: 900 }}>
-                ✕ FORCE LOSE
-              </div>
-              <div style={{ fontSize: '11px', color: '#a6b6c9', marginTop: '6px' }}>
-                Guarantee the next upgrade loses
-              </div>
-            </div>
-            <div style={{
-              fontSize: '11px',
-              fontWeight: 900,
-              color: forceNext === 'lose' ? '#ff7188' : '#75849a',
-            }}>
-              {forceNext === 'lose' ? '✓ ACTIVE' : 'SELECT'}
-            </div>
-          </div>
-        </button>
-
-        {/* FAST SPIN */}
-        <div style={{
-          marginTop: '20px',
-          padding: '15px',
-          borderRadius: '10px',
-          border: `1px solid ${fastSpin ? '#397ed5' : '#354258'}`,
-          background: fastSpin ? 'rgba(42, 115, 220, 0.13)' : '#151e2c',
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '14px' }}>
-                ⚡ FAST SPIN
-              </div>
-              <div style={{ fontSize: '11px', color: '#8c9db5', marginTop: '5px' }}>
-                Faster upgrade animation
-              </div>
-            </div>
-
-            <button
-              type="button"
-              aria-pressed={fastSpin}
-              onClick={() => onFastSpin(!fastSpin)}
-              style={{
-                width: '64px',
-                height: '31px',
-                borderRadius: '30px',
-                border: `1px solid ${fastSpin ? '#459cff' : '#596477'}`,
-                background: fastSpin ? '#2479e8' : '#343e50',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              <span style={{
-                position: 'absolute',
-                top: '3px',
-                left: fastSpin ? '34px' : '3px',
-                width: '23px',
-                height: '23px',
-                borderRadius: '50%',
-                background: '#fff',
-                transition: 'left 0.2s',
-              }} />
-            </button>
-          </div>
-
-          <div style={{
-            fontSize: '10px',
-            fontWeight: 900,
-            color: fastSpin ? '#65b2ff' : '#8290a5',
-            marginTop: '10px',
-          }}>
-            {fastSpin ? '● FAST SPIN ENABLED' : '● FAST SPIN DISABLED'}
-          </div>
-        </div>
-
-        {/* FOOTER */}
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          marginTop: '20px',
-        }}>
-          <button
-            type="button"
-            style={{ ...smallButton, flex: 1 }}
-            onClick={onReset}
-          >
-            ↻ RESET
-          </button>
-
-          <button
-            type="button"
-            style={{
-              ...smallButton,
-              flex: 1,
-              background: '#263c5b',
-              borderColor: '#416ba1',
-              color: '#fff',
-            }}
-            onClick={onClose}
-          >
-            CLOSE PANEL
-          </button>
-        </div>
-
-        <div style={{
-          textAlign: 'center',
-          color: '#596b85',
-          fontSize: '10px',
-          letterSpacing: '1px',
-          marginTop: '18px',
-        }}>
-          ADMIN ACCESS · SHIFT + G
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes adminAppear {
-          from { opacity: 0; transform: translateY(12px) scale(0.97); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
-    </div>
-  )
-}
-
-
 function UpgraderPage({
   inventory,
   onBuy,
@@ -688,65 +334,14 @@ function UpgraderPage({
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [quickSettings, setQuickSettings] = useState<QuickSettings>(loadQuickSettings)
 
-const [adminOpen, setAdminOpen] = useState(false)
-const [forceNext, setForceNext] = useState<'win' | 'lose' | null>(null)
-const [adminFastSpin, setAdminFastSpin] = useState(false)
-
-
-useEffect(() => {
-  const handleShortcut = (event: KeyboardEvent) => {
-    const target = event.target as HTMLElement
-
-    if (
-      target instanceof HTMLInputElement ||
-      target instanceof HTMLTextAreaElement ||
-      target.isContentEditable
-    ) {
-      return
-    }
-
-    if (
-      event.ctrlKey &&
-      event.key.toLowerCase() === 'x' &&
-      !event.repeat
-    ) {
-      event.preventDefault()
-      setForceNext('win')
-      return
-    }
-
-    if (
-      event.ctrlKey &&
-      event.key.toLowerCase() === 'z' &&
-      !event.repeat
-    ) {
-      event.preventDefault()
-      setForceNext('lose')
-      return
-    }
-
-    if (
-      event.shiftKey &&
-      event.key.toLowerCase() === 'g' &&
-      !event.repeat
-    ) {
-      event.preventDefault()
-      setAdminOpen((open) => !open)
-    }
-  }
-
-  window.addEventListener('keydown', handleShortcut)
-
-  return () => window.removeEventListener('keydown', handleShortcut)
-}, [])
-
-
   // Крутка: idle (ждём) -> spinning (стрелка крутится) -> result (показываем итог 3 секунды) -> idle
   const [phase, setPhase] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [spin, setSpin] = useState<{
     id: number
     angle: number
     duration: number
+    delay: number
+    fast: boolean
     win: boolean
     chance: number
   } | null>(null)
@@ -757,6 +352,22 @@ useEffect(() => {
   const pending = useRef<{ win: boolean; target: Skin } | null>(null)
 
   const busy = phase !== 'idle'
+
+  // Настройки звука (динамик и громкость над колесом) и разблокировка звука первым действием пользователя
+  useEffect(() => {
+    setSoundSettings(quickSettings.sound, quickSettings.volume)
+  }, [quickSettings.sound, quickSettings.volume])
+
+  useEffect(() => {
+    preloadSounds()
+    const unlock = () => unlockAudio()
+    window.addEventListener('pointerdown', unlock, { once: true })
+    window.addEventListener('keydown', unlock, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [])
 
   const { skins: allCatalogSkins } = useSkins()
 
@@ -775,60 +386,60 @@ useEffect(() => {
 
   // Нажатие на Improve
   const handleImprove = () => {
-    if (busy || !selectedSkin || !wheelActive) return
+    if (busy || !selectedSkin || !wheelActive || chance > MAX_CHANCE) return
+
+    unlockAudio() // браузер разрешает звук только после клика
+    playSound('click')
 
     const target = selectedSkin
     const spinChance = chance
-    const randomStop = Math.random() * 360
-const winLimit = Math.min(180, Math.max(0, spinChance * 1.8))
+    const stop = Math.random() * 360 // где остановится стрелка: градусы от низа колеса по часовой
+    const win = Math.min(stop, 360 - stop) <= spinChance * 1.8 // попала в цветную дугу
+    const fast = quickSettings.fastScroll
+    const profile = SPIN_PROFILES[fast ? 'fast' : 'normal'] // скорость и тайминги сняты с видео-образца
+    const delay = fast ? 440 : 1000       // пауза после нажатия Improve, потом стрелка начинает крутиться (в видео: клик -> удар через 0.21 с -> стрелка ещё через 0.23 с)
+    const duration = profile.motionMs     // сколько стрелка реально движется
 
-const randomWinStop =
-  Math.random() < 0.5
-    ? Math.random() * winLimit
-    : 360 - Math.random() * winLimit
-
-const loseWidth = 360 - winLimit * 2
-
-const randomLoseStop =
-  winLimit + Math.random() * loseWidth
-
-const win = forceNext === 'win'
-  ? true
-  : forceNext === 'lose'
-    ? false
-    : Math.min(randomStop, 360 - randomStop) <= winLimit
-
-const stop = forceNext === 'win'
-  ? randomWinStop
-  : forceNext === 'lose'
-    ? randomLoseStop
-    : randomStop
-
-const duration = adminFastSpin || quickSettings.fastScroll ? 1000 : 6500
-
-setForceNext(null)
     // Скины и ставка списываются сразу
     onSpend(mineSelected.map((skin) => skin.uid), bet)
     pending.current = { win, target }
     setWonUid(null)
-    setSpin({ id: Date.now(), angle: 5 * 360 + stop, duration, win, chance: spinChance })
+    setSpin({ id: Date.now(), angle: profile.turns * 360 + stop, duration, delay, fast, win, chance: spinChance })
     setPhase('spinning')
 
-    // Стрелка остановилась: показываем итог, сбрасываем выбор слева, выдаём выигрыш
+    // Показываем итог чуть позже остановки стрелки, сбрасываем выбор слева, выдаём выигрыш
     const finish = window.setTimeout(() => {
       pending.current = null
       setPhase('result')
       setClearKey((key) => key + 1)
-      if (win) setWonUid(onWin(target))
-    }, duration)
+      if (win) {
+        playSound('win')
+        setWonUid(onWin(target))
+      }
+    }, delay + profile.resultMs)
 
-    // Ещё через 3 секунды всё возвращается в обычный вид
+    // Через holdMs кнопка и колесо возвращаются в обычный вид.
+    // Стрелка остаётся там, где остановилась (spin не сбрасываем): вниз она вернётся при новой ставке
     const reset = window.setTimeout(() => {
       setPhase('idle')
-      setSpin(null)
-    }, duration + 3000)
+    }, delay + profile.resultMs + profile.holdMs)
 
     timers.current = [finish, reset]
+  }
+
+  // Новая ставка (выбрали скин, поменяли ставку) или цель справа убрана/сменена:
+  // стрелка сразу возвращается вниз
+  useEffect(() => {
+    if (phase === 'idle' && spin) setSpin(null)
+  }, [inputTotal, mineSelected.length, selectedSkin?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Настройки из ряда иконок над левой карточкой (звук, громкость, скорость)
+  const updateSettings = (patchSettings: Partial<QuickSettings>) => {
+    setQuickSettings((current) => {
+      const next = { ...current, ...patchSettings }
+      saveQuickSettings(next)
+      return next
+    })
   }
 
   // Своего скина не выбрано и есть выигрыш: вместо Improve показываем Add to upgrade
@@ -846,22 +457,12 @@ setForceNext(null)
 
   // Если после изменения выбора слева выбранная цель стала недоступной, снимаем её
   useEffect(() => {
-    if (phase === 'idle' && selectedSkin && !isTargetAllowed(inputTotal, selectedSkin.price, 1)) {
+    if (phase === 'idle' && selectedSkin && isChanceTooLow(inputTotal, selectedSkin.price)) {
       setSelectedSkin(null)
     }
   }, [selectedSkin, inputTotal, phase])
 
-  const virtualMySkin: Skin | null = inputTotal > 0
-  ? {
-      id: 'my-bet',
-      weapon: 'Bet',
-      name: 'Bet',
-      wear: '',
-      price: inputTotal,
-      image: '',
-      rarityColor: '#ffffff',
-    }
-  : null
+  const virtualMySkin = inputTotal > 0 ? { id: 'my-bet', name: 'Bet', price: inputTotal } : null
 
   return (
     <div className="upgrader-layout">
@@ -870,6 +471,16 @@ setForceNext(null)
         active={busy ? true : wheelActive}
         spin={spin}
         result={phase === 'result' && spin ? (spin.win ? 'win' : 'lose') : null}
+      />
+
+      <WheelToolbar
+        sound={quickSettings.sound}
+        volume={quickSettings.volume}
+        fast={quickSettings.fastScroll}
+        onToggleSound={() => updateSettings({ sound: !quickSettings.sound })}
+        onVolume={(volume) => updateSettings({ volume })}
+        onToggleFast={() => updateSettings({ fastScroll: !quickSettings.fastScroll })}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
 
       <div style={{ position: 'absolute', top: '477px', left: 'calc(50% + 496px)', transform: 'translateX(-50%)', width: '372px', zIndex: 20 }}>
@@ -902,6 +513,8 @@ setForceNext(null)
       {selectedSkin ? (
         <SelectedSkinPanel
           skin={selectedSkin}
+          won={Boolean(spin?.win) && phase !== 'spinning'}
+          winId={spin?.id}
           onClear={() => {
             if (!busy) setSelectedSkin(null)
           }}
@@ -926,7 +539,7 @@ setForceNext(null)
         <ImproveButton
           label={busy ? 'Loading...' : showAddToUpgrade ? 'Add to upgrade' : 'Improve'}
           showIcon={!showAddToUpgrade}
-          disabled={busy || (!showAddToUpgrade && !wheelActive)}
+          disabled={busy || (!showAddToUpgrade && (!wheelActive || chance > MAX_CHANCE))}
           onClick={showAddToUpgrade ? handleAddToUpgrade : handleImprove}
         />
       </div>
@@ -954,20 +567,6 @@ setForceNext(null)
         }}
       />
 
-       <AdminPanel
-  open={adminOpen}
-  forceNext={forceNext}
-  onClose={() => setAdminOpen(false)}
-  onForce={setForceNext}
-  fastSpin={adminFastSpin}
-  onFastSpin={setAdminFastSpin}
-  onReset={() => {
-    setForceNext(null)
-    setAdminFastSpin(false)
-    setAdminOpen(false)
-  }}
-/>
-
       {settingsOpen && (
         <SettingsModal
           settings={quickSettings}
@@ -982,20 +581,7 @@ setForceNext(null)
   )
 }
 
-function ProfilePage({
-  inventory,
-  onSellAll,
-}: {
-  inventory: OwnedSkin[]
-  onSellAll: () => void
-}) {
-  const totalCents = inventory.reduce(
-    (sum, skin) => sum + Math.round(skin.price * 100),
-    0
-  )
-
-  const totalPrice = (totalCents / 100).toFixed(2)
-
+function ProfilePage() {
   return (
     <div className="profile-page">
       <img
@@ -1003,34 +589,11 @@ function ProfilePage({
         alt="Profile"
         className="profile-reference-image"
       />
-
       <img
         src="/profile-vip.png"
         alt="VIP Club"
         className="profile-vip-image"
       />
-
-      <div className="profile-sell-panel">
-        <div className="profile-sell-title">MY INVENTORY</div>
-
-        <div className="profile-sell-info">
-          <span>Количество скинов:</span>
-          <strong>{inventory.length}</strong>
-        </div>
-
-        <div className="profile-sell-info">
-          <span>Общая стоимость:</span>
-          <strong>{totalPrice} coins</strong>
-        </div>
-
-        <button
-          className="profile-sell-button"
-          onClick={onSellAll}
-          disabled={inventory.length === 0}
-        >
-          SELL ALL
-        </button>
-      </div>
     </div>
   )
 }
@@ -1053,23 +616,6 @@ function Site() {
   const [isPayScreenOpen, setIsPayScreenOpen] = useState(false)
   const [balance, setBalance] = useState(0)
   const inventory = useInventory()
-
-  function sellAllSkins() {
-  const skins = inventory.items
-
-  if (skins.length === 0) return
-
-  const totalCents = skins.reduce(
-    (sum, skin) => sum + Math.round(skin.price * 100),
-    0
-  )
-
-  inventory.remove(skins.map((skin) => skin.uid))
-
-  setBalance((current) =>
-    Number(((Math.round(current * 100) + totalCents) / 100).toFixed(2))
-  )
-}
 
   function buySkins(skins: Skin[]): boolean {
     const totalCents = skins.reduce((sum, skin) => sum + Math.round(skin.price * 100), 0)
@@ -1099,7 +645,7 @@ function Site() {
 
   const [notifications, setNotifications] = useState<DepositNotification[]>([])
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false)
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
 
   const [amountFocused, setAmountFocused] = useState(false)
   const [email, setEmail] = useState('')
@@ -1139,7 +685,7 @@ function Site() {
         ...current,
       ])
 
-      setHasUnreadNotifications(true)
+      setUnreadNotifications((current) => Math.min(current + 1, 99))
       setIsPayScreenOpen(false)
       setIsTopUpOpen(false)
     }, 5000)
@@ -1191,16 +737,16 @@ function Site() {
   }
 
   function toggleNotifications() {
-    setIsNotificationsOpen((open) => {
-      const nextOpen = !open
+  setIsNotificationsOpen((open) => {
+    const nextOpen = !open
 
-      if (nextOpen) {
-        setHasUnreadNotifications(false)
-      }
+    if (nextOpen) {
+      setUnreadNotifications(0)
+    }
 
-      return nextOpen
-    })
-  }
+    return nextOpen
+  })
+}
 
   return (
     <div className={`site-background ${pageClass}`}>
@@ -1285,7 +831,11 @@ function Site() {
             onClick={toggleNotifications}
           >
             <img src="https://s3.upgrader.pro/cdn/fa/icons/bell.svg" alt="" />
-            {hasUnreadNotifications && <span className="notifications-dot" />}
+            {unreadNotifications > 0 && (
+  <span className="notifications-badge">
+    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+  </span>
+)}
           </button>
 
           <div
@@ -1460,9 +1010,7 @@ function Site() {
               </>
             }
           />
-  
 
- 
           <Route
             path="/en/weekly-drop"
             element={
@@ -1496,14 +1044,9 @@ function Site() {
           />
 
           <Route
-  path="/en/profile"
-  element={
-    <ProfilePage
-      inventory={inventory.items}
-      onSellAll={sellAllSkins}
-    />
-  }
-/>
+            path="/en/profile"
+            element={<ProfilePage />}
+          />
         </Routes>
       </main>
 

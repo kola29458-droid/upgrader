@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { formatPrice } from './SkinCatalog'
 import type { Skin } from './SkinCatalog'
+import WinEffect from './WinEffect'
 
 const WEAR_NAMES: Record<string, string> = {
   FN: 'Factory New',
@@ -13,9 +14,11 @@ const WEAR_NAMES: Record<string, string> = {
 type Props = {
   skin: Skin
   onClear: () => void
+  won?: boolean   // после выигрыша: оружие зеленеет и играет анимация победы
+  winId?: number  // id крутки: новая победа — анимация запускается заново
 }
 
-export default function SelectedSkinPanel({ skin, onClear }: Props) {
+export default function SelectedSkinPanel({ skin, onClear, won = false, winId }: Props) {
   const wearName = WEAR_NAMES[skin.wear] ?? ''
   const title = wearName ? `${skin.name} ${wearName}` : skin.name
 
@@ -25,6 +28,8 @@ export default function SelectedSkinPanel({ skin, onClear }: Props) {
       className="selected-skin-panel"
       style={{ '--rarity': skin.rarityColor } as CSSProperties}
     >
+      {won && <WinEffect key={winId} />}
+
       <button
         type="button"
         className="selected-skin-panel__close"
@@ -40,13 +45,13 @@ export default function SelectedSkinPanel({ skin, onClear }: Props) {
       <span className="selected-skin-panel__name">{title}</span>
 
       <img
-        className="selected-skin-panel__image"
+        className={`selected-skin-panel__image${won ? ' selected-skin-panel__image--won' : ''}`}
         src={skin.image}
         alt={`${skin.weapon} | ${skin.name}`}
         draggable={false}
       />
 
-      <span className="selected-skin-panel__price">
+      <span className={`selected-skin-panel__price${won ? ' selected-skin-panel__price--won' : ''}`}>
         {formatPrice(skin.price)}
         <img src="/coins.png" alt="" draggable={false} />
       </span>

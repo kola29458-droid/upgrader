@@ -10,9 +10,9 @@
 
 .upgrader-wheel__labels text {
   font-family: 'Exo 2', sans-serif;
-  font-size: 11px;      /* размер подписей */
-  font-weight: 500;     /* толщина */
-  fill: #88888f;        /* цвет, пока дуга до подписи не дошла */
+  font-size: 10px;      /* размер подписей */
+  font-weight: 550;     /* толщина */
+  fill: #8f8f97;        /* цвет, пока дуга до подписи не дошла */
   text-anchor: middle;
   transition: fill 200ms ease;
 }

@@ -42,8 +42,7 @@
 /* Затемнение фона карточки (логотип и свечение редкости) */
 .skin-card.skin-card--locked::before,
 .skin-card.skin-card--locked:hover::before {
-  opacity: 1;
-  background: rgba(0, 0, 0, var(--locked-bg-dim));
+  opacity: 0;
 }
 
 .skin-card__lock {

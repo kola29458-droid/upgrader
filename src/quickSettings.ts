@@ -6,6 +6,7 @@ export type QuickSettings = {
   percents: [number, number, number]
   sound: boolean
   fastScroll: boolean
+  volume: number // громкость звуков, от 0 до 1
 }
 
 export const DEFAULT_QUICK_SETTINGS: QuickSettings = {
@@ -13,6 +14,7 @@ export const DEFAULT_QUICK_SETTINGS: QuickSettings = {
   percents: [25, 55, 75],
   sound: true,
   fastScroll: false,
+  volume: 0.74,
 }
 
 // Допустимые значения в полях
@@ -48,6 +50,10 @@ export function loadQuickSettings(): QuickSettings {
       sound: typeof data.sound === 'boolean' ? data.sound : DEFAULT_QUICK_SETTINGS.sound,
       fastScroll:
         typeof data.fastScroll === 'boolean' ? data.fastScroll : DEFAULT_QUICK_SETTINGS.fastScroll,
+      volume:
+        typeof data.volume === 'number' && data.volume >= 0 && data.volume <= 1
+          ? data.volume
+          : DEFAULT_QUICK_SETTINGS.volume,
     }
   } catch {
     return DEFAULT_QUICK_SETTINGS

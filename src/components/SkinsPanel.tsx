@@ -1,3 +1,4 @@
+import { playSound } from '../sound'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { formatPrice } from './SkinCatalog'
@@ -324,6 +325,7 @@ export default function SkinsPanel({
   const shownTotal = cartCount > 0 ? cartTotalCents : lastCart.current.total
 
   const addToCart = (skin: Skin) => {
+    if (locked) return
     setCart((current) => {
       if (current[skin.id]) return current
       const count = Object.values(current).reduce((sum, entry) => sum + entry.qty, 0)
@@ -333,6 +335,7 @@ export default function SkinsPanel({
   }
 
   const changeQty = (skin: Skin, delta: number) => {
+    if (locked) return
     setCart((current) => {
       const entry = current[skin.id]
       if (!entry) return current
@@ -353,10 +356,12 @@ export default function SkinsPanel({
     })
   }
 
-  const clearCart = () => setCart({})
+  const clearCart = () => {
+    if (!locked) setCart({})
+  }
 
   const handleBuy = () => {
-    if (cartCount === 0) return
+    if (cartCount === 0 || locked) return
 
     const toBuy: Skin[] = []
     cartEntries.forEach(({ skin, qty }) => {
@@ -422,6 +427,7 @@ export default function SkinsPanel({
 
   const handleToggleMineSkin = (item: OwnedSkin) => {
     if (locked) return
+    playSound('click')
     setSelectedMine((prev) => {
       if (prev.some((s) => s.uid === item.uid)) {
         return prev.filter((s) => s.uid !== item.uid)
@@ -731,6 +737,7 @@ export default function SkinsPanel({
                     onInc={() => changeQty(skin, 1)}
                     onDec={() => changeQty(skin, -1)}
                     canInc={!cartFull}
+                    locked={locked}
                   />
                 ))}
               </div>
@@ -749,6 +756,7 @@ export default function SkinsPanel({
                   type="button"
                   className={`sp-buy${buyFailed ? ' sp-buy--fail' : ''}`}
                   onClick={handleBuy}
+                  disabled={locked}
                   aria-label="Buy"
                 >
                   <span className="sp-buy__price">

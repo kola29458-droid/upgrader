@@ -1,3 +1,4 @@
+import { playSound } from '../sound'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { isTargetAllowed } from '../upgraderMath'
@@ -311,6 +312,7 @@ useEffect(() => {
 
   const handleSelect = (skin: Skin) => {
   if (lockAll || isLocked(skin)) return
+    playSound('click')
     onSelect(selected?.id === skin.id ? null : skin)
   }
 

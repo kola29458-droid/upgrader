@@ -115,6 +115,7 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
       percents: pct.map(Number) as [number, number, number],
       sound,
       fastScroll,
+      volume: settings.volume,
     })
     requestClose()
   }
