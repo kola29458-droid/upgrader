@@ -462,7 +462,15 @@ function UpgraderPage({
     }
   }, [selectedSkin, inputTotal, phase])
 
-  const virtualMySkin = inputTotal > 0 ? { id: 'my-bet', name: 'Bet', price: inputTotal } : null
+  const virtualMySkin = inputTotal > 0 ? {
+  id: 'my-bet',
+  name: 'Bet',
+  price: inputTotal,
+  weapon: 'Bet',
+  wear: '',
+  image: '',
+  rarityColor: '#ffffff',
+} : null
 
   return (
     <div className="upgrader-layout">

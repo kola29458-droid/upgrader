@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '../wheelLabels.css'
 import '../upgradeSpin.css'
 import { SPIN_PROFILES, makeProgress } from '../spinProfiles'
