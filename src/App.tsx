@@ -26,6 +26,9 @@ import { useSkins } from './hooks/useSkins'
 import { calcChance, isChanceTooLow, MAX_CHANCE } from './upgraderMath'
 import { SPIN_PROFILES } from './spinProfiles'
 import { playSound, preloadSounds, setSoundSettings, unlockAudio } from './sound'
+import CompensationCase, { CompensationPanel } from './components/CompensationCase'
+import { makeCompensation } from './compensation'
+import type { Compensation } from './compensation'
 
 const COUNTER_SETTINGS = {
   onlineMin: 1500,
@@ -315,18 +318,23 @@ function BattlesPage() {
   )
 }
 
+const COMP_START_DELAY = 700 // пауза между «NO PROBLEM» и падением кейса (обычная скорость), мс
+const COMP_FAST_HOLD = 2200 // сколько висит карточка «Компенсация» на быстрой скорости, мс
+
 function UpgraderPage({
   inventory,
   onBuy,
   balance,
   onSpend,
   onWin,
+  onCompensate,
 }: {
   inventory: OwnedSkin[]
   onBuy: (skins: Skin[]) => boolean
   balance: number
   onSpend: (uids: string[], coins: number) => void // списать скины и ставку после нажатия Improve
   onWin: (skin: Skin) => string                    // выдать выигранный скин, возвращает его uid
+  onCompensate: (skin: Skin) => void               // выдать скин-компенсацию за проигрыш
 }) {
   const [selectedSkin, setSelectedSkin] = useState<Skin | null>(null)
   const [mineSelected, setMineSelected] = useState<OwnedSkin[]>([])
@@ -335,7 +343,7 @@ function UpgraderPage({
   const [quickSettings, setQuickSettings] = useState<QuickSettings>(loadQuickSettings)
 
   // Крутка: idle (ждём) -> spinning (стрелка крутится) -> result (показываем итог 3 секунды) -> idle
-  const [phase, setPhase] = useState<'idle' | 'spinning' | 'result'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'spinning' | 'result' | 'compensation'>('idle')
   const [spin, setSpin] = useState<{
     id: number
     angle: number
@@ -350,6 +358,9 @@ function UpgraderPage({
   const [selectRequest, setSelectRequest] = useState<{ uid: string; nonce: number } | null>(null)
   const timers = useRef<number[]>([])
   const pending = useRef<{ win: boolean; target: Skin } | null>(null)
+  const [comp, setComp] = useState<Compensation | null>(null)   // компенсация за проигрыш (показывается, пока не вернулись в idle)
+  const compPending = useRef<Compensation | null>(null)          // компенсация, которую ещё не выдали (на случай ухода со страницы)
+  const compFast = useRef(false)
 
   const busy = phase !== 'idle'
 
@@ -380,6 +391,7 @@ function UpgraderPage({
     () => () => {
       timers.current.forEach((timer) => window.clearTimeout(timer))
       if (pending.current?.win) onWin(pending.current.target)
+      if (compPending.current) onCompensate(compPending.current.winner)
     },
     [], // eslint-disable-line react-hooks/exhaustive-deps
   )
@@ -389,7 +401,6 @@ function UpgraderPage({
     if (busy || !selectedSkin || !wheelActive || chance > MAX_CHANCE) return
 
     unlockAudio() // браузер разрешает звук только после клика
-    playSound('click')
 
     const target = selectedSkin
     const spinChance = chance
@@ -397,8 +408,14 @@ function UpgraderPage({
     const win = Math.min(stop, 360 - stop) <= spinChance * 1.8 // попала в цветную дугу
     const fast = quickSettings.fastScroll
     const profile = SPIN_PROFILES[fast ? 'fast' : 'normal'] // скорость и тайминги сняты с видео-образца
-    const delay = fast ? 440 : 1000       // пауза после нажатия Improve, потом стрелка начинает крутиться (в видео: клик -> удар через 0.21 с -> стрелка ещё через 0.23 с)
+    const delay = fast ? 440 : 195        // пауза после нажатия Improve, потом стрелка начинает крутиться. Обычная (по видео оригинала): клик -> звук сразу -> стрелка через 0.19 с. Быстрая: клик -> удар через 0.21 с -> стрелка ещё через 0.23 с
     const duration = profile.motionMs     // сколько стрелка реально движется
+
+    // Проигрыш со ставкой больше 30 коинов: готовим компенсацию (скин выпадет после проигрыша)
+    const compensation = win ? null : makeCompensation(allCatalogSkins, inputTotal)
+    compPending.current = compensation
+    compFast.current = fast
+    setComp(null)
 
     // Скины и ставка списываются сразу
     onSpend(mineSelected.map((skin) => skin.uid), bet)
@@ -415,14 +432,30 @@ function UpgraderPage({
       if (win) {
         playSound('win')
         setWonUid(onWin(target))
+      } else if (compensation && fast) {
+        // Быстрая скорость: без кейса, скин сразу появляется в левой карточке с подписью «Компенсация»
+        setComp(compensation)
+        compPending.current = null
+        onCompensate(compensation.winner)
       }
     }, delay + profile.resultMs)
+
+    if (compensation && !fast) {
+      // Обычная скорость: «NO PROBLEM» ещё COMP_START_DELAY мс, затем падает кейс (дальше всё ведёт CompensationCase)
+      const openCase = window.setTimeout(() => {
+        setComp(compensation)
+        setPhase('compensation')
+      }, delay + profile.resultMs + COMP_START_DELAY)
+      timers.current = [finish, openCase]
+      return
+    }
 
     // Через holdMs кнопка и колесо возвращаются в обычный вид.
     // Стрелка остаётся там, где остановилась (spin не сбрасываем): вниз она вернётся при новой ставке
     const reset = window.setTimeout(() => {
       setPhase('idle')
-    }, delay + profile.resultMs + profile.holdMs)
+      setComp(null)
+    }, delay + profile.resultMs + (compensation ? COMP_FAST_HOLD : profile.holdMs))
 
     timers.current = [finish, reset]
   }
@@ -462,15 +495,17 @@ function UpgraderPage({
     }
   }, [selectedSkin, inputTotal, phase])
 
-  const virtualMySkin = inputTotal > 0 ? {
-  id: 'my-bet',
-  name: 'Bet',
-  price: inputTotal,
-  weapon: 'Bet',
-  wear: '',
-  image: '',
-  rarityColor: '#ffffff',
-} : null
+  const virtualMySkin: Skin | null = inputTotal > 0
+  ? {
+      id: 'my-bet',
+      name: 'Bet',
+      price: inputTotal,
+      weapon: '',
+      wear: '',
+      image: '',
+      rarityColor: '',
+    }
+  : null
 
   return (
     <div className="upgrader-layout">
@@ -478,7 +513,7 @@ function UpgraderPage({
         chance={busy && spin ? spin.chance : chance}
         active={busy ? true : wheelActive}
         spin={spin}
-        result={phase === 'result' && spin ? (spin.win ? 'win' : 'lose') : null}
+        result={(phase === 'result' || phase === 'compensation') && spin ? (spin.win ? 'win' : 'lose') : null}
       />
 
       <WheelToolbar
@@ -533,6 +568,22 @@ function UpgraderPage({
           alt="Select skin for upgrade"
           className="upgrader-element upgrader-select-skin-for-upgrade"
           draggable={false}
+        />
+      )}
+
+      {comp && compFast.current && phase === 'result' && <CompensationPanel skin={comp.winner} />}
+
+      {comp && !compFast.current && phase === 'compensation' && (
+        <CompensationCase
+          comp={comp}
+          onReveal={() => {
+            compPending.current = null
+            onCompensate(comp.winner)
+          }}
+          onDone={() => {
+            setPhase('idle')
+            setComp(null)
+          }}
         />
       )}
 
@@ -653,7 +704,7 @@ function Site() {
 
   const [notifications, setNotifications] = useState<DepositNotification[]>([])
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const [unreadNotifications, setUnreadNotifications] = useState(0)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   const [amountFocused, setAmountFocused] = useState(false)
   const [email, setEmail] = useState('')
@@ -693,7 +744,7 @@ function Site() {
         ...current,
       ])
 
-      setUnreadNotifications((current) => Math.min(current + 1, 99))
+      setUnreadCount((count) => count + 1)
       setIsPayScreenOpen(false)
       setIsTopUpOpen(false)
     }, 5000)
@@ -745,16 +796,16 @@ function Site() {
   }
 
   function toggleNotifications() {
-  setIsNotificationsOpen((open) => {
-    const nextOpen = !open
+    setIsNotificationsOpen((open) => {
+      const nextOpen = !open
 
-    if (nextOpen) {
-      setUnreadNotifications(0)
-    }
+      if (nextOpen) {
+        setUnreadCount(0)
+      }
 
-    return nextOpen
-  })
-}
+      return nextOpen
+    })
+  }
 
   return (
     <div className={`site-background ${pageClass}`}>
@@ -801,7 +852,7 @@ function Site() {
           >
             <svg viewBox="0 0 40 40" aria-hidden="true" className="weekly-drop-ring">
               <circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5" />
-              <circle className="weekly-drop-progress" cx="20" cy="20" r="14" fill="none" stroke="#FCD711" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="87.965" strokeDashoffset="87.965" />
+              <circle className="weekly-drop-progress" cx="20" cy="20" r="14" fill="none" stroke="#FCD711" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="87.965" strokeDashoffset={87.965 * (1 - Math.min(100, Math.max(0, weeklyDeposit)) / 100)} opacity={weeklyDeposit > 0 ? 1 : 0} />
             </svg>
 
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="weekly-drop-gift">
@@ -839,11 +890,9 @@ function Site() {
             onClick={toggleNotifications}
           >
             <img src="https://s3.upgrader.pro/cdn/fa/icons/bell.svg" alt="" />
-            {unreadNotifications > 0 && (
-  <span className="notifications-badge">
-    {unreadNotifications > 99 ? '99+' : unreadNotifications}
-  </span>
-)}
+            {unreadCount > 0 && (
+              <span className="notifications-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+            )}
           </button>
 
           <div
@@ -1014,6 +1063,7 @@ function Site() {
                   balance={balance}
                   onSpend={spendForUpgrade}
                   onWin={addWonSkin}
+                  onCompensate={addWonSkin}
                 />
               </>
             }

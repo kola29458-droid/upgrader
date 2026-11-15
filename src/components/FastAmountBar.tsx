@@ -215,6 +215,7 @@ const handlePercentClick = (targetPercent: number) => selectByChance(targetPerce
           type="button"
           className="fast-bar-btn fast-bar-btn--settings"
           onClick={onOpenSettings}
+          data-tooltip="Settings"
         >
           <svg viewBox="0 0 24 24" className="fast-bar-icon">
             <path

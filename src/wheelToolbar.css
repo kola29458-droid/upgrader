@@ -2,7 +2,7 @@
    Положение задаётся здесь: left / top (карточка стоит в left: 477px, top: 100px) */
 .wheel-toolbar {
   position: absolute;
-  left: 481px;
+  left: 482px;
   top: 74px;
   z-index: 7;
   display: flex;
@@ -34,7 +34,10 @@
 .wt-btn--gray { color: #a7a7a7; }     /* серый: выключено / обычная кнопка */
 .wt-btn--yellow { color: #ffe02d; }   /* жёлтый: включено */
 
-.wt-fast { width: 10px; }
+/* Размеры сняты с оригинала: все иконки 16px, стоят с шагом 22px */
+
+.wt-fast { width: 16px; }
+.wt-fast svg { width: 10px; }
 
 /* Звук: при наведении справа появляется ползунок громкости, а молния прячется */
 .wt-sound {
@@ -103,4 +106,10 @@
   border: 0;
   border-radius: 50%;
   background: #fdd911;
+}
+
+/* Увеличение иконки динамика */
+.wt-speaker {
+  width: 17px;
+  height: 17px;
 }

@@ -28,7 +28,7 @@ export default function WheelToolbar({
         type="button"
         className="wt-btn wt-btn--gray"
         onClick={onInfo}
-        title="Info"
+        data-tooltip="How does upgrade work"
         aria-label="Game info"
         data-testid="game-info-button"
       >
@@ -43,37 +43,32 @@ export default function WheelToolbar({
 
       <button
         type="button"
-        className="wt-btn wt-btn--gray"
+        className="wt-btn wt-btn--gray wt-gear"
         onClick={onOpenSettings}
-        title="Settings"
+        data-tooltip="Settings"
         aria-label="Settings"
         data-testid="game-settings-button"
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path fill="currentColor" fillRule="evenodd" d="M5.81 2.31L6.34 0.17A8 8 0 0 1 9.66 0.17L10.19 2.31A6.1 6.1 0 0 1 11.84 3.26L13.95 2.65A8 8 0 0 1 15.61 5.53L14.02 7.05A6.1 6.1 0 0 1 14.02 8.95L15.61 10.47A8 8 0 0 1 13.95 13.35L11.84 12.74A6.1 6.1 0 0 1 10.19 13.69L9.66 15.83A8 8 0 0 1 6.34 15.83L5.81 13.69A6.1 6.1 0 0 1 4.16 12.74L2.05 13.35A8 8 0 0 1 0.39 10.47L1.98 8.95A6.1 6.1 0 0 1 1.98 7.05L0.39 5.53A8 8 0 0 1 2.05 2.65L4.16 3.26A6.1 6.1 0 0 1 5.81 2.31ZM8 5.8a2.2 2.2 0 1 0 0 4.4a2.2 2.2 0 1 0 0 -4.4Z" />
         </svg>
       </button>
 
       <div className="wt-sound">
         <button
           type="button"
-          className={`wt-btn ${sound ? 'wt-btn--yellow' : 'wt-btn--gray'}`}
+          className={`wt-btn wt-speaker ${sound ? 'wt-btn--yellow' : 'wt-btn--gray'}`}
           onClick={onToggleSound}
-          title={sound ? 'Sound on' : 'Sound off'}
+          data-tooltip={sound ? 'Disable sound' : 'Enable sound'}
           aria-label="Sound"
           aria-pressed={sound}
           data-testid="game-sound-toggle"
         >
           <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path fill="currentColor" d="M1.4 5.6h2.7L8 2.2v11.6l-3.9-3.4H1.4z" />
-            {sound ? (
-              <>
-                <path d="M10.2 5.7a3.5 3.5 0 0 1 0 4.6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M12.2 3.8a6.2 6.2 0 0 1 0 8.4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </>
-            ) : (
-              <path d="M10.6 6l3.4 4M14 6l-3.4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            )}
+            {/* Форма подогнана по пикселям под оригинал. Выключенный звук в оригинале — тот же динамик, только серый (цвет задаёт класс кнопки) */}
+            <path fill="currentColor" d="M0 5.7H3.14L8.02 1.9V14.1L3.14 10.3H0Z" />
+            <path d="M9.96 4.97Q12.55 8 9.96 11.03" fill="none" stroke="currentColor" strokeWidth="1.49" strokeLinecap="round" />
+            <path d="M12.04 2.52Q17.04 8 12.04 13.48" fill="none" stroke="currentColor" strokeWidth="1.46" strokeLinecap="round" />
           </svg>
         </button>
 
@@ -97,13 +92,13 @@ export default function WheelToolbar({
         type="button"
         className={`wt-btn wt-fast ${fast ? 'wt-btn--yellow' : 'wt-btn--gray'}`}
         onClick={onToggleFast}
-        title={fast ? 'Fast spin' : 'Normal spin'}
+        data-tooltip={fast ? 'Disable fast animation' : 'Enable fast animation'}
         aria-label="Fast spin"
         aria-pressed={fast}
         data-testid="game-fast-animation-toggle"
       >
         <svg viewBox="0 0 10 16" aria-hidden="true">
-          <path fill="currentColor" d="M6 0 0 9h4l-1 7 7-10H6l2-6z" />
+          <path fill="currentColor" d="M4.4 0H9.4L7 5.2H9.8L0.9 16L2.9 9H0.3Z" />
         </svg>
       </button>
     </div>

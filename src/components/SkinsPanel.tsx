@@ -326,6 +326,7 @@ export default function SkinsPanel({
 
   const addToCart = (skin: Skin) => {
     if (locked) return
+    playSound('click')
     setCart((current) => {
       if (current[skin.id]) return current
       const count = Object.values(current).reduce((sum, entry) => sum + entry.qty, 0)
@@ -584,6 +585,7 @@ export default function SkinsPanel({
               className={`sp-tab${tab === 'mine' ? ' sp-tab--active' : ''}`}
               onClick={() => setTab('mine')}
               aria-label="My skins"
+              data-tooltip={tab === 'mine' ? undefined : 'My skins'}
             >
               <KnifeIcon />
             </button>
@@ -592,6 +594,7 @@ export default function SkinsPanel({
               className={`sp-tab${tab === 'shop' ? ' sp-tab--active' : ''}`}
               onClick={() => setTab('shop')}
               aria-label="Shop"
+              data-tooltip={tab === 'shop' ? undefined : 'Shop'}
             >
               <ShopIcon />
             </button>
@@ -667,12 +670,12 @@ export default function SkinsPanel({
                   onChange={(event) => changeName(event.target.value)}
                 />
 
-                <button type="button" className="sp-search" onClick={toggleName} aria-label="Search">
+                <button type="button" className="sp-search" onClick={toggleName} aria-label="Search" data-tooltip="Search by name">
                   <img src={SEARCH_ICON} alt="" draggable={false} />
                 </button>
               </div>
 
-              <div className="sp-cart-btn" aria-label="Cart">
+              <div className="sp-cart-btn" aria-label="Cart" data-tooltip="Cart">
                 <img src="https://s3.upgrader.pro/cdn/fa/icons/black-shop.svg" alt="" draggable={false} />
                 <span className="sp-badge">{cartCount}</span>
               </div>

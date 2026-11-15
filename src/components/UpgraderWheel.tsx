@@ -4,8 +4,7 @@ import '../upgradeSpin.css'
 import { SPIN_PROFILES, makeProgress } from '../spinProfiles'
 import { playSound } from '../sound'
 
-const TICK_STEP = 45         // тик каждые 45° (8 щелчков на оборот, как в образце)
-const TICK_MIN_GAP = 80     // не чаще одного тика за 80 мс, чтобы на пике скорости не было гула
+const SOUND_LOOKAHEAD_MS = 150 // звуки крутки ставим в расписание Web Audio чуть заранее, чтобы они попали точно в такт
 
 const SIZE = 365
 const C = SIZE / 2
@@ -136,41 +135,27 @@ export default function UpgraderWheel({ chance, active, spin = null, result = nu
     const profile = SPIN_PROFILES[spin.fast ? 'fast' : 'normal']
     const progressAt = makeProgress(profile.points)
     const startTime = performance.now() + spin.delay
+    const soundTime = startTime - profile.soundLeadMs // когда должен начаться стартовый звук (как в образце: раньше стрелки)
     let frameId = 0
-    let startPlayed = false
-    let lastTickIndex = 0
-    let lastTickTime = -Infinity
-    let fixedTickIndex = 0
+    let soundsScheduled = false
+    const cancelSounds: Array<() => void> = []
+
+    // Стартовый звук и все тики ставятся в расписание один раз, по часам аудио.
+    // Тики идут по времени, снятому с оригинала (угол между ними там не постоянный).
+    const scheduleSounds = () => {
+      soundsScheduled = true
+      const startIn = soundTime - performance.now() // может быть < 0: тогда начало звука пропускается, остальное идёт вовремя
+      cancelSounds.push(playSound(profile.startSound, startIn))
+      profile.tickTimesMs.forEach((tickMs) => cancelSounds.push(playSound('tick', startIn + tickMs)))
+    }
 
     const animate = (now: number) => {
-      // Стартовый звук идёт чуть раньше движения стрелки (как в образце)
-      if (!startPlayed && now >= startTime - profile.soundLeadMs) {
-        startPlayed = true
-        playSound('start')
-      }
+      if (!soundsScheduled && now >= soundTime - SOUND_LOOKAHEAD_MS) scheduleSounds()
 
       const elapsed = now - startTime
       const t = Math.min(1, Math.max(0, elapsed / spin.duration))
       const angle = spin.angle * progressAt(t)
       element.style.transform = `rotate(${angle}deg)`
-
-      if (profile.fixedTicksMs) {
-        // Быстрая крутка: тики в заданные моменты
-        while (fixedTickIndex < profile.fixedTicksMs.length && elapsed >= profile.fixedTicksMs[fixedTickIndex]) {
-          fixedTickIndex++
-          playSound('tick')
-        }
-      } else {
-        // Обычная крутка: тик каждый раз, когда стрелка проходит очередное деление
-        const tickIndex = Math.floor(angle / TICK_STEP)
-        if (tickIndex > lastTickIndex) {
-          lastTickIndex = tickIndex
-          if (elapsed >= profile.tickFromMs && now - lastTickTime >= TICK_MIN_GAP) {
-            lastTickTime = now
-            playSound('tick')
-          }
-        }
-      }
 
       if (t < 1) frameId = requestAnimationFrame(animate)
     }
@@ -178,7 +163,10 @@ export default function UpgraderWheel({ chance, active, spin = null, result = nu
     element.style.transform = 'rotate(0deg)'
     frameId = requestAnimationFrame(animate)
 
-    return () => cancelAnimationFrame(frameId)
+    return () => {
+      cancelAnimationFrame(frameId)
+      cancelSounds.forEach((cancel) => cancel())
+    }
   }, [spin?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Подпись светлеет, когда цветная дуга дошла до неё.

@@ -134,6 +134,7 @@ function SkinFilters({
         type="button"
         data-testid="shop-filters-toggle"
         className="skin-filter__search"
+        data-tooltip="Search by name"
         onClick={onToggleName}
       >
         <img src={SEARCH_ICON} alt="Search" draggable={false} />
