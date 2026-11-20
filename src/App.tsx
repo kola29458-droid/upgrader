@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 import './App.css'
+import './caseOpening.css'
 import SupportChat from './SupportChat'
 import { Link } from "react-router-dom";
 import SkinCatalog from './components/SkinCatalog'
@@ -15,6 +16,7 @@ import SelectedSkinPanel from './components/SelectedSkinPanel'
 import SkinsPanel from './components/SkinsPanel'
 import { useInventory } from './hooks/useInventory'
 import type { OwnedSkin } from './hooks/useInventory'
+import AnimatedBalance from './components/AnimatedBalance'
 import UpgraderWheel from './components/UpgraderWheel'
 import FastAmountBar from './components/FastAmountBar'
 import ImproveButton from './components/ImproveButton'
@@ -23,12 +25,17 @@ import SettingsModal from './components/SettingsModal'
 import { loadQuickSettings, saveQuickSettings } from './quickSettings'
 import type { QuickSettings } from './quickSettings'
 import { useSkins } from './hooks/useSkins'
-import { calcChance, isChanceTooLow, MAX_CHANCE } from './upgraderMath'
+import { calcChance, isChanceTooLow, MAX_CHANCE, rollSpinStop } from './upgraderMath'
 import { SPIN_PROFILES } from './spinProfiles'
 import { playSound, preloadSounds, setSoundSettings, unlockAudio } from './sound'
-import CompensationCase, { CompensationPanel } from './components/CompensationCase'
-import { makeCompensation } from './compensation'
-import type { Compensation } from './compensation'
+import CaseOpening from './components/CaseOpening'
+import ProfileView from './components/profile/ProfileView'
+import type { ProfileViewProps } from './components/profile/ProfileView'
+import { useProfileLog } from './hooks/useProfileLog'
+import { AVATAR_PLACEHOLDER, DEFAULT_PROFILE_SETTINGS } from './profileStore'
+import type { GameRecord, ItemEventKind, ProfileSettings } from './profileStore'
+import { CASE_THRESHOLD, pickCompensation } from './compensation'
+import { COMP_CARD_TIMING } from './rouletteProfile'
 
 const COUNTER_SETTINGS = {
   onlineMin: 1500,
@@ -51,6 +58,8 @@ const WHEEL_CONFIG = {
   fullTurns: 7,
   easing: 'cubic-bezier(0.12, 0.65, 0.08, 1)',
 }
+
+const CASE_RESULT_DELAY_MS = 1500 // сколько «NO PROBLEM» висит до появления кейса (по видео-образцу)
 
 const WEEK_DURATION = 7 * 24 * 60 * 60 * 1000
 
@@ -318,23 +327,22 @@ function BattlesPage() {
   )
 }
 
-const COMP_START_DELAY = 700 // пауза между «NO PROBLEM» и падением кейса (обычная скорость), мс
-const COMP_FAST_HOLD = 2200 // сколько висит карточка «Компенсация» на быстрой скорости, мс
-
 function UpgraderPage({
   inventory,
   onBuy,
   balance,
   onSpend,
   onWin,
-  onCompensate,
+  onSell,
+  onGame,
 }: {
   inventory: OwnedSkin[]
   onBuy: (skins: Skin[]) => boolean
   balance: number
   onSpend: (uids: string[], coins: number) => void // списать скины и ставку после нажатия Improve
-  onWin: (skin: Skin) => string                    // выдать выигранный скин, возвращает его uid
-  onCompensate: (skin: Skin) => void               // выдать скин-компенсацию за проигрыш
+  onWin: (skin: Skin, source?: 'won' | 'compensation') => string // выдать выигранный скин (или компенсацию), возвращает его uid
+  onSell: (amount: number, skin?: Skin) => void    // продать выпавший скин: вернуть его стоимость на виртуальный баланс
+  onGame: (game: Omit<GameRecord, 'id' | 'time'>) => void // записать игру в историю профиля
 }) {
   const [selectedSkin, setSelectedSkin] = useState<Skin | null>(null)
   const [mineSelected, setMineSelected] = useState<OwnedSkin[]>([])
@@ -343,7 +351,7 @@ function UpgraderPage({
   const [quickSettings, setQuickSettings] = useState<QuickSettings>(loadQuickSettings)
 
   // Крутка: idle (ждём) -> spinning (стрелка крутится) -> result (показываем итог 3 секунды) -> idle
-  const [phase, setPhase] = useState<'idle' | 'spinning' | 'result' | 'compensation'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'spinning' | 'result' | 'case'>('idle')
   const [spin, setSpin] = useState<{
     id: number
     angle: number
@@ -358,9 +366,15 @@ function UpgraderPage({
   const [selectRequest, setSelectRequest] = useState<{ uid: string; nonce: number } | null>(null)
   const timers = useRef<number[]>([])
   const pending = useRef<{ win: boolean; target: Skin } | null>(null)
-  const [comp, setComp] = useState<Compensation | null>(null)   // компенсация за проигрыш (показывается, пока не вернулись в idle)
-  const compPending = useRef<Compensation | null>(null)          // компенсация, которую ещё не выдали (на случай ухода со страницы)
-  const compFast = useRef(false)
+  const gameRef = useRef<Omit<GameRecord, 'id' | 'time'> | null>(null) // игра ждёт записи в историю до конца крутки
+
+  // Компенсация за проигрыш (виртуальная): выпавший скин ещё не выдан, пока он лежит в dropRef
+  const dropRef = useRef<{ spinId: number; skin: Skin } | null>(null)
+  const settledSpins = useRef<Set<number>>(new Set()) // за какие крутки компенсация уже выдана/продана: повторно за одну и ту же не начисляется
+  const recentDrops = useRef<string[]>([]) // последние выпавшие скины: чтобы не повторялись подряд
+  const [caseDrop, setCaseDrop] = useState<{ spinId: number; skin: Skin } | null>(null) // открыт кейс (обычная прокрутка, вход больше порога)
+  const [caseInput, setCaseInput] = useState(0) // сумма входа той крутки, после которой открылся кейс
+  const [compSkin, setCompSkin] = useState<{ skin: Skin; stage: 'in' | 'shrunk' | 'out' } | null>(null) // компенсация в левой карточке (быстрая прокрутка): выезжает справа, уменьшается, уезжает вниз
 
   const busy = phase !== 'idle'
 
@@ -371,6 +385,7 @@ function UpgraderPage({
 
   useEffect(() => {
     preloadSounds()
+    fetch('/case/case-open.webm').catch(() => {}) // клип кейса заранее в кэш браузера
     const unlock = () => unlockAudio()
     window.addEventListener('pointerdown', unlock, { once: true })
     window.addEventListener('keydown', unlock, { once: true })
@@ -390,8 +405,9 @@ function UpgraderPage({
   useEffect(
     () => () => {
       timers.current.forEach((timer) => window.clearTimeout(timer))
+      commitGame() // ушли со страницы во время крутки: игра всё равно попадает в историю
       if (pending.current?.win) onWin(pending.current.target)
-      if (compPending.current) onCompensate(compPending.current.winner)
+      if (dropRef.current) settleCompensation(dropRef.current.spinId, dropRef.current.skin, false) // ушли со страницы до выдачи компенсации: скин не пропадает
     },
     [], // eslint-disable-line react-hooks/exhaustive-deps
   )
@@ -404,60 +420,111 @@ function UpgraderPage({
 
     const target = selectedSkin
     const spinChance = chance
-    const stop = Math.random() * 360 // где остановится стрелка: градусы от низа колеса по часовой
-    const win = Math.min(stop, 360 - stop) <= spinChance * 1.8 // попала в цветную дугу
+    const { win, stop } = rollSpinStop(spinChance) // win: попала в цветную дугу (шанс ровно chance%), stop: где остановится стрелка, градусы от низа колеса по часовой
     const fast = quickSettings.fastScroll
     const profile = SPIN_PROFILES[fast ? 'fast' : 'normal'] // скорость и тайминги сняты с видео-образца
     const delay = fast ? 440 : 195        // пауза после нажатия Improve, потом стрелка начинает крутиться. Обычная (по видео оригинала): клик -> звук сразу -> стрелка через 0.19 с. Быстрая: клик -> удар через 0.21 с -> стрелка ещё через 0.23 с
     const duration = profile.motionMs     // сколько стрелка реально движется
 
-    // Проигрыш со ставкой больше 30 коинов: готовим компенсацию (скин выпадет после проигрыша)
-    const compensation = win ? null : makeCompensation(allCatalogSkins, inputTotal)
-    compPending.current = compensation
-    compFast.current = fast
-    setComp(null)
+    // Проигрыш: заранее определяем компенсацию (реальный скин из каталога, цена зависит от суммы входа)
+    // Компенсация положена только за проигрыш с суммой входа больше COMPENSATION_MIN_INPUT (иначе pickCompensation вернёт null)
+    const spinInput = inputTotal
+    const spinId = Date.now()
+    const compensation = win ? null : pickCompensation(allCatalogSkins, spinInput, target.price, recentDrops.current)
+    const withCase = Boolean(compensation) && !fast && spinInput > CASE_THRESHOLD // кейс только в обычной прокрутке
+    dropRef.current = compensation ? { spinId, skin: compensation.skin } : null
+    setCompSkin(null)
 
     // Скины и ставка списываются сразу
     onSpend(mineSelected.map((skin) => skin.uid), bet)
     pending.current = { win, target }
+    gameRef.current = {
+      betSkins: mineSelected.map(({ uid: _uid, ...skin }) => skin),
+      betCoins: bet,
+      betTotal: spinInput,
+      target,
+      chance: spinChance,
+      win,
+      compensation: compensation ? compensation.skin : null,
+    }
     setWonUid(null)
-    setSpin({ id: Date.now(), angle: profile.turns * 360 + stop, duration, delay, fast, win, chance: spinChance })
+    setSpin({ id: spinId, angle: profile.turns * 360 + stop, duration, delay, fast, win, chance: spinChance })
     setPhase('spinning')
 
     // Показываем итог чуть позже остановки стрелки, сбрасываем выбор слева, выдаём выигрыш
     const finish = window.setTimeout(() => {
       pending.current = null
+      commitGame()
       setPhase('result')
       setClearKey((key) => key + 1)
       if (win) {
         playSound('win')
         setWonUid(onWin(target))
-      } else if (compensation && fast) {
-        // Быстрая скорость: без кейса, скин сразу появляется в левой карточке с подписью «Компенсация»
-        setComp(compensation)
-        compPending.current = null
-        onCompensate(compensation.winner)
+      } else if (compensation && !withCase) {
+        // Быстрая прокрутка: без кейса. Скин сразу в инвентаре, а в левой карточке (пустой после ставки)
+        // компенсация выезжает справа, постоит и уезжает вниз (тайминги с видео-образца)
+        settleCompensation(spinId, compensation.skin, false)
+        const t = COMP_CARD_TIMING
+        const shrinkAt = t.slideInDelayMs + t.slideInMs + t.holdBeforeShrinkMs
+        const outAt = shrinkAt + t.shrinkMs + t.holdAfterShrinkMs
+        timers.current.push(
+          window.setTimeout(() => setCompSkin({ skin: compensation.skin, stage: 'in' }), t.slideInDelayMs),
+          window.setTimeout(() => setCompSkin({ skin: compensation.skin, stage: 'shrunk' }), shrinkAt),
+          window.setTimeout(() => setCompSkin({ skin: compensation.skin, stage: 'out' }), outAt),
+          window.setTimeout(() => {
+            setCompSkin(null)
+            setPhase('idle')
+          }, outAt + t.slideOutMs),
+        )
+      } else if (compensation) {
+        // Обычная прокрутка: через паузу после «NO PROBLEM» падает кейс (как в оригинале)
+        timers.current.push(
+          window.setTimeout(() => {
+            setCaseInput(spinInput)
+            setPhase('case')
+            setCaseDrop({ spinId, skin: compensation.skin })
+          }, CASE_RESULT_DELAY_MS),
+        )
       }
     }, delay + profile.resultMs)
 
-    if (compensation && !fast) {
-      // Обычная скорость: «NO PROBLEM» ещё COMP_START_DELAY мс, затем падает кейс (дальше всё ведёт CompensationCase)
-      const openCase = window.setTimeout(() => {
-        setComp(compensation)
-        setPhase('compensation')
-      }, delay + profile.resultMs + COMP_START_DELAY)
-      timers.current = [finish, openCase]
-      return
-    }
-
     // Через holdMs кнопка и колесо возвращаются в обычный вид.
     // Стрелка остаётся там, где остановилась (spin не сбрасываем): вниз она вернётся при новой ставке
+    // С кейсом интерфейс остаётся занятым, пока кейс не закрыт (Sell / Back to upgrade / крестик)
+    // Быстрая компенсация держит интерфейс занятым, пока карточка не уедет (сама вернёт idle)
     const reset = window.setTimeout(() => {
-      setPhase('idle')
-      setComp(null)
-    }, delay + profile.resultMs + (compensation ? COMP_FAST_HOLD : profile.holdMs))
+      if (!withCase && !(compensation && fast)) setPhase('idle')
+    }, delay + profile.resultMs + profile.holdMs)
 
     timers.current = [finish, reset]
+  }
+
+  // Единственное место, где компенсация выдаётся (в инвентарь) или продаётся (на баланс).
+  // Одна крутка (spinId) = одна компенсация: повторный вызов для той же крутки ничего не делает.
+  // Записывает текущую игру в историю профиля (один раз)
+  const commitGame = () => {
+    const game = gameRef.current
+    if (!game) return
+    gameRef.current = null
+    onGame(game)
+  }
+
+  const settleCompensation = (spinId: number, skin: Skin, sell: boolean): boolean => {
+    if (settledSpins.current.has(spinId)) return false
+    settledSpins.current.add(spinId)
+    if (dropRef.current?.spinId === spinId) dropRef.current = null
+    recentDrops.current = [skin.id, ...recentDrops.current].slice(0, 12)
+    if (sell) onSell(Number(skin.price.toFixed(2)), skin)
+    else onWin(skin, 'compensation')
+    return true
+  }
+
+  // Кейс закрыт: продали (стоимость на баланс) или оставили (скин в инвентарь). Интерфейс снова свободен.
+  const closeCase = (sell: boolean) => {
+    if (!caseDrop) return
+    settleCompensation(caseDrop.spinId, caseDrop.skin, sell)
+    setCaseDrop(null)
+    setPhase('idle')
   }
 
   // Новая ставка (выбрали скин, поменяли ставку) или цель справа убрана/сменена:
@@ -483,6 +550,11 @@ function UpgraderPage({
     setWonUid(null)
   }
 
+  // Начали собирать новую ставку: карточка компенсации слева убирается (скин остаётся в инвентаре)
+  useEffect(() => {
+    if (compSkin && (mineSelected.length > 0 || bet > 0)) setCompSkin(null)
+  }, [mineSelected.length, bet]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Выбрали свой скин вручную: кнопка Add to upgrade больше не нужна
   useEffect(() => {
     if (mineSelected.length > 0) setWonUid(null)
@@ -495,17 +567,10 @@ function UpgraderPage({
     }
   }, [selectedSkin, inputTotal, phase])
 
-  const virtualMySkin: Skin | null = inputTotal > 0
-  ? {
-      id: 'my-bet',
-      name: 'Bet',
-      price: inputTotal,
-      weapon: '',
-      wear: '',
-      image: '',
-      rarityColor: '',
-    }
-  : null
+  const virtualMySkin: Skin | null =
+    inputTotal > 0
+      ? { id: 'my-bet', weapon: '', name: 'Bet', wear: '', price: inputTotal, image: '', rarityColor: '' }
+      : null
 
   return (
     <div className="upgrader-layout">
@@ -513,7 +578,7 @@ function UpgraderPage({
         chance={busy && spin ? spin.chance : chance}
         active={busy ? true : wheelActive}
         spin={spin}
-        result={(phase === 'result' || phase === 'compensation') && spin ? (spin.win ? 'win' : 'lose') : null}
+        result={phase === 'result' && spin ? (spin.win ? 'win' : 'lose') : null}
       />
 
       <WheelToolbar
@@ -571,20 +636,10 @@ function UpgraderPage({
         />
       )}
 
-      {comp && compFast.current && phase === 'result' && <CompensationPanel skin={comp.winner} />}
-
-      {comp && !compFast.current && phase === 'compensation' && (
-        <CompensationCase
-          comp={comp}
-          onReveal={() => {
-            compPending.current = null
-            onCompensate(comp.winner)
-          }}
-          onDone={() => {
-            setPhase('idle')
-            setComp(null)
-          }}
-        />
+      {compSkin && (
+        <div className="comp-slot">
+          <SelectedSkinPanel skin={compSkin.skin} side="left" label="Compensation" anim={compSkin.stage} />
+        </div>
       )}
 
       <img
@@ -626,6 +681,16 @@ function UpgraderPage({
         }}
       />
 
+      {caseDrop && (
+        <CaseOpening
+          drop={caseDrop.skin}
+          catalog={allCatalogSkins}
+          input={caseInput > 0 ? caseInput : caseDrop.skin.price}
+          onSell={() => closeCase(true)}
+          onKeep={() => closeCase(false)}
+        />
+      )}
+
       {settingsOpen && (
         <SettingsModal
           settings={quickSettings}
@@ -640,19 +705,17 @@ function UpgraderPage({
   )
 }
 
-function ProfilePage() {
+type ProfilePageProps = ProfileViewProps
+
+function ProfilePage(props: ProfilePageProps) {
   return (
     <div className="profile-page">
-      <img
-        src="/profile.png"
-        alt="Profile"
-        className="profile-reference-image"
-      />
       <img
         src="/profile-vip.png"
         alt="VIP Club"
         className="profile-vip-image"
       />
+      <ProfileView {...props} />
     </div>
   )
 }
@@ -674,7 +737,21 @@ function Site() {
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [isPayScreenOpen, setIsPayScreenOpen] = useState(false)
   const [balance, setBalance] = useState(0)
+  const [profileId, setProfileId] = useState('1000001')
   const inventory = useInventory()
+  const profileLog = useProfileLog()
+
+  // Аватарка: выбранный файл живёт только в памяти (как и всё остальное в симуляторе)
+  const [profileSettings, setProfileSettings] = useState<ProfileSettings>(DEFAULT_PROFILE_SETTINGS)
+  const [avatar, setAvatar] = useState<string>(AVATAR_PLACEHOLDER)
+  const avatarUrlRef = useRef<string | null>(null)
+  function changeAvatar(file: File) {
+    if (!file.type.startsWith('image/')) return
+    const url = URL.createObjectURL(file)
+    if (avatarUrlRef.current) URL.revokeObjectURL(avatarUrlRef.current)
+    avatarUrlRef.current = url
+    setAvatar(url)
+  }
 
   function buySkins(skins: Skin[]): boolean {
     const totalCents = skins.reduce((sum, skin) => sum + Math.round(skin.price * 100), 0)
@@ -684,20 +761,50 @@ function Site() {
 
     setBalance(Number(((balanceCents - totalCents) / 100).toFixed(2)))
     inventory.add(skins)
+    profileLog.logItems('bought', skins)
     return true
   }
 
   // Апгрейд: списываем использованные скины и ставку
   function spendForUpgrade(uids: string[], coins: number) {
+    profileLog.logItems('upgraded', inventory.items.filter((item) => uids.includes(item.uid)))
     inventory.remove(uids)
     if (coins > 0) {
       setBalance((current) => Number((current - coins).toFixed(2)))
     }
   }
 
+  // Продажа выпавшего скина: его стоимость добавляется к виртуальному балансу (никаких реальных платежей)
+  function sellDroppedSkin(amount: number, skin?: Skin) {
+    if (amount > 0) setBalance((current) => Number((current + amount).toFixed(2)))
+    if (skin) {
+      profileLog.logItems('compensation', [skin])
+      profileLog.logItems('sold', [skin])
+    }
+  }
+
   // Апгрейд выигран: добавляем скин в инвентарь и возвращаем его uid
-  function addWonSkin(skin: Skin): string {
+  function addWonSkin(skin: Skin, source: 'won' | 'compensation' = 'won'): string {
+    profileLog.logItems(source as ItemEventKind, [skin])
     return inventory.add([skin])[0].uid
+  }
+
+  // Профиль: продажа скинов из инвентаря за виртуальные монеты
+  function sellOwned(uids: string[]) {
+    const items = inventory.items.filter((item) => uids.includes(item.uid))
+    if (items.length === 0) return
+    const cents = items.reduce((sum, item) => sum + Math.round(item.price * 100), 0)
+    inventory.remove(items.map((item) => item.uid))
+    setBalance((current) => Number((current + cents / 100).toFixed(2)))
+    profileLog.logItems('sold', items)
+  }
+
+  // Профиль: вывод скина (виртуальный): убирается из инвентаря и попадает в статистику Withdrawn
+  function withdrawOwned(uid: string) {
+    const item = inventory.items.find((owned) => owned.uid === uid)
+    if (!item) return
+    inventory.remove([uid])
+    profileLog.logItems('withdrawn', [item])
   }
   const [weeklyDeposit, setWeeklyDeposit] = useState(0)
   const [amount, setAmount] = useState('300')
@@ -864,7 +971,7 @@ function Site() {
           <div className="balance-widget">
             <button type="button" className="balance-main" aria-label="Account balance">
               <img src="/coins.png" className="balance-coin" alt="" />
-              <span className="balance-amount">{balance.toFixed(2)}</span>
+              <AnimatedBalance value={balance} className="balance-amount" />
             </button>
 
             <button type="button" className="balance-arrow" aria-label="Open balance menu">
@@ -879,6 +986,7 @@ function Site() {
           onClick={openProfile}
           aria-label="Profile"
         />
+        <img className="header-avatar" src={avatar} alt="" draggable={false} />
 
         <div className="notifications-wrapper">
           <button
@@ -1063,7 +1171,8 @@ function Site() {
                   balance={balance}
                   onSpend={spendForUpgrade}
                   onWin={addWonSkin}
-                  onCompensate={addWonSkin}
+                  onSell={sellDroppedSkin}
+                  onGame={profileLog.logGame}
                 />
               </>
             }
@@ -1103,7 +1212,24 @@ function Site() {
 
           <Route
             path="/en/profile"
-            element={<ProfilePage />}
+            element={
+              <ProfilePage
+                balance={balance}
+                profileId={profileId}
+                onProfileIdChange={setProfileId}
+                avatar={avatar}
+                onAvatarChange={changeAvatar}
+                onTopUp={() => setIsTopUpOpen(true)}
+                inventory={inventory.items}
+                itemEvents={profileLog.itemEvents}
+                games={profileLog.games}
+                stats={profileLog.stats}
+                onSell={sellOwned}
+                onWithdraw={withdrawOwned}
+                settings={profileSettings}
+                onSaveSettings={setProfileSettings}
+              />
+            }
           />
         </Routes>
       </main>

@@ -9,13 +9,14 @@ const SOUND_FILES = {
   startFast: '/sounds/spin-start-fast.wav', // быстрая крутка: прежний файл (пока нет видео оригинала с быстрой круткой)
   tick: '/sounds/tick.wav',                 // щелчок, когда стрелка проходит очередное деление
   win: '/sounds/win.wav',                   // победа (фейерверк, ~3 с)
+  caseOpen: '/sounds/case-open.wav',        // кейс падает и открывается (вырезано из видео-образца, ~2.65 с)
 } as const
 
 export type SoundName = keyof typeof SOUND_FILES
 
 // Относительная громкость каждого звука. Все файлы нормализованы одинаково (пик 0.95),
 // поэтому именно эти числа задают баланс. Тик к удару = 0.139: измерено в оригинале (пики 0.111 и 0.799).
-const BASE_GAIN: Record<SoundName, number> = { click: 0.45, start: 1, startFast: 1, tick: 0.14, win: 0.9 }
+const BASE_GAIN: Record<SoundName, number> = { click: 0.45, start: 1, startFast: 1, tick: 0.14, win: 0.9, caseOpen: 0.9 }
 
 let ctx: AudioContext | null = null
 let master: GainNode | null = null // общая громкость: меняется на лету, даже для уже поставленных в расписание звуков

@@ -392,6 +392,53 @@ body {
   transform: translateX(2px);
 }
 
+.animated-balance {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.animated-balance__visual {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 1;
+}
+
+.animated-balance__static {
+  display: inline-block;
+  line-height: 1;
+}
+
+.animated-balance__slot {
+  position: relative;
+  display: inline-block;
+  width: 0.62em;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: bottom;
+}
+
+.animated-balance__track {
+  display: flex;
+  flex-direction: column;
+  animation: balance-digit-roll 900ms cubic-bezier(0.35, 0, 0.2, 1) var(--roll-delay, 0ms) both;
+  will-change: transform, filter;
+}
+
+.animated-balance__track > span {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+
+@keyframes balance-digit-roll {
+  0% { transform: translateY(0); filter: blur(0); }
+  18%, 68% { filter: blur(0.8px); }
+  100% { transform: translateY(var(--roll-offset)); filter: blur(0); }
+}
+
 .balance-arrow {
   /* РАЗМЕР */
   width: 30px;
@@ -4739,3 +4786,12 @@ input.custom-range::-moz-range-thumb {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.page-upgrader .bottom-section {
+  top: 1265px !important;      /* было 1990px */
+}
+
+.page-upgrader {
+  min-height: 1640px !important;   /* было 2700px */
+}
+

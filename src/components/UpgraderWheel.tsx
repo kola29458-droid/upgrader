@@ -3,6 +3,7 @@ import '../wheelLabels.css'
 import '../upgradeSpin.css'
 import { SPIN_PROFILES, makeProgress } from '../spinProfiles'
 import { playSound } from '../sound'
+import { ARC_DEG_PER_PERCENT } from '../upgraderMath'
 
 const SOUND_LOOKAHEAD_MS = 150 // звуки крутки ставим в расписание Web Audio чуть заранее, чтобы они попали точно в такт
 
@@ -50,7 +51,7 @@ function arcPath(r: number, chance: number) {
     return `M ${C - r} ${C} A ${r} ${r} 0 1 0 ${C + r} ${C} A ${r} ${r} 0 1 0 ${C - r} ${C}`
   }
 
-  const angleDeg = (clamped / 100) * 172
+  const angleDeg = clamped * ARC_DEG_PER_PERCENT
   const angleRad = (angleDeg * Math.PI) / 180
 
   const xLeft = C - r * Math.sin(angleRad)

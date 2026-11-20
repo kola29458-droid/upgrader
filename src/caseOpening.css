@@ -1,0 +1,435 @@
+/* Открытие кейса: размытие, клип кейса, панель с рулеткой и экран дропа.
+   Все размеры сняты с видео-образца (координаты как у остального .upgrader-layout). */
+
+/* Размытие и затемнение интерфейса под кейсом: от левой карточки до правой и вниз до кнопки Improve */
+.co-blur {
+  position: absolute;
+  left: 470px;
+  top: 55px;
+  width: 1180px;
+  height: 480px;
+  z-index: 40;
+  border-radius: 12px;
+  backdrop-filter: blur(0px) brightness(1);
+  -webkit-backdrop-filter: blur(0px) brightness(1);
+  transition-property: backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: ease-out;
+  pointer-events: auto; /* пока идёт открытие, под ним ничего не нажимается */
+}
+
+.co-blur.is-on {
+  backdrop-filter: blur(8px) brightness(0.96);
+  -webkit-backdrop-filter: blur(8px) brightness(0.96);
+}
+
+/* Клип кейса (WebM с прозрачностью, вырезан из видео-образца): 920x420, 1:1 к странице */
+.co-clip {
+  position: absolute;
+  left: 600px;
+  top: 45px;
+  width: 920px;
+  height: 420px;
+  z-index: 41;
+  pointer-events: none;
+  background: transparent;
+  transition-property: opacity;
+  opacity: 1;
+}
+
+.co-clip.is-hidden {
+  opacity: 0;
+}
+
+/* Панель рулетки / экран дропа */
+.co-panel {
+  position: absolute;
+  left: 478px;
+  top: 62px;
+  width: 1160px;
+  height: 382px;
+  z-index: 42;
+  box-sizing: border-box;
+  border-radius: 12px;
+  overflow: hidden;
+  --co-panel: #17181b; /* чуть темнее оригинала (#24252a) по просьбе; меняется в одном месте */
+  background: var(--co-panel);
+  font-family: 'Exo 2', sans-serif;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition-property: opacity;
+}
+
+.co-panel.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.co-close {
+  position: absolute;
+  top: 16px;
+  right: 11px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #2f3036;
+  color: #9a9ba3;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.co-close:hover {
+  background: #3a3b41;
+  color: #fff;
+}
+
+.co-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- лента ---------- */
+
+.co-roulette {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.co-belt {
+  position: absolute;
+  left: 0;
+  top: 93px;
+  display: flex;
+  gap: 16px;
+  will-change: transform;
+}
+
+.co-pointer-line {
+  position: absolute;
+  left: 50%;
+  top: 98px;
+  width: 1px;
+  height: 195px;
+  background: #fcd711;
+  transform: translateX(-0.5px);
+  pointer-events: none;
+}
+
+.co-pointer-tip {
+  position: absolute;
+  left: 50%;
+  top: 90px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #fcd711;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ---------- карточка скина ---------- */
+
+.co-card {
+  --rarity: #b0c3d9;
+  position: relative;
+  flex: 0 0 217px;
+  width: 217px;
+  height: 200px;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--rarity) 60%, transparent);
+  border-radius: 6px;
+  overflow: hidden;
+  text-align: center;
+  background: radial-gradient(
+    circle at 50% 46%,
+    color-mix(in srgb, var(--rarity) 14%, #28292f) 0%,
+    var(--co-panel, #1f2025) 70%
+  );
+}
+
+.co-card__chevrons {
+  position: absolute;
+  left: 50%;
+  top: 17%;
+  width: 92px;
+  height: 92px;
+  transform: translateX(-50%);
+  fill: color-mix(in srgb, var(--rarity) 30%, transparent);
+  pointer-events: none;
+}
+
+.co-card__price {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fcd711;
+}
+
+.co-card__price img {
+  width: 10px;
+  height: 10px;
+}
+
+.co-card__image {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 70%;
+  height: 62%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  pointer-events: none;
+}
+
+.co-card__weapon {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 24px;
+  font-size: 7px;
+  line-height: 1.2;
+  color: #9a9aa2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.co-card__name {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 9px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- вспышка и выезд выпавшего скина ---------- */
+
+.co-roulette.is-pop .co-card:not(.co-card--winner) {
+  opacity: 0.45;
+  transition: opacity 0.35s ease;
+}
+
+.co-roulette.is-pop .co-card--winner {
+  z-index: 3;
+  animation: coWinnerPop 1100ms cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.co-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #ececef;
+  opacity: 0;
+  pointer-events: none;
+  animation-name: coFlash;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes coFlash {
+  0% { opacity: 0; }
+  22% { opacity: 0.88; }
+  60% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+@keyframes coWinnerPop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.55); }
+  70% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- экран Here's your drop! ---------- */
+
+.co-drop {
+  position: absolute;
+  inset: 0;
+  animation: coDropIn 0.3s ease-out both;
+}
+
+@keyframes coDropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.co-drop__title {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 30px;
+  text-align: center;
+  color: #fff;
+}
+
+.co-drop__sub {
+  position: absolute;
+  top: 62px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  color: #8f9097;
+}
+
+.co-card--drop {
+  position: absolute;
+  left: 472px;
+  top: 97px;
+}
+
+.co-btn {
+  position: absolute;
+  top: 313px;
+  width: 306px;
+  height: 49px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0;
+  border-radius: 8px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: filter 0.2s, background-color 0.2s;
+}
+
+.co-btn--sell {
+  left: 268px;
+  border: none;
+  background: #eac717;
+  color: #17171a;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.co-btn--sell:hover {
+  filter: brightness(1.07);
+}
+
+.co-btn--sell img {
+  width: 16px;
+  height: 16px;
+}
+
+.co-btn--back {
+  left: 586px;
+  border: 1px solid #d9c35a;
+  background: #252828;
+  color: #ecd02a;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.co-btn--back:hover {
+  background: #2d3030;
+}
+
+/* ---------- Карточка компенсации слева (после проигрыша, быстрая прокрутка) ---------- */
+
+/* Окно карточки компенсации: обрезает выезд справа и уезд вниз по границам левой карточки */
+.comp-slot {
+  position: absolute;
+  left: 477px;
+  top: 101px; /* видимая левая карточка стоит на одной высоте с правой панелью (картинка слева имеет прозрачный отступ) */
+  width: 373px;
+  height: 345px;
+  overflow: hidden;
+  border-radius: 0.6rem;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.selected-skin-panel--left {
+  left: 0;
+  top: 0;
+}
+
+.selected-skin-panel--slide-in {
+  animation: compSlideIn 280ms cubic-bezier(0.22, 0.7, 0.3, 1) both;
+}
+
+/* После выезда карточка чуть уменьшается к центру (замер по видео: до 90%), потом уезжает вниз */
+.selected-skin-panel--shrunk {
+  transform-origin: 50% 50%;
+  animation: compShrink 190ms ease-out both;
+}
+
+.selected-skin-panel--slide-out {
+  transform-origin: 50% 50%;
+  animation: compSlideOut 180ms ease-in both;
+}
+
+@keyframes compSlideIn {
+  from { transform: translateX(100%); opacity: 0.35; }
+  60% { opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes compShrink {
+  from { transform: scale(1); }
+  to { transform: scale(0.9); }
+}
+
+@keyframes compSlideOut {
+  from { transform: scale(0.9) translateY(0); }
+  to { transform: scale(0.9) translateY(120%); }
+}
+
+.selected-skin-panel__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #a6a7ae;
+  background: #2a2b30;
+}
+
+.selected-skin-panel--labeled .selected-skin-panel__price {
+  bottom: 13%;
+}
+
+/* ---------- плавный выход (Sell / Back to upgrade / крестик) ---------- */
+.co-panel.is-leaving {
+  opacity: 0;
+  transition-duration: 250ms !important;
+}
+.co-clip.is-leaving {
+  opacity: 0;
+  transition-duration: 250ms !important;
+}
