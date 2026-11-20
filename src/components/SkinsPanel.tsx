@@ -11,8 +11,8 @@ import type { OwnedSkin } from '../hooks/useInventory'
 const PER_PAGE = 20
 const MAX_CART = 50
 const MAX_SELECT = 6
-const ARROW_ICON = 'https://s3.upgrader.pro/cdn/fa/icons/arrow.svg'
-const SEARCH_ICON = 'https://s3.upgrader.pro/cdn/fa/icons/search.svg'
+const ARROW_ICON = '/icons/arrow.svg'
+const SEARCH_ICON = '/icons/search.svg'
 
 type Tab = 'mine' | 'shop'
 type SortOrder = 'asc' | 'desc'
@@ -676,7 +676,7 @@ export default function SkinsPanel({
               </div>
 
               <div className="sp-cart-btn" aria-label="Cart" data-tooltip="Cart">
-                <img src="https://s3.upgrader.pro/cdn/fa/icons/black-shop.svg" alt="" draggable={false} />
+                <img src="/icons/black-shop.svg" alt="" draggable={false} />
                 <span className="sp-badge">{cartCount}</span>
               </div>
             </>
@@ -753,7 +753,7 @@ export default function SkinsPanel({
 
               <div className="sp-cart-actions">
                 <button type="button" className="sp-trash" onClick={clearCart} aria-label="Clear cart">
-                  <img src="https://s3.upgrader.pro/cdn/fa/icons/trash.svg" alt="" draggable={false} />
+                  <img src="/icons/trash.svg" alt="" draggable={false} />
                 </button>
                 <button
                   type="button"
@@ -763,12 +763,12 @@ export default function SkinsPanel({
                   aria-label="Buy"
                 >
                   <span className="sp-buy__price">
-                    <img src="https://s3.upgrader.pro/cdn/fa/icons/coins-black.svg" alt="" draggable={false} />
+                    <img src="/icons/coins-black.svg" alt="" draggable={false} />
                     <span className="sp-buy__amount">{formatPrice(shownTotal / 100)}</span>
                   </span>
                   <img
                     className="sp-buy__shop"
-                    src="https://s3.upgrader.pro/cdn/fa/icons/black-shop.svg"
+                    src="/icons/black-shop.svg"
                     alt=""
                     draggable={false}
                   />

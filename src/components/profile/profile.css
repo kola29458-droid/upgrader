@@ -1294,7 +1294,7 @@ button.pf-user__id {
   height: 100%;
   overflow: hidden;
   border-radius: 0.375rem;
-  background: #1d1e22 url('https://s3.upgrader.pro/cdn/fa/images/light-gray-logo.png') center / 50% no-repeat;
+  background: #1d1e22 url('/icons/light-gray-logo.png') center / 50% no-repeat;
 }
 
 .pf-card__img {

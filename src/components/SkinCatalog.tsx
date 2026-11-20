@@ -5,8 +5,8 @@ import { isTargetAllowed } from '../upgraderMath'
 import '../catalogLocks.css'
 
 const PAGE_SIZE = 19
-const ARROW_ICON = 'https://s3.upgrader.pro/cdn/fa/icons/arrow.svg'
-const SEARCH_ICON = 'https://s3.upgrader.pro/cdn/fa/icons/search.svg'
+const ARROW_ICON = '/icons/arrow.svg'
+const SEARCH_ICON = '/icons/search.svg'
 
 type SortOrder = 'desc' | 'asc'
 

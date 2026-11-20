@@ -997,7 +997,7 @@ function Site() {
             aria-controls="notifications-panel"
             onClick={toggleNotifications}
           >
-            <img src="https://s3.upgrader.pro/cdn/fa/icons/bell.svg" alt="" />
+            <img src="/icons/bell.svg" alt="" />
             {unreadCount > 0 && (
               <span className="notifications-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
             )}

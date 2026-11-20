@@ -9,7 +9,6 @@ import ProfileSettingsModal from './ProfileSettingsModal'
 import { BattlesHistoryTab, GamesHistoryTab, InventoryTab, ItemsHistoryTab } from './ProfileTabs'
 import './profile.css'
 
-const CDN = 'https://s3.upgrader.pro/cdn/fa'
 const COIN = '/coins.png'
 const PROFILE_COIN = '/profile-coin.png'
 
@@ -131,16 +130,16 @@ function UserInfo({
               </button>
             )}
             <button type="button" className="pf-icon-btn" aria-label="Settings" title="Settings" onClick={onOpenSettings}>
-              <img src={`${CDN}/icons/settings.svg`} alt="" />
+              <img src={`/icons/settings.svg`} alt="" />
             </button>
             <button type="button" className="pf-icon-btn" aria-label="Log out">
-              <img src={`${CDN}/icons/logout.svg`} alt="" />
+              <img src={`/icons/logout.svg`} alt="" />
             </button>
           </div>
         </div>
       </div>
       <button type="button" className="pf-notify">
-        <img src={`${CDN}/icons/bell.svg`} alt="" />
+        <img src={`/icons/bell.svg`} alt="" />
         <span>Manage notifications</span>
       </button>
     </div>
@@ -153,7 +152,7 @@ function BalanceCard({ balance, onTopUp, hidden }: Pick<ProfileViewProps, 'balan
       <div className="pf-balance__head">
         <div className="pf-balance__title-row">
           <span className="pf-balance__title">Balance</span>
-          <img className="pf-balance__stack" src={`${CDN}/icons/profile/balance-gray.svg`} alt="" />
+          <img className="pf-balance__stack" src={`/icons/balance-gray.svg`} alt="" />
         </div>
         <div className="pf-balance__value">
           {hidden
@@ -163,18 +162,18 @@ function BalanceCard({ balance, onTopUp, hidden }: Pick<ProfileViewProps, 'balan
         </div>
         <button type="button" className="pf-balance__history">
           <span>Payment History</span>
-          <img src={`${CDN}/icons/profile/arrow-right.svg`} alt="" />
+          <img src={`/icons/arrow-right.svg`} alt="" />
         </button>
       </div>
       <label className="pf-promo">
         <div className="pf-promo__ticket">
-          <img src={`${CDN}/icons/profile/kupon-black.svg`} alt="" />
+          <img src={`/icons/kupon-black.svg`} alt="" />
         </div>
         <input type="text" className="pf-promo__input" placeholder="Enter coupon" />
         <span className="pf-promo__apply">Apply</span>
       </label>
       <button type="button" className="pf-topup" onClick={onTopUp}>
-        <img src={`${CDN}/icons/top-up-mobile.svg`} alt="" />
+        <img src={`/icons/top-up-mobile.svg`} alt="" />
         Top up balance
       </button>
     </div>
@@ -207,7 +206,7 @@ function BestDropCard({ bestDrop }: { bestDrop: BestDrop | null }) {
       {bestDrop ? (
         <>
           <div className="pf-bestdrop__chance">
-            <img src={`${CDN}/icons/up-arrow-yellow.svg`} alt="" />
+            <img src={`/icons/up-arrow-yellow.svg`} alt="" />
             <span>{bestDrop.chance.toFixed(2)}%</span>
           </div>
           <div className="pf-bestdrop__glow" />
@@ -272,7 +271,7 @@ function StatsBlock({ stats, bestDrop }: { stats: ProfileViewProps['stats']; bes
           <div className="pf-withdrawn__head">
             <span>Withdrawn</span>
             <div className="pf-withdrawn__steam">
-              <img src={`${CDN}/icons/steam-gray.svg`} alt="" />
+              <img src={`/icons/steam-gray.svg`} alt="" />
             </div>
           </div>
           <span className="pf-withdrawn__count">{stats.withdrawnCount} items</span>
@@ -286,14 +285,14 @@ function StatsBlock({ stats, bestDrop }: { stats: ProfileViewProps['stats']; bes
             <span className="pf-stat__label">Upgrades</span>
             <span className="pf-stat__value">
               <span className="pf-gradient-text">{stats.upgrades}</span>
-              <img src={`${CDN}/icons/arrow-logo.svg`} alt="" />
+              <img src={`/icons/arrow-logo.svg`} alt="" />
             </span>
           </div>
           <div className="pf-stat" data-testid="user-stats-battles">
             <span className="pf-stat__label">Battles</span>
             <span className="pf-stat__value">
               <span className="pf-gradient-text">{stats.battles}</span>
-              <img src={`${CDN}/images/header/vs-battles.svg`} alt="" />
+              <img src="/icons/vs-battles.svg" alt="" />
             </span>
           </div>
         </div>

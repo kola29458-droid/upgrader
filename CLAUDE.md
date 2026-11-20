@@ -10,17 +10,13 @@
 ## Quick Start
 ```bash
 npm run dev      # Development server (Vite HMR)
-npm run build    # Production build (currently fails: TS errors in CompensationCase.tsx)
+npm run build    # Production build (проходит без ошибок)
 npm run lint     # Oxlint (28 warnings, no errors)
 ```
 
 ## Required Reading Before Work
-Read these documentation files in order:
-1. **PROJECT_MAP.md** — File structure, component inventory, data flow
-2. **PROJECT_ARCHITECTURE.md** — Component relationships, page architecture, animation systems
-3. **DESIGN_SYSTEM.md** — Colors, typography, spacing, component specs, animations
-4. **PROJECT_RULES.md** — Coding standards, animation/sound/math rules, modification guidelines
-5. **PROJECT_STATUS.md** — Current status, known issues, build/lint results, roadmap
+- **PROJECT_MAP.md** и **PROJECT_RULES.md** — всегда читай перед работой
+- **PROJECT_ARCHITECTURE.md**, **DESIGN_SYSTEM.md**, **PROJECT_STATUS.md** — читай только если задача их касается
 
 ## Key Rules (Non-Negotiable)
 
@@ -52,14 +48,25 @@ Read these documentation files in order:
 - `delayMs < 0` = start early, skip silent prefix
 - `unlockAudio()` must be called from user gesture first
 
-## Current Build Status
-```bash
-npm run build  # ❌ FAILS — 3 TS errors in CompensationCase.tsx
-```
-Errors: Missing exports in `compensation.ts` (`COMPENSATION_WINNER_INDEX`, `Compensation` type), implicit `any` in callback.
-
 ## Files to Watch
 - `src/App.tsx` — Global state, routing, all page components (1260 lines)
 - `src/App.css` — All layouts, positions, overrides (4798 lines)
-- `src/components/CompensationCase.tsx` — Has TS errors, needs fixing
-- `src/compensation.ts` — Missing exports needed by CompensationCase
+- `src/components/CaseOpening.tsx` — Компенсация на сайте работает через этот компонент + `compensation.ts`
+- `src/compensation.ts` — Логика компенсации (drop logic, pickSkinNear, pickBeltSkins)
+- `_unused/CompensationCase.tsx` — Недоделанная анимация компенсации: кейс с дымом и рулеткой. Не подключена к сайту, не править и не удалять без моей просьбы.
+- `_unused/compensation.css` — Стили для CompensationCase.tsx
+
+## Как мне работать
+- Отвечай по-русски, коротко и простыми словами.
+- Перед правкой скажи, какие файлы и что именно будешь менять, и меняй только то, о чём я просил.
+- Ничего не удаляй и не переименовывай без моего разрешения.
+- После правки перечисли изменённые файлы и что изменено, и запусти `npm run build`.
+- Не пиши, что проверил, если не запускал проверку.
+- Если задача неясна, задай один конкретный вопрос. Если ясна, делай без лишних вопросов.
+- Не делай git commit сам, коммиты делаю я.
+
+## Скриншоты и видео
+Когда я присылаю картинку или видео:
+1. Сначала скажи, какой это экран и какие файлы за него отвечают.
+2. Потом предлагай правку.
+Если ты не можешь увидеть картинку или видео — скажи об этом честно и попроси описание или кадры.

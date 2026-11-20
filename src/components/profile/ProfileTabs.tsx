@@ -232,7 +232,7 @@ function GameRow({ game }: { game: GameRecord }) {
             </div>
           )}
           <div className="pf-shield" aria-hidden>
-            <img src="https://s3.upgrader.pro/cdn/fa/images/provably-fair/shield-fill.svg" alt="" />
+            <img src="/icons/shield-fill.svg" alt="" />
           </div>
           <div className="pf-roll">
             <div className="pf-roll__box">
