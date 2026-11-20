@@ -44,10 +44,12 @@
 │  │SkinPanel │ │          │ │bar       │ │Modal     │           │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐   │
-│  │CaseOpen- │ │WinEffect │ │Animated  │ │Compensa-     │ │ProfileItem   │   │
-│  │ing       │ │          │ │Balance   │ │tionCase      │ │Card          │   │
+│  │CaseOpen- │ │WinEffect │ │Animated  │ │ProfileItem   │ │  _unused/    │   │
+│  │ing       │ │          │ │Balance   │ │Card          │ │Compensation- │   │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
+```
+**Note**: `CompensationCase.tsx` and `compensation.css` moved to `_unused/` — not connected to site (not in `tsconfig.app.json` include). Unfinished compensation animation for normal spin (case drop + reel + smoke), kept for future use.
         │                     │                     │
         ▼                     ▼                     ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -290,7 +292,9 @@ type ItemEvent = {
 - CSS animations: red tint (3.3s), border (3.3s), chevron grow+fade (1.7s)
 - Image hue-rotate (50deg) + coin hue-rotate (70deg)
 
-### Compensation Case (`CompensationCase.tsx` + `compensation.css`)
+### Compensation Case (`_unused/CompensationCase.tsx` + `_unused/compensation.css`)
+**Moved to `_unused/` — not connected to site** (not in `tsconfig.app.json` include). Kept for future use.
+
 **Fast spin** (`CompensationPanel`):
 - Renders as `SelectedSkinPanel` with "Компенсация" label, slides in (180ms, cubic-bezier(0.16,1,0.3,1))
 - No close button, image positioned higher (top: 48%, height: 62%)
@@ -300,6 +304,8 @@ type ItemEvent = {
 2. **Reel animation**: 5 cards wide (232.2px each), track translates with easeOutQuart (3.2s), tick sound per card change
 3. **Winner highlight**: Center marker (yellow line + triangle), non-winner cards fade to 35% opacity + desaturate, winner card full opacity + white border
 4. **Cleanup**: Hold 1s, fade out 260ms, callback `onReveal()` at stop, `onDone()` after fade
+
+**To activate**: Need to export `COMPENSATION_WINNER_INDEX` and `Compensation` type (with `reel: Skin[]`) from `compensation.ts`, then import and use in `UpgraderPage`.
 
 ### Balance Animation (`AnimatedBalance.tsx`)
 - Per-digit slot machine roll (900ms, cubic ease-out)

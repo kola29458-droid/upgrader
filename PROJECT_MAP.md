@@ -46,6 +46,9 @@ UPGRADER_RECOVERY/
 │   ├── App.tsx             # Main app: routing, global state, pages
 │   ├── main.tsx            # Entry point
 │   └── index.css           # Global base styles
+├── _unused/                # Not connected to site (not in tsconfig include)
+│   ├── CompensationCase.tsx  # Unfinished compensation animation (case + smoke + reel)
+│   └── compensation.css      # Styles for CompensationCase
 ├── package.json            # Dependencies: react 19, react-router-dom 7, vite 8
 ├── vite.config.ts          # Vite config (react plugin only)
 ├── tsconfig.json           # TypeScript config (project references)
@@ -74,12 +77,17 @@ UPGRADER_RECOVERY/
 | `WheelToolbar.tsx` | Icon row above left panel: info, settings, sound (with volume slider on hover), fast spin |
 | `SettingsModal.tsx` | Modal (portal): quick selection multipliers/percents, sound toggle, scroll type (normal/fast) |
 | `CaseOpening.tsx` | Full-screen case opening (normal spin): blur → WebM clip → roulette belt → flash → drop screen (Sell / Back to upgrade) |
-| `CompensationCase.tsx` | Compensation flow: **fast spin** → `CompensationPanel` (left card with "Компенсация" label); **normal spin** → case drop + reel animation (5 cards wide, 3.2s, easeOutQuart), smoke particles, winner highlight |
 | `WinEffect.tsx` | Canvas firework on selected skin: red tint, border, double chevron, particle bursts, smoke |
 | `AnimatedBalance.tsx` | Slot-machine digit roll animation for balance changes |
 | `Tooltip.tsx` | Global tooltip: `data-tooltip` on any element, fixed positioning, smooth show/hide |
 | `LockIcon.tsx` | Lock SVG for disabled skins |
 | `SupportChat.tsx` | Bottom-right support widget with screenshot + Telegram link (in `src/components/`, not in profile/) |
+
+### Unused / Future (`_unused/`)
+| File | Purpose |
+|------|---------|
+| `CompensationCase.tsx` | **Not connected to site** — unfinished compensation animation for normal spin: case drop + 5-card reel (3.2s easeOutQuart), smoke particles, winner highlight. Needs `COMPENSATION_WINNER_INDEX` and `Compensation` type in `compensation.ts`. Kept for future use. |
+| `compensation.css` | Styles for `CompensationCase.tsx` (case drop, smoke, reel, cards, marker) |
 
 #### Profile Components (`src/components/profile/`)
 | File | Purpose |

@@ -160,19 +160,16 @@
 npm run dev        # ✅ Vite 8 HMR, React Fast Refresh
 
 # Production build
-npm run build      # ❌ FAILS: tsc -b errors in CompensationCase.tsx (3 TS errors)
+npm run build      # ✅ PASSES (after moving CompensationCase.tsx + compensation.css to _unused/)
 
 # Linting
 npm run lint       # ⚠️ 28 warnings (oxlint), no errors
 
 # Type checking
-npx tsc --noEmit   # ❌ Same 3 TS errors as build
+npx tsc --noEmit   # ✅ PASSES (after moving CompensationCase.tsx + compensation.css to _unused/)
 ```
 
-**Build fails** due to missing exports in `compensation.ts`:
-- `COMPENSATION_WINNER_INDEX` — used by `CompensationCase.tsx`, not exported
-- `Compensation` type — used by `CompensationCase.tsx`, not exported (has `CompensationDrop` instead)
-- Implicit `any` types in `comp.reel.map()` callback
+**Build passes** — the 3 TS errors were in `CompensationCase.tsx` which is now in `_unused/` (not in `tsconfig.app.json` include).
 
 **Lint passes** (exit code 1 due to warnings, but no errors). Run `npx oxlint` directly for clean output.
 
@@ -203,12 +200,14 @@ cfa5199 Fix mobile layout
 ## 📋 Next Steps / Roadmap (If Requested)
 
 ### High Priority (If Needed)
-1. **Fix TypeScript errors** — Add `COMPENSATION_WINNER_INDEX` and `Compensation` type to `compensation.ts`, fix `CompensationCase.tsx` types
-2. **Extract page components from `App.tsx`** → separate files for maintainability
-3. **Split `App.css`** → component-scoped CSS files (already partially done)
-4. **Add unit tests** → Vitest for `upgraderMath`, `compensation`, `spinProfiles`
-5. **Fix Firefox range slider thumb** → consistent 16px sizing
-6. **Remove duplicate CSS overrides** → consolidate `.balance-block`, `.sp-total`
+1. **Extract page components from `App.tsx`** → separate files for maintainability
+2. **Split `App.css`** → component-scoped CSS files (already partially done)
+3. **Add unit tests** → Vitest for `upgraderMath`, `compensation`, `spinProfiles`
+4. **Fix Firefox range slider thumb** → consistent 16px sizing
+5. **Remove duplicate CSS overrides** → consolidate `.balance-block`, `.sp-total`
+
+### Future Integration (When Needed)
+6. **Activate `_unused/CompensationCase.tsx`** — Export `COMPENSATION_WINNER_INDEX` and `Compensation` type from `compensation.ts`, import in `UpgraderPage`, wire into compensation flow
 
 ### Medium Priority
 7. **Mobile layout** → responsive grid for < 1024px (currently absolute positioning)
