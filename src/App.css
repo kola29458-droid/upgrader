@@ -1649,9 +1649,11 @@ box-shadow:
 .rewards-top-left {
   position: absolute;
   top: 41px;
-  left: 1420px;
+  left: 1613px;
+  transform: translateX(-100%);
   z-index: 50;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 8px;
   width: max-content;
@@ -1692,6 +1694,80 @@ box-shadow:
   line-height: 16px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* Unlocked state overlay — covers static text in PNG on RIGHT card */
+.rewards-unlocked-overlay {
+  position: absolute;
+  top: 24px;
+  left: 1071px;
+  width: 360px;
+  height: 110px;
+  z-index: 55;
+  pointer-events: none;
+}
+
+.rewards-unlocked-backdrop {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  background: #1C1C20;
+}
+
+.rewards-unlocked-content {
+  position: relative;
+  padding: 12px 0 0 0;
+  pointer-events: none;
+  text-align: left;
+}
+
+.rewards-unlocked-title {
+  margin: 0 0 8px 0;
+  font-family: "Tektur", sans-serif;
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.rewards-unlocked-desc {
+  margin: 0;
+  font-family: "Exo 2", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #ADADB2;
+  max-width: 360px;
+}
+
+/* Disabled Top up button — Claim in {time} */
+.weekly-drop-topup-button.weekly-drop-topup-button--disabled {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #8E8E94 !important;
+  cursor: default;
+  animation: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  transition: none !important;
+}
+
+.weekly-drop-topup-button.weekly-drop-topup-button--disabled:hover {
+  filter: none !important;
+  transform: translateX(-50%) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #8E8E94 !important;
+}
+
+.weekly-drop-topup-button.weekly-drop-topup-button--disabled .rewards-claim-clock {
+  color: #8E8E94;
+}
+
+.rewards-claim-clock {
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+  flex-shrink: 0;
+  margin-right: 8px;
 }
 
 .rewards-settings {

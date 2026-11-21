@@ -61,47 +61,29 @@ const WHEEL_CONFIG = {
 
 const CASE_RESULT_DELAY_MS = 1500 // сколько «NO PROBLEM» висит до появления кейса (по видео-образцу)
 
-const WEEK_DURATION = 7 * 24 * 60 * 60 * 1000
-
-function getWeeklyEnd() {
-  const saved = localStorage.getItem('rewards-week-end')
-
-  if (saved && Number(saved) > Date.now()) {
-    return Number(saved)
-  }
-
-  const end = Date.now() + WEEK_DURATION
-  localStorage.setItem('rewards-week-end', String(end))
-  return end
+// Returns the timestamp of the next Monday 00:00:00 local time
+function getNextMondayMidnight(): number {
+  const now = new Date()
+  const day = now.getDay() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  // Days until next Monday: if today is Monday (1), we want 7 days (next Monday), not 0
+  const daysUntilMonday = (8 - day) % 7 || 7
+  const nextMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilMonday, 0, 0, 0)
+  return nextMonday.getTime()
 }
 
-function RewardsOverlay() {
-  const [weeklyEnd, setWeeklyEnd] = useState(getWeeklyEnd)
-  const [now, setNow] = useState(Date.now())
+// Formats seconds as "1d 02:38:04" or "02:38:04" (if days === 0)
+function formatTimeLeft(totalSeconds: number): string {
+  const days = Math.floor(totalSeconds / 86400)
+  const hours = Math.floor((totalSeconds % 86400) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  if (days > 0) {
+    return `${days}d ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
 
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      const current = Date.now()
-      setNow(current)
-
-      if (current >= weeklyEnd) {
-        const nextEnd = current + WEEK_DURATION
-        localStorage.setItem('rewards-week-end', String(nextEnd))
-        setWeeklyEnd(nextEnd)
-      }
-    }, 1000)
-
-    return () => window.clearInterval(interval)
-  }, [weeklyEnd])
-
-  const total = Math.max(0, Math.floor((weeklyEnd - now) / 1000))
-  const days = Math.floor(total / 86400)
-  const hours = Math.floor((total % 86400) / 3600)
-  const minutes = Math.floor((total % 3600) / 60)
-  const seconds = total % 60
-
-  const time = `${days}d ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-
+function RewardsOverlay({ isUnlocked = false, timeLeft }: { isUnlocked: boolean; timeLeft: string }) {
   return (
     <div className="rewards-top-left">
       <div className="rewards-timer">
@@ -110,10 +92,51 @@ function RewardsOverlay() {
           <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
 
-        <span className="rewards-timer-label">Week ends in</span>
-        <strong className="rewards-timer-value">{time}</strong>
+        <span className="rewards-timer-label">{isUnlocked ? 'Draw in' : 'Week ends in'}</span>
+        <strong className="rewards-timer-value">{timeLeft}</strong>
       </div>
     </div>
+  )
+}
+
+// Unlocked state overlay — covers static "Weekly Drop" title and description in PNG
+function UnlockedOverlay() {
+  return (
+    <div className="rewards-unlocked-overlay">
+      <div className="rewards-unlocked-content">
+        <h1 className="rewards-unlocked-title">Unlocked!</h1>
+        <p className="rewards-unlocked-desc">Weekly goal reached. Open Weekly Drop on Monday and claim your skin.</p>
+      </div>
+    </div>
+  )
+}
+
+// Top up / Claim button — switches based on isUnlocked
+function WeeklyDropTopUpButton({ isUnlocked, time, onClick }: { isUnlocked: boolean; time: string; onClick: () => void }) {
+  if (isUnlocked) {
+    return (
+      <button
+        type="button"
+        className="weekly-drop-topup-button weekly-drop-topup-button--disabled"
+        aria-disabled="true"
+        disabled
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="rewards-claim-clock" aria-hidden="true" width="20" height="20">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span>Claim in {time}</span>
+      </button>
+    )
+  }
+  return (
+    <button
+      type="button"
+      className="weekly-drop-topup-button"
+      onClick={onClick}
+    >
+      Top up
+    </button>
   )
 }
 
@@ -295,6 +318,67 @@ function WeeklyDepositProgress({ value }: { value: number }) {
           )
         })}
       </div>
+    </div>
+  )
+}
+
+function RewardsPage({ weeklyDeposit, onTopUp, onWeekReset }: { weeklyDeposit: number; onTopUp: () => void; onWeekReset: () => void }) {
+  const isUnlocked = weeklyDeposit >= 100
+
+  // Single source of time: updates every second + on visibility change
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(Date.now()), 1000)
+
+    const onVisibilityChange = () => {
+      if (!document.hidden) setNow(Date.now())
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [])
+
+  // Derive timeLeft from now
+  const end = getNextMondayMidnight()
+  const total = Math.max(0, Math.floor((end - now) / 1000))
+  const timeLeft = formatTimeLeft(total)
+
+  // Trigger week reset when timer hits zero
+  useEffect(() => {
+    if (total === 0) onWeekReset()
+  }, [total, onWeekReset])
+
+  // Preload unlocked background image
+  useEffect(() => {
+    const img = new Image()
+    img.src = '/rewards-reference-unlocked.png'
+  }, [])
+
+  return (
+    <div className="rewards-page-wrapper">
+      <img
+        className="rewards-reference"
+        src={isUnlocked ? '/rewards-reference-unlocked.png' : '/rewards-reference.png'}
+        alt="Weekly Drop"
+      />
+
+      <RewardsOverlay isUnlocked={isUnlocked} timeLeft={timeLeft} />
+
+      <WeeklyDepositProgress value={weeklyDeposit} />
+
+      {isUnlocked && <UnlockedOverlay />}
+
+      <WeeklyDropTopUpButton
+        isUnlocked={isUnlocked}
+        time={timeLeft}
+        onClick={onTopUp}
+      />
+
+      <WeeklyWheel />
     </div>
   )
 }
@@ -1181,27 +1265,11 @@ function Site() {
           <Route
             path="/en/weekly-drop"
             element={
-              <div className="rewards-page-wrapper">
-                <img
-                  className="rewards-reference"
-                  src="/rewards-reference.png"
-                  alt="Weekly Drop"
-                />
-
-                <RewardsOverlay />
-
-                <WeeklyDepositProgress value={weeklyDeposit} />
-
-                <button
-                  type="button"
-                  className="weekly-drop-topup-button"
-                  onClick={() => setIsTopUpOpen(true)}
-                >
-                  Top up
-                </button>
-
-                <WeeklyWheel />
-              </div>
+              <RewardsPage
+                weeklyDeposit={weeklyDeposit}
+                onTopUp={() => setIsTopUpOpen(true)}
+                onWeekReset={() => setWeeklyDeposit(0)}
+              />
             }
           />
 
