@@ -8,6 +8,8 @@ import {
 } from 'react-router-dom'
 import './App.css'
 import './caseOpening.css'
+import './liveDrops.css'
+import './adminPanel.css'
 import SupportChat from './SupportChat'
 import { Link } from "react-router-dom";
 import SkinCatalog from './components/SkinCatalog'
@@ -16,16 +18,19 @@ import SelectedSkinPanel from './components/SelectedSkinPanel'
 import SkinsPanel from './components/SkinsPanel'
 import { useInventory } from './hooks/useInventory'
 import type { OwnedSkin } from './hooks/useInventory'
+import { useAdminPanel } from './hooks/useAdminPanel'
 import AnimatedBalance from './components/AnimatedBalance'
 import UpgraderWheel from './components/UpgraderWheel'
 import FastAmountBar from './components/FastAmountBar'
 import ImproveButton from './components/ImproveButton'
 import WheelToolbar from './components/WheelToolbar'
 import SettingsModal from './components/SettingsModal'
+import LiveDrops from './components/LiveDrops'
+import AdminPanel from './components/AdminPanel'
 import { loadQuickSettings, saveQuickSettings } from './quickSettings'
 import type { QuickSettings } from './quickSettings'
 import { useSkins } from './hooks/useSkins'
-import { calcChance, isChanceTooLow, MAX_CHANCE, rollSpinStop } from './upgraderMath'
+import { calcChance, isChanceTooLow, MAX_CHANCE, rollSpinStop, ARC_DEG_PER_PERCENT } from './upgraderMath'
 import { SPIN_PROFILES } from './spinProfiles'
 import { playSound, preloadSounds, setSoundSettings, unlockAudio } from './sound'
 import CaseOpening from './components/CaseOpening'
@@ -41,12 +46,12 @@ const COUNTER_SETTINGS = {
   onlineMin: 1500,
   onlineMax: 4000,
   onlineSpeed: 2500,
-  upgradesStart: 566442440,
+  upgradesStart: 639360270,
   upgradesSpeed: 40,
   upgradesChance: 0.65,
   upgradesMinAdd: 1,
   upgradesMaxAdd: 3,
-  battlesStart: 484516,
+  battlesStart: 869555,
   battlesSpeed: 8000,
   battlesChance: 0.2,
 }
@@ -462,6 +467,9 @@ function UpgraderPage({
 
   const busy = phase !== 'idle'
 
+  // Admin panel: force win/lose once
+  const { consumeForceWin, consumeForceLose } = useAdminPanel()
+
   // Настройки звука (динамик и громкость над колесом) и разблокировка звука первым действием пользователя
   useEffect(() => {
     setSoundSettings(quickSettings.sound, quickSettings.volume)
@@ -504,8 +512,34 @@ function UpgraderPage({
 
     const target = selectedSkin
     const spinChance = chance
-    const { win, stop } = rollSpinStop(spinChance) // win: попала в цветную дугу (шанс ровно chance%), stop: где остановится стрелка, градусы от низа колеса по часовой
     const fast = quickSettings.fastScroll
+
+    // Admin panel: override win/lose if forced
+    let win: boolean
+    let stop: number
+
+    if (consumeForceWin()) {
+      win = true
+      // stop inside the colored arc
+      const half = spinChance * ARC_DEG_PER_PERCENT
+      const margin = Math.min(0.4, half * 0.25)
+      const offset = Math.random() * Math.max(0, half - margin)
+      const side = Math.random() < 0.5 ? 1 : -1
+      stop = (side * offset + 360) % 360
+    } else if (consumeForceLose()) {
+      win = false
+      // stop outside the colored arc
+      const half = spinChance * ARC_DEG_PER_PERCENT
+      const margin = Math.min(0.4, half * 0.25)
+      const offset = half + margin + Math.random() * Math.max(0, 180 - half - margin)
+      const side = Math.random() < 0.5 ? 1 : -1
+      stop = (side * offset + 360) % 360
+    } else {
+      const roll = rollSpinStop(spinChance)
+      win = roll.win
+      stop = roll.stop
+    }
+
     const profile = SPIN_PROFILES[fast ? 'fast' : 'normal'] // скорость и тайминги сняты с видео-образца
     const delay = fast ? 440 : 195        // пауза после нажатия Improve, потом стрелка начинает крутиться. Обычная (по видео оригинала): клик -> звук сразу -> стрелка через 0.19 с. Быстрая: клик -> удар через 0.21 с -> стрелка ещё через 0.23 с
     const duration = profile.motionMs     // сколько стрелка реально движется
@@ -1146,14 +1180,6 @@ function Site() {
         ))}
       </header>
 
-      <div className="weekly-drop-left-panel">
-        <img
-          src="/weekly-drop-left-panel.png"
-          alt=""
-          draggable={false}
-        />
-      </div>
-
       {isTopUpOpen && (
         <div className="payment-modal-backdrop" onClick={() => setIsTopUpOpen(false)}>
           <div className="topup-workspace" onClick={(event) => event.stopPropagation()}>
@@ -1236,6 +1262,14 @@ function Site() {
           </div>
         </div>
       )}
+
+      {/* Live Drops: монтируется один раз, общая для всех страниц */}
+      <div className="ld-dock">
+        <LiveDrops />
+      </div>
+
+      {/* Admin Panel: Ctrl+G to toggle, Ctrl+X force win, Ctrl+Z force lose */}
+      <AdminPanel />
 
       <main className={`page-content ${pageClass}`}>
         <Routes>

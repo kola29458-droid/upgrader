@@ -1,0 +1,610 @@
+/* ==========================================================
+   LIVE DROPS — левая панель выпадений (классы с префиксом ld-)
+   Все размеры = calc(var(--u) * N), где N это значение в rem.
+   Масштаб панели меняется ОДНОЙ переменной --ld-scale.
+   ========================================================== */
+
+/* Внешний блок в каркасе сайта: не двигает контент, не в потоке */
+.ld-dock {
+  --ld-scale: 0.89; /* единственный регулятор размера панели */
+  --u: calc(1rem * var(--ld-scale));
+  --ld-shift: 0px; /* поднять (минус) или опустить (плюс) всю панель */
+  /* видимый низ баннера UPGRADE BATTLE (top 69px + 77/204 от ширины 205px) + зазор 0.375 (в оригинале 6px) */
+  --ld-top: calc(69px + 205px * 77 / 204 + var(--u) * 0.375 + var(--ld-shift));
+
+  position: fixed;
+  left: 6px; /* карточки стоят по центру под баннером, как в оригинале */
+  top: var(--ld-top);
+  width: calc(12.125rem * var(--ld-scale));
+  height: calc(100vh - var(--ld-top));
+  box-sizing: border-box;
+  padding-bottom: calc(var(--u) * 0.4375); /* как в оригинале: панель не доходит до низа окна */
+  overflow: hidden;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.ld-root {
+  --u: calc(1rem * var(--ld-scale));
+
+  width: calc(12.125rem * var(--ld-scale)); /* 11.75 карточка + 0.0625 слева + 0.3125 справа */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.75); /* между Best drop и тёмной панелью (в оригинале 12px) */
+  overflow: hidden;
+}
+
+/* ---------- общая карточка (строки и Best drop) ---------- */
+.ld-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 47 / 20; /* 11.75rem x 5rem, как в оригинале */
+  background: #232325; /* цвет карточки в оригинале */
+  overflow: hidden;
+  isolation: isolate;
+  flex: none;
+  pointer-events: auto;
+}
+
+/* ---------- тёмная панель под Best drop (в ней лежат строки) ---------- */
+.ld-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: calc(var(--u) * 0.375) calc(var(--u) * 0.3125) 0 calc(var(--u) * 0.0625);
+  background: #17181c;
+  border-radius: 0 calc(var(--u) * 0.5) calc(var(--u) * 0.5) 0; /* скругление только справа */
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* ---------- лента ---------- */
+.ld-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Обёртка строки: плавный рост высоты 0fr → 1fr */
+.ld-row-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  flex: none;
+}
+
+.ld-row-wrap__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ld-row-wrap--new {
+  animation: ld-enter 430ms ease-out both;
+}
+
+@keyframes ld-enter {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+/* ---------- строка ---------- */
+.ld-row {
+  border-radius: 0 calc(var(--u) * 0.5) calc(var(--u) * 0.5) 0;
+  margin-bottom: calc(var(--u) * 0.125); /* зазор между строками */
+  --drop-color: #b0c3d9;
+}
+
+.ld-row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--drop-color) 30%, transparent) 0%,
+    color-mix(in srgb, var(--drop-color) 10%, transparent) 45%,
+    transparent 75%
+  );
+  pointer-events: none;
+}
+
+.ld-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--u) * 0.1875);
+  background: var(--drop-color);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ---------- плашка шанса ---------- */
+.ld-chance {
+  position: absolute;
+  top: calc(var(--u) * 0.25);
+  left: calc(var(--u) * 0.125);
+  z-index: 4;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: calc(var(--u) * 0.25);
+  padding: calc(var(--u) * 0.125) calc(var(--u) * 0.375);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 0 calc(var(--u) * 0.5) calc(var(--u) * 0.5) 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.ld-chance--best {
+  left: 0;
+}
+
+.ld-chance__chevron {
+  display: block;
+  flex: none;
+  width: calc(var(--u) * 0.625);
+  height: calc(var(--u) * 0.625);
+  color: #fbd506;
+}
+
+.ld-chance__value {
+  font-family: 'Exo 2', 'Exo', sans-serif;
+  font-weight: 400;
+  font-size: calc(var(--u) * 0.5625);
+  line-height: 1;
+  color: #fff;
+}
+
+/* ---------- название и тип ---------- */
+.ld-info {
+  position: absolute;
+  left: calc(var(--u) * 0.5);
+  bottom: calc(var(--u) * 0.5);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  pointer-events: none;
+  transition:
+    transform 700ms,
+    opacity 700ms;
+}
+
+.ld-info__name {
+  max-width: calc(var(--u) * 4.875);
+  font-family: 'Tektur', sans-serif;
+  font-weight: 700;
+  font-size: calc(var(--u) * 0.625);
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-info__type {
+  max-width: calc(var(--u) * 5.8125);
+  font-family: 'Exo 2', 'Exo', sans-serif;
+  font-weight: 600;
+  font-size: calc(var(--u) * 0.5);
+  line-height: 1.3;
+  color: #8e8e94;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-best .ld-info__type {
+  color: #ffffff80;
+}
+
+/* ---------- картинка скина ---------- */
+.ld-image {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  max-height: 113.75%; /* 5.6875rem / 5rem, как в оригинале: скин чуть больше карточки */
+  max-width: 49.5%; /* 5.8125rem / 11.75rem */
+  object-fit: contain;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------- метка VS ---------- */
+.ld-vs {
+  position: absolute;
+  top: calc(var(--u) * 0.25);
+  right: calc(var(--u) * 0.25);
+  z-index: 5;
+  padding: calc(var(--u) * 0.125) calc(var(--u) * 0.3125);
+  background: #fbd506;
+  color: #111;
+  border-radius: calc(var(--u) * 0.25);
+  font-family: 'Tektur', sans-serif;
+  font-weight: 800;
+  font-size: calc(var(--u) * 0.5625);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ---------- hover: ник и шевроны ---------- */
+.ld-hover-user {
+  position: absolute;
+  left: calc(var(--u) * 0.5);
+  bottom: calc(var(--u) * 0.5);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--u) * 0.25);
+  opacity: 0;
+  transform: translateY(50%);
+  transition:
+    transform 700ms,
+    opacity 700ms;
+  pointer-events: none;
+}
+
+.ld-hover-user__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--u) * 1.5);
+  height: calc(var(--u) * 1.5);
+  border-radius: 50%;
+  color: #fff;
+  font-family: 'Exo 2', 'Exo', sans-serif;
+  font-weight: 600;
+  font-size: calc(var(--u) * 0.75);
+  line-height: 1;
+}
+
+.ld-hover-user__name {
+  max-width: calc(var(--u) * 7);
+  font-family: 'Exo 2', 'Exo', sans-serif;
+  font-size: calc(var(--u) * 0.625);
+  line-height: 1.2;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-hover-arrows {
+  position: absolute;
+  top: 0;
+  right: calc(var(--u) * 0.5);
+  height: 100%;
+  width: auto;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 700ms;
+  pointer-events: none;
+}
+
+.ld-row:hover .ld-info {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.ld-row:hover .ld-hover-user {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ld-row:hover .ld-hover-arrows {
+  opacity: 1;
+}
+
+/* ---------- Best drop ---------- */
+.ld-best {
+  cursor: pointer;
+  border-radius: calc(var(--u) * 0.5);
+  /* как в оригинале: серая база, жёлтый растёт сверху вниз, слева затемнение */
+  background:
+    linear-gradient(90deg, rgba(35, 35, 37, 0.45) 0%, rgba(35, 35, 37, 0) 55%),
+    linear-gradient(180deg, rgba(251, 213, 6, 0) 0%, rgba(251, 213, 6, 0.7) 100%),
+    #232325;
+  animation: ld-fade 300ms ease-out both;
+}
+
+/* ===== РУЧНАЯ НАСТРОЙКА ВЕРХНЕЙ КАРТОЧКИ (меняй только эти числа) ===== */
+.ld-best {
+  --best-img-right: 0px; /* картинка: больше = левее, минус = правее */
+  --best-img-y: 0px; /* картинка: минус = выше, плюс = ниже */
+  --best-img-height: 113.75%; /* максимальная высота картинки */
+  --best-img-width: 49.5%; /* максимальная ширина картинки */
+  --best-arrows-right: calc(var(--u) * 0.5); /* жёлтые шевроны: больше = левее */
+  --best-arrows-height: 100%; /* размер жёлтых шевронов */
+  width: calc(var(--u) * 11.75); /* карточка уже панели: панель выступает на 0.3125 справа */
+}
+
+.ld-best .ld-image {
+  right: var(--best-img-right);
+  max-height: var(--best-img-height);
+  max-width: var(--best-img-width);
+  transform: translateY(calc(-50% + var(--best-img-y)));
+}
+
+.ld-best__arrows {
+  position: absolute;
+  top: 0;
+  right: var(--best-arrows-right);
+  height: var(--best-arrows-height);
+  width: auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Best drop при наведении: цена сверху справа, ник и аватар снизу слева */
+.ld-best__price {
+  position: absolute;
+  top: calc(var(--u) * 0.5);
+  right: calc(var(--u) * 0.5);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.25);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition:
+    transform 700ms,
+    opacity 700ms;
+  pointer-events: none;
+}
+
+.ld-best__price-value {
+  font-family: 'Exo 2', 'Exo', sans-serif;
+  font-weight: 600;
+  font-size: calc(var(--u) * 0.625);
+  line-height: 1;
+  color: #fff;
+}
+
+.ld-best__price-coin {
+  display: block;
+  width: calc(var(--u) * 0.625);
+  height: calc(var(--u) * 0.625);
+}
+
+.ld-hover-user__name--best {
+  font-family: 'Tektur', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ld-best:hover .ld-info {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.ld-best:hover .ld-hover-user {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ld-best:hover .ld-best__price {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+@keyframes ld-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ld-row-wrap--new,
+  .ld-best {
+    animation: none;
+  }
+}
+
+/* ==========================================================
+   ОКНО ВЫБОРА BEST DROP (открывается кликом по верхнему скину)
+   Вынесено в body, размеры обычные (не зависят от --ld-scale).
+   ========================================================== */
+.ld-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+  animation: ld-fade 200ms ease-out both;
+}
+
+.ld-modal__dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(780px, 100%);
+  max-height: min(82vh, 760px);
+  padding: 20px;
+  box-sizing: border-box;
+  background: #17181c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Exo 2', 'Exo', sans-serif;
+}
+
+.ld-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ld-modal__title {
+  font-family: 'Tektur', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #fbd506;
+}
+
+.ld-modal__close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #232325;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ld-modal__close:hover {
+  background: #2e2e31;
+}
+
+.ld-modal__filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ld-modal__input {
+  flex: 1 1 130px;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: #232325;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  outline: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.ld-modal__input--wide {
+  flex: 2 1 200px;
+}
+
+.ld-modal__input::placeholder {
+  color: #8e8e94;
+}
+
+.ld-modal__input:focus {
+  border-color: #fbd506;
+}
+
+.ld-modal__count {
+  margin: 12px 0 8px;
+  font-size: 12px;
+  color: #8e8e94;
+}
+
+.ld-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3e transparent;
+}
+
+.ld-modal__empty {
+  grid-column: 1 / -1;
+  padding: 40px 0;
+  text-align: center;
+  color: #8e8e94;
+}
+
+.ld-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 10px 10px;
+  background: #232325;
+  border: 1px solid transparent;
+  border-bottom: 3px solid var(--drop-color, #b0c3d9);
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    background 150ms;
+}
+
+.ld-pick:hover {
+  background: #2c2c2f;
+  border-color: #fbd506;
+}
+
+.ld-pick--current {
+  border-color: #fbd506;
+}
+
+.ld-pick__image {
+  align-self: center;
+  width: 100%;
+  height: 84px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+
+.ld-pick__name {
+  max-width: 100%;
+  font-family: 'Tektur', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-pick__type {
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  color: #8e8e94;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-pick__price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ld-pick__coin {
+  width: 12px;
+  height: 12px;
+}
