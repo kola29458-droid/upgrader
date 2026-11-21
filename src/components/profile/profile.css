@@ -66,7 +66,7 @@
   box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.75rem;   /* было 0.5rem */
   padding: 1rem;
   border: 1px solid #ffffff1a;
   border-radius: 1.5rem;
@@ -257,6 +257,8 @@ button.pf-user__id {
   align-items: center;
   gap: 0.25rem;
   margin-top: 1.75rem;
+   position: relative;   /* добавить */
+  top: 4px;             /* добавить: плюс = ниже, минус = выше */
 }
 
 .pf-balance__value > span {
@@ -275,7 +277,7 @@ button.pf-user__id {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  margin-top: 0.25rem;
+  margin-top: 0.85rem;
   padding: 0;
   border: none;
   background: transparent;
@@ -466,360 +468,407 @@ button.pf-user__id {
 }
 
 /*
- * Шевроны Best drop: ряд цельных «^» за предметом.
- * В покое видны два полупрозрачных белых шеврона (над и под предметом, шаг --pf-chevron-pitch).
- * Раз в --pf-chevron-cycle весь ряд за 1.2 с плавно уезжает вверх на 2 шага покоя, шаг ряда вдвое
- * меньше шага покоя, поэтому между шевронами «проявляются» промежуточные и сквозь ряд проходит серия.
- * Яркость каждого шеврона зависит от его высоты (ярче всего у предмета, к краям карточки гаснет) —
- * это снято с образца и запечено в @keyframes pf-chevron-a0…a9 (по одному на шеврон, см. ниже).
- * Размеры заданы в % от карточки (а не в px), поэтому не зависят от `zoom` профиля и размера карточки.
+ * Шевроны Best drop: колонна цельных «^» за предметом (снято с оригинала кадр в кадр).
+ * В покое видны три шеврона: тусклый сверху, крупный почти белый посередине (за предметом) и
+ * тусклый снизу. Раз в --pf-chevron-cycle вся колонна 1.2 с едет вверх на 4 шага (плавный старт и
+ * останов), у каждого шеврона размер и яркость зависят от высоты: больше и ярче к центру карточки,
+ * меньше и тусклее к краям. Каждый из 9 шевронов ведёт своя @keyframes pf-chevron-k0…k8
+ * (translateY + scale + opacity), рассчитанная по оригиналу; ниже — то, что настраивается.
+ * Все размеры в cqw (доля ширины карточки), поэтому не зависят от `zoom` профиля и размера карточки.
  */
 .pf-bestdrop__chevrons {
-  --pf-chevron-width: 20.2%;    /* ширина шеврона — % ширины карточки */
-  --pf-chevron-height: 34.3%;   /* высота шеврона (скос + толщина) — % высоты карточки */
-  --pf-chevron-pitch: 61.4%;    /* расстояние между шевронами в покое — % высоты карточки */
-  --pf-chevron-top: 1.4%;       /* положение верхнего шеврона от верха карточки — % высоты */
-  --pf-chevron-center: 69.5%;   /* горизонтальный центр шеврона — % ширины карточки */
-  --pf-chevron-color: #fff;     /* цвет шеврона; прозрачность задают keyframes, поверх свечения карточки */
-  --pf-chevron-cycle: 4s;       /* период: пауза (0.85 с) + движение (1.2 с) + пауза */
-  --pf-chevron-travel: 2;       /* на сколько шагов покоя уезжает ряд (целое; прозрачность рассчитана под 2) */
-  --pf-chevron-ease: cubic-bezier(0.38, 0, 0.62, 1);
+  --pf-chevron-width: 19.58cqw;  /* ширина шеврона */
+  --pf-chevron-height: 12.7cqw;  /* высота шеврона */
+  --pf-chevron-center: 67.7%;    /* горизонтальный центр шеврона — % ширины карточки */
+  --pf-chevron-color: #fff;      /* цвет; поверх свечения карточки, прозрачность в keyframes */
+  --pf-chevron-alpha: 1;         /* общий множитель яркости (0…1.15) */
+  --pf-chevron-cycle: 4s;        /* период: пауза 0.73 с + движение 1.2 с + пауза */
 
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-}
-
-.pf-chev-train {
-  position: absolute;
-  inset: 0;
-  color: var(--pf-chevron-color);
-  will-change: transform;
-  animation: pf-chevron-move var(--pf-chevron-cycle) var(--pf-chevron-ease) infinite;
+  container-type: size;
 }
 
 .pf-chev {
   position: absolute;
+  top: 0;
   left: calc(var(--pf-chevron-center) - var(--pf-chevron-width) / 2);
-  top: calc(var(--pf-chevron-top) + var(--j, 0) * var(--pf-chevron-pitch) / 2);
   width: var(--pf-chevron-width);
   height: var(--pf-chevron-height);
+  color: var(--pf-chevron-color);
   overflow: visible;
-  animation: var(--pf-chevron-cycle) linear infinite;
+  transform-origin: 50% 0;
+  will-change: transform, opacity;
+  animation-duration: var(--pf-chevron-cycle);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 .pf-chev polygon {
   fill: currentColor;
 }
 
-/* значения покоя (если анимации отключены): видны только чётные шевроны */
-.pf-chev--even { opacity: 0.28; }
-.pf-chev--odd { opacity: 0; }
-
-.pf-chev--a0 { animation-name: pf-chevron-a0; }
-.pf-chev--a1 { animation-name: pf-chevron-a1; }
-.pf-chev--a2 { animation-name: pf-chevron-a2; }
-.pf-chev--a3 { animation-name: pf-chevron-a3; }
-.pf-chev--a4 { animation-name: pf-chevron-a4; }
-.pf-chev--a5 { animation-name: pf-chevron-a5; }
-.pf-chev--a6 { animation-name: pf-chevron-a6; }
-.pf-chev--a7 { animation-name: pf-chevron-a7; }
-.pf-chev--a8 { animation-name: pf-chevron-a8; }
-.pf-chev--a9 { animation-name: pf-chevron-a9; }
-
-@keyframes pf-chevron-move {
-  0%, 21.25% { transform: translateY(0); }
-  51.25%, 100% { transform: translateY(calc(var(--pf-chevron-pitch) * var(--pf-chevron-travel) * -1)); }
-}
-
-/* прозрачность шевронов по ходу движения (сгенерировано из профиля образца) */
-@keyframes pf-chevron-a0 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.003; }
-  23.75% { opacity: 0.003; }
-  25.00% { opacity: 0.003; }
-  26.25% { opacity: 0.003; }
-  27.50% { opacity: 0.003; }
-  28.75% { opacity: 0.003; }
-  30.00% { opacity: 0.003; }
-  31.25% { opacity: 0.003; }
-  32.50% { opacity: 0.003; }
-  33.75% { opacity: 0.003; }
-  35.00% { opacity: 0.003; }
-  36.25% { opacity: 0.003; }
-  37.50% { opacity: 0.003; }
-  38.75% { opacity: 0.003; }
-  40.00% { opacity: 0.003; }
-  41.25% { opacity: 0.003; }
-  42.50% { opacity: 0.003; }
-  43.75% { opacity: 0.003; }
-  45.00% { opacity: 0.003; }
-  46.25% { opacity: 0.003; }
-  47.50% { opacity: 0.003; }
-  48.75% { opacity: 0.003; }
-  50.00% { opacity: 0.003; }
-  51.25%, 100% { opacity: 0.000; }
-}
-
-@keyframes pf-chevron-a1 {
-  0%, 21.25% { opacity: 0.292; }
-  22.50% { opacity: 0.292; }
-  23.75% { opacity: 0.290; }
-  25.00% { opacity: 0.288; }
-  26.25% { opacity: 0.270; }
-  27.50% { opacity: 0.243; }
-  28.75% { opacity: 0.155; }
-  30.00% { opacity: 0.053; }
-  31.25% { opacity: 0.003; }
-  32.50% { opacity: 0.003; }
-  33.75% { opacity: 0.003; }
-  35.00% { opacity: 0.003; }
-  36.25% { opacity: 0.003; }
-  37.50% { opacity: 0.003; }
-  38.75% { opacity: 0.003; }
-  40.00% { opacity: 0.003; }
-  41.25% { opacity: 0.003; }
-  42.50% { opacity: 0.003; }
-  43.75% { opacity: 0.003; }
-  45.00% { opacity: 0.003; }
-  46.25% { opacity: 0.003; }
-  47.50% { opacity: 0.003; }
-  48.75% { opacity: 0.003; }
-  50.00% { opacity: 0.003; }
-  51.25%, 100% { opacity: 0.003; }
-}
-
-@keyframes pf-chevron-a2 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.526; }
-  23.75% { opacity: 0.621; }
-  25.00% { opacity: 0.603; }
-  26.25% { opacity: 0.579; }
-  27.50% { opacity: 0.549; }
-  28.75% { opacity: 0.481; }
-  30.00% { opacity: 0.380; }
-  31.25% { opacity: 0.293; }
-  32.50% { opacity: 0.277; }
-  33.75% { opacity: 0.205; }
-  35.00% { opacity: 0.069; }
-  36.25% { opacity: 0.003; }
-  37.50% { opacity: 0.003; }
-  38.75% { opacity: 0.003; }
-  40.00% { opacity: 0.003; }
-  41.25% { opacity: 0.003; }
-  42.50% { opacity: 0.003; }
-  43.75% { opacity: 0.003; }
-  45.00% { opacity: 0.003; }
-  46.25% { opacity: 0.003; }
-  47.50% { opacity: 0.003; }
-  48.75% { opacity: 0.003; }
-  50.00% { opacity: 0.003; }
-  51.25%, 100% { opacity: 0.000; }
-}
-
-@keyframes pf-chevron-a3 {
-  0%, 21.25% { opacity: 0.272; }
-  22.50% { opacity: 0.277; }
-  23.75% { opacity: 0.292; }
-  25.00% { opacity: 0.327; }
-  26.25% { opacity: 0.375; }
-  27.50% { opacity: 0.437; }
-  28.75% { opacity: 0.506; }
-  30.00% { opacity: 0.564; }
-  31.25% { opacity: 0.629; }
-  32.50% { opacity: 0.587; }
-  33.75% { opacity: 0.531; }
-  35.00% { opacity: 0.396; }
-  36.25% { opacity: 0.292; }
-  37.50% { opacity: 0.268; }
-  38.75% { opacity: 0.175; }
-  40.00% { opacity: 0.045; }
-  41.25% { opacity: 0.003; }
-  42.50% { opacity: 0.003; }
-  43.75% { opacity: 0.003; }
-  45.00% { opacity: 0.003; }
-  46.25% { opacity: 0.003; }
-  47.50% { opacity: 0.003; }
-  48.75% { opacity: 0.003; }
-  50.00% { opacity: 0.003; }
-  51.25%, 100% { opacity: 0.003; }
-}
-
-@keyframes pf-chevron-a4 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.030; }
-  23.75% { opacity: 0.041; }
-  25.00% { opacity: 0.050; }
-  26.25% { opacity: 0.074; }
-  27.50% { opacity: 0.104; }
-  28.75% { opacity: 0.141; }
-  30.00% { opacity: 0.198; }
-  31.25% { opacity: 0.266; }
-  32.50% { opacity: 0.359; }
-  33.75% { opacity: 0.469; }
-  35.00% { opacity: 0.555; }
-  36.25% { opacity: 0.634; }
-  37.50% { opacity: 0.577; }
-  38.75% { opacity: 0.502; }
-  40.00% { opacity: 0.372; }
-  41.25% { opacity: 0.292; }
-  42.50% { opacity: 0.274; }
-  43.75% { opacity: 0.226; }
-  45.00% { opacity: 0.138; }
-  46.25% { opacity: 0.064; }
-  47.50% { opacity: 0.006; }
-  48.75% { opacity: 0.003; }
-  50.00% { opacity: 0.003; }
-  51.25%, 100% { opacity: 0.000; }
-}
-
-@keyframes pf-chevron-a5 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.000; }
-  23.75% { opacity: 0.000; }
-  25.00% { opacity: 0.000; }
-  26.25% { opacity: 0.000; }
-  27.50% { opacity: 0.000; }
-  28.75% { opacity: 0.000; }
-  30.00% { opacity: 0.009; }
-  31.25% { opacity: 0.032; }
-  32.50% { opacity: 0.066; }
-  33.75% { opacity: 0.120; }
-  35.00% { opacity: 0.188; }
-  36.25% { opacity: 0.272; }
-  37.50% { opacity: 0.380; }
-  38.75% { opacity: 0.494; }
-  40.00% { opacity: 0.569; }
-  41.25% { opacity: 0.631; }
-  42.50% { opacity: 0.584; }
-  43.75% { opacity: 0.542; }
-  45.00% { opacity: 0.464; }
-  46.25% { opacity: 0.391; }
-  47.50% { opacity: 0.334; }
-  48.75% { opacity: 0.295; }
-  50.00% { opacity: 0.293; }
-  51.25%, 100% { opacity: 0.292; }
-}
-
-@keyframes pf-chevron-a6 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.000; }
-  23.75% { opacity: 0.000; }
-  25.00% { opacity: 0.000; }
-  26.25% { opacity: 0.000; }
-  27.50% { opacity: 0.000; }
-  28.75% { opacity: 0.000; }
-  30.00% { opacity: 0.000; }
-  31.25% { opacity: 0.000; }
-  32.50% { opacity: 0.000; }
-  33.75% { opacity: 0.000; }
-  35.00% { opacity: 0.006; }
-  36.25% { opacity: 0.034; }
-  37.50% { opacity: 0.076; }
-  38.75% { opacity: 0.132; }
-  40.00% { opacity: 0.203; }
-  41.25% { opacity: 0.277; }
-  42.50% { opacity: 0.366; }
-  43.75% { opacity: 0.451; }
-  45.00% { opacity: 0.516; }
-  46.25% { opacity: 0.558; }
-  47.50% { opacity: 0.591; }
-  48.75% { opacity: 0.615; }
-  50.00% { opacity: 0.525; }
-  51.25%, 100% { opacity: 0.000; }
-}
-
-@keyframes pf-chevron-a7 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.000; }
-  23.75% { opacity: 0.000; }
-  25.00% { opacity: 0.000; }
-  26.25% { opacity: 0.000; }
-  27.50% { opacity: 0.000; }
-  28.75% { opacity: 0.000; }
-  30.00% { opacity: 0.000; }
-  31.25% { opacity: 0.000; }
-  32.50% { opacity: 0.000; }
-  33.75% { opacity: 0.000; }
-  35.00% { opacity: 0.000; }
-  36.25% { opacity: 0.000; }
-  37.50% { opacity: 0.000; }
-  38.75% { opacity: 0.000; }
-  40.00% { opacity: 0.011; }
-  41.25% { opacity: 0.036; }
-  42.50% { opacity: 0.070; }
-  43.75% { opacity: 0.111; }
-  45.00% { opacity: 0.148; }
-  46.25% { opacity: 0.192; }
-  47.50% { opacity: 0.226; }
-  48.75% { opacity: 0.252; }
-  50.00% { opacity: 0.267; }
-  51.25%, 100% { opacity: 0.272; }
-}
-
-@keyframes pf-chevron-a8 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.000; }
-  23.75% { opacity: 0.000; }
-  25.00% { opacity: 0.000; }
-  26.25% { opacity: 0.000; }
-  27.50% { opacity: 0.000; }
-  28.75% { opacity: 0.000; }
-  30.00% { opacity: 0.000; }
-  31.25% { opacity: 0.000; }
-  32.50% { opacity: 0.000; }
-  33.75% { opacity: 0.000; }
-  35.00% { opacity: 0.000; }
-  36.25% { opacity: 0.000; }
-  37.50% { opacity: 0.000; }
-  38.75% { opacity: 0.000; }
-  40.00% { opacity: 0.000; }
-  41.25% { opacity: 0.000; }
-  42.50% { opacity: 0.000; }
-  43.75% { opacity: 0.000; }
-  45.00% { opacity: 0.000; }
-  46.25% { opacity: 0.007; }
-  47.50% { opacity: 0.019; }
-  48.75% { opacity: 0.027; }
-  50.00% { opacity: 0.027; }
-  51.25%, 100% { opacity: 0.000; }
-}
-
-@keyframes pf-chevron-a9 {
-  0%, 21.25% { opacity: 0.000; }
-  22.50% { opacity: 0.000; }
-  23.75% { opacity: 0.000; }
-  25.00% { opacity: 0.000; }
-  26.25% { opacity: 0.000; }
-  27.50% { opacity: 0.000; }
-  28.75% { opacity: 0.000; }
-  30.00% { opacity: 0.000; }
-  31.25% { opacity: 0.000; }
-  32.50% { opacity: 0.000; }
-  33.75% { opacity: 0.000; }
-  35.00% { opacity: 0.000; }
-  36.25% { opacity: 0.000; }
-  37.50% { opacity: 0.000; }
-  38.75% { opacity: 0.000; }
-  40.00% { opacity: 0.000; }
-  41.25% { opacity: 0.000; }
-  42.50% { opacity: 0.000; }
-  43.75% { opacity: 0.000; }
-  45.00% { opacity: 0.000; }
-  46.25% { opacity: 0.000; }
-  47.50% { opacity: 0.000; }
-  48.75% { opacity: 0.000; }
-  50.00% { opacity: 0.000; }
-  51.25%, 100% { opacity: 0.000; }
-}
+/* состояние покоя (оно же без анимации) + привязка к своей @keyframes */
+.pf-chev--k0 { transform: translateY(-7.175cqw) scale(0.888); opacity: calc(0.004 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k0; }
+.pf-chev--k1 { transform: translateY(1.587cqw) scale(0.931); opacity: calc(0.302 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k1; }
+.pf-chev--k2 { transform: translateY(11.924cqw) scale(1.258); opacity: calc(0.874 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k2; }
+.pf-chev--k3 { transform: translateY(24.074cqw) scale(1.008); opacity: calc(0.301 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k3; }
+.pf-chev--k4 { transform: translateY(33.779cqw) scale(0.888); opacity: calc(0.098 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k4; }
+.pf-chev--k5 { transform: translateY(50.265cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k5; }
+.pf-chev--k6 { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k6; }
+.pf-chev--k7 { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k7; }
+.pf-chev--k8 { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); animation-name: pf-chevron-k8; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pf-chev-train,
   .pf-chev {
     animation: none;
   }
+}
+
+/* положение/размер/прозрачность по ходу движения (сгенерировано по оригиналу) */
+@keyframes pf-chevron-k0 {
+  0% { transform: translateY(-7.175cqw) scale(0.888); opacity: calc(0.004 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(-7.175cqw) scale(0.888); opacity: calc(0.004 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(-7.285cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(-7.611cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(-8.142cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(-8.866cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(-9.771cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(-10.843cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(-12.066cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(-13.424cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(-14.901cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(-16.485cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(-18.293cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(-20.171cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(-22.098cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(-24.055cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(-26.023cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k1 {
+  0% { transform: translateY(1.587cqw) scale(0.931); opacity: calc(0.302 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(1.587cqw) scale(0.931); opacity: calc(0.302 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(1.482cqw) scale(0.926); opacity: calc(0.300 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(1.173cqw) scale(0.912); opacity: calc(0.293 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(0.669cqw) scale(0.888); opacity: calc(0.282 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(-0.019cqw) scale(0.888); opacity: calc(0.258 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(-0.878cqw) scale(0.888); opacity: calc(0.227 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(-1.896cqw) scale(0.888); opacity: calc(0.191 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(-3.057cqw) scale(0.888); opacity: calc(0.150 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(-4.347cqw) scale(0.888); opacity: calc(0.104 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(-5.749cqw) scale(0.888); opacity: calc(0.054 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(-7.251cqw) scale(0.888); opacity: calc(0.001 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(-8.91cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(-10.634cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(-12.403cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(-14.2cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(-16.005cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(-17.928cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(-19.86cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(-21.747cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(-23.573cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(-25.323cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k2 {
+  0% { transform: translateY(11.924cqw) scale(1.258); opacity: calc(0.874 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(11.924cqw) scale(1.258); opacity: calc(0.874 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(11.8cqw) scale(1.258); opacity: calc(0.879 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(11.435cqw) scale(1.258); opacity: calc(0.868 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(10.84cqw) scale(1.258); opacity: calc(0.845 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(10.029cqw) scale(1.251); opacity: calc(0.813 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(9.015cqw) scale(1.204); opacity: calc(0.763 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(7.815cqw) scale(1.175); opacity: calc(0.688 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(6.445cqw) scale(1.133); opacity: calc(0.596 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(4.923cqw) scale(1.061); opacity: calc(0.501 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(3.269cqw) scale(1.010); opacity: calc(0.396 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(1.515cqw) scale(0.928); opacity: calc(0.301 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(-0.061cqw) scale(0.888); opacity: calc(0.256 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(-1.697cqw) scale(0.888); opacity: calc(0.198 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(-3.377cqw) scale(0.888); opacity: calc(0.138 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(-5.083cqw) scale(0.888); opacity: calc(0.078 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(-6.798cqw) scale(0.888); opacity: calc(0.017 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(-8.575cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(-10.348cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(-12.08cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(-13.757cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(-15.363cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(-16.931cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(-18.489cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(-19.932cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(-21.251cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(-22.437cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(-23.48cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(-24.376cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(-25.116cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(-25.698cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(-26.117cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(-26.37cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(-26.455cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k3 {
+  0% { transform: translateY(24.074cqw) scale(1.008); opacity: calc(0.301 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(24.074cqw) scale(1.008); opacity: calc(0.301 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(23.928cqw) scale(1.012); opacity: calc(0.307 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(23.5cqw) scale(1.022); opacity: calc(0.325 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(22.801cqw) scale(1.038); opacity: calc(0.355 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(21.847cqw) scale(1.060); opacity: calc(0.407 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(20.655cqw) scale(1.088); opacity: calc(0.467 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(19.244cqw) scale(1.121); opacity: calc(0.531 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(17.633cqw) scale(1.159); opacity: calc(0.605 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(15.845cqw) scale(1.200); opacity: calc(0.688 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(13.9cqw) scale(1.246); opacity: calc(0.788 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(11.838cqw) scale(1.258); opacity: calc(0.878 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(9.979cqw) scale(1.249); opacity: calc(0.811 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(8.049cqw) scale(1.178); opacity: calc(0.704 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(6.067cqw) scale(1.111); opacity: calc(0.571 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(4.054cqw) scale(1.041); opacity: calc(0.452 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(2.032cqw) scale(0.952); opacity: calc(0.312 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(0.257cqw) scale(0.888); opacity: calc(0.268 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(-1.426cqw) scale(0.888); opacity: calc(0.208 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(-3.071cqw) scale(0.888); opacity: calc(0.149 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(-4.663cqw) scale(0.888); opacity: calc(0.093 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(-6.188cqw) scale(0.888); opacity: calc(0.039 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(-7.66cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(-9.09cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(-10.415cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(-11.626cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(-12.714cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(-13.672cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(-14.493cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(-15.173cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(-15.708cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(-16.092cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(-16.324cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(-16.402cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(-16.402cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k4 {
+  0% { transform: translateY(33.779cqw) scale(0.888); opacity: calc(0.098 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(33.779cqw) scale(0.888); opacity: calc(0.098 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(33.663cqw) scale(0.888); opacity: calc(0.100 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(33.32cqw) scale(0.888); opacity: calc(0.106 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(32.762cqw) scale(0.888); opacity: calc(0.115 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(32.0cqw) scale(0.888); opacity: calc(0.128 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(31.048cqw) scale(0.888); opacity: calc(0.145 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(29.921cqw) scale(0.888); opacity: calc(0.164 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(28.635cqw) scale(0.888); opacity: calc(0.186 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(27.206cqw) scale(0.909); opacity: calc(0.213 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(25.653cqw) scale(0.972); opacity: calc(0.252 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(23.974cqw) scale(1.011); opacity: calc(0.305 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(21.789cqw) scale(1.062); opacity: calc(0.411 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(19.519cqw) scale(1.115); opacity: calc(0.518 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(17.189cqw) scale(1.169); opacity: calc(0.624 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(14.824cqw) scale(1.224); opacity: calc(0.741 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(12.446cqw) scale(1.258); opacity: calc(0.853 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(10.354cqw) scale(1.258); opacity: calc(0.827 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(8.369cqw) scale(1.181); opacity: calc(0.726 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(6.428cqw) scale(1.132); opacity: calc(0.595 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(4.551cqw) scale(1.053); opacity: calc(0.480 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(2.751cqw) scale(0.986); opacity: calc(0.356 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(1.126cqw) scale(0.910); opacity: calc(0.292 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(-0.231cqw) scale(0.888); opacity: calc(0.250 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(-1.49cqw) scale(0.888); opacity: calc(0.205 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(-2.639cqw) scale(0.888); opacity: calc(0.165 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(-3.672cqw) scale(0.888); opacity: calc(0.128 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(-4.582cqw) scale(0.888); opacity: calc(0.096 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(-5.362cqw) scale(0.888); opacity: calc(0.068 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(-6.008cqw) scale(0.888); opacity: calc(0.045 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(-6.515cqw) scale(0.888); opacity: calc(0.027 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(-6.88cqw) scale(0.888); opacity: calc(0.014 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(-7.101cqw) scale(0.888); opacity: calc(0.006 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(-7.175cqw) scale(0.888); opacity: calc(0.004 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(-7.175cqw) scale(0.888); opacity: calc(0.004 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k5 {
+  0% { transform: translateY(50.265cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(50.265cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(50.067cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(49.485cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(48.537cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(47.243cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(45.626cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(43.711cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(41.526cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(39.099cqw) scale(0.888); opacity: calc(0.008 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(36.461cqw) scale(0.888); opacity: calc(0.053 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(33.699cqw) scale(0.888); opacity: calc(0.100 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(31.954cqw) scale(0.888); opacity: calc(0.129 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(30.141cqw) scale(0.888); opacity: calc(0.160 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(28.28cqw) scale(0.888); opacity: calc(0.192 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(26.391cqw) scale(0.947); opacity: calc(0.233 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(24.491cqw) scale(0.999); opacity: calc(0.284 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(22.229cqw) scale(1.051); opacity: calc(0.386 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(19.895cqw) scale(1.106); opacity: calc(0.501 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(17.614cqw) scale(1.159); opacity: calc(0.606 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(15.407cqw) scale(1.210); opacity: calc(0.711 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(13.291cqw) scale(1.258); opacity: calc(0.819 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(11.38cqw) scale(1.258); opacity: calc(0.866 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(9.778cqw) scale(1.239); opacity: calc(0.801 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(8.294cqw) scale(1.181); opacity: calc(0.721 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(6.938cqw) scale(1.161); opacity: calc(0.628 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(5.719cqw) scale(1.090); opacity: calc(0.548 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(4.646cqw) scale(1.055); opacity: calc(0.486 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(3.725cqw) scale(1.031); opacity: calc(0.432 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(2.964cqw) scale(0.995); opacity: calc(0.372 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(2.365cqw) scale(0.968); opacity: calc(0.326 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(1.935cqw) scale(0.947); opacity: calc(0.310 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(1.674cqw) scale(0.935); opacity: calc(0.304 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(1.587cqw) scale(0.931); opacity: calc(0.302 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(1.587cqw) scale(0.931); opacity: calc(0.302 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k6 {
+  0% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(63.334cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(62.867cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(62.106cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(61.067cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(59.77cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(58.234cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(56.481cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(54.533cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(52.417cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(50.129cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(47.164cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(44.084cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(40.923cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(37.714cqw) scale(0.888); opacity: calc(0.031 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(34.488cqw) scale(0.888); opacity: calc(0.086 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(32.306cqw) scale(0.888); opacity: calc(0.123 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(30.441cqw) scale(0.888); opacity: calc(0.155 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(28.619cqw) scale(0.888); opacity: calc(0.186 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(26.856cqw) scale(0.925); opacity: calc(0.222 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(25.167cqw) scale(0.983); opacity: calc(0.265 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(23.435cqw) scale(1.023); opacity: calc(0.327 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(21.552cqw) scale(1.067); opacity: calc(0.424 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(19.807cqw) scale(1.108); opacity: calc(0.505 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(18.213cqw) scale(1.145); opacity: calc(0.580 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(16.78cqw) scale(1.178); opacity: calc(0.642 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(15.519cqw) scale(1.208); opacity: calc(0.705 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(14.437cqw) scale(1.233); opacity: calc(0.761 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(13.541cqw) scale(1.254); opacity: calc(0.807 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(12.838cqw) scale(1.258); opacity: calc(0.837 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(12.332cqw) scale(1.258); opacity: calc(0.858 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(12.026cqw) scale(1.258); opacity: calc(0.870 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(11.924cqw) scale(1.258); opacity: calc(0.874 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(11.924cqw) scale(1.258); opacity: calc(0.874 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k7 {
+  0% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(63.383cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(61.004cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(58.533cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(55.997cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(53.422cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(50.833cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(47.762cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(44.595cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(41.5cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(38.505cqw) scale(0.888); opacity: calc(0.018 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(35.635cqw) scale(0.888); opacity: calc(0.067 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(33.268cqw) scale(0.888); opacity: calc(0.107 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(31.765cqw) scale(0.888); opacity: calc(0.132 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(30.371cqw) scale(0.888); opacity: calc(0.156 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(29.098cqw) scale(0.888); opacity: calc(0.178 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(27.953cqw) scale(0.888); opacity: calc(0.197 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(26.946cqw) scale(0.921); opacity: calc(0.220 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(26.082cqw) scale(0.961); opacity: calc(0.241 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(25.366cqw) scale(0.978); opacity: calc(0.260 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(24.805cqw) scale(0.991); opacity: calc(0.275 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(24.4cqw) scale(1.001); opacity: calc(0.287 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(24.156cqw) scale(1.006); opacity: calc(0.297 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(24.074cqw) scale(1.008); opacity: calc(0.301 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(24.074cqw) scale(1.008); opacity: calc(0.301 * var(--pf-chevron-alpha, 1)); }
+}
+
+@keyframes pf-chevron-k8 {
+  0% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  18.20% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  19.16% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  20.12% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  21.09% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  22.05% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.01% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  23.98% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  24.94% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  25.90% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  26.86% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  27.82% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  28.79% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  29.75% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  30.71% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  31.67% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  32.64% { transform: translateY(63.492cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  33.60% { transform: translateY(61.484cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  34.56% { transform: translateY(58.943cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  35.52% { transform: translateY(56.46cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  36.49% { transform: translateY(54.057cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  37.45% { transform: translateY(51.754cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  38.41% { transform: translateY(49.397cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  39.38% { transform: translateY(46.843cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  40.34% { transform: translateY(44.475cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  41.30% { transform: translateY(42.312cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  42.26% { transform: translateY(40.369cqw) scale(0.888); opacity: calc(0.000 * var(--pf-chevron-alpha, 1)); }
+  43.23% { transform: translateY(38.657cqw) scale(0.888); opacity: calc(0.015 * var(--pf-chevron-alpha, 1)); }
+  44.19% { transform: translateY(37.189cqw) scale(0.888); opacity: calc(0.040 * var(--pf-chevron-alpha, 1)); }
+  45.15% { transform: translateY(35.974cqw) scale(0.888); opacity: calc(0.061 * var(--pf-chevron-alpha, 1)); }
+  46.11% { transform: translateY(35.02cqw) scale(0.888); opacity: calc(0.077 * var(--pf-chevron-alpha, 1)); }
+  47.08% { transform: translateY(34.333cqw) scale(0.888); opacity: calc(0.089 * var(--pf-chevron-alpha, 1)); }
+  48.04% { transform: translateY(33.918cqw) scale(0.888); opacity: calc(0.096 * var(--pf-chevron-alpha, 1)); }
+  49.00% { transform: translateY(33.779cqw) scale(0.888); opacity: calc(0.098 * var(--pf-chevron-alpha, 1)); }
+  100% { transform: translateY(33.779cqw) scale(0.888); opacity: calc(0.098 * var(--pf-chevron-alpha, 1)); }
 }
 
 .pf-bestdrop__text {
@@ -828,11 +877,16 @@ button.pf-user__id {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1px;
+  gap: 0px;
 }
 
 .pf-bestdrop__weapon {
-  font-size: 0.5625rem;
+  position: relative;
+  top: -7px;        /* минус = выше, плюс = ниже; название не двигается */
+}
+
+.pf-bestdrop__weapon {
+  font-size: 0.5rem;
   text-transform: uppercase;
   color: #a7a7a7;
 }
@@ -844,20 +898,29 @@ button.pf-user__id {
   max-width: 11rem;
 }
 
+.pf-bestdrop__name {
+  font-family: 'Tektur', 'Exo 2', sans-serif;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.2;       /* добавить */
+  margin-top: -9px;       /* добавить */
+  max-width: 11rem;
+}
+
 .pf-bestdrop__price {
   position: relative;
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 0.125rem;
+  gap: 0.25rem; 
   font-family: 'Tektur', 'Exo 2', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .pf-bestdrop__price img {
-  width: 0.75rem;
-  height: 0.75rem;
+  width:  1.1rem;
+  height: 1.1rem;
 }
 
 .pf-bestdrop__empty-img {

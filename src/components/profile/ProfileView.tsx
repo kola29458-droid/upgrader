@@ -130,16 +130,16 @@ function UserInfo({
               </button>
             )}
             <button type="button" className="pf-icon-btn" aria-label="Settings" title="Settings" onClick={onOpenSettings}>
-              <img src={`/icons/settings.svg`} alt="" />
+              <img src="/icons/settings.svg" alt="" />
             </button>
             <button type="button" className="pf-icon-btn" aria-label="Log out">
-              <img src={`/icons/logout.svg`} alt="" />
+              <img src="/icons/logout.svg" alt="" />
             </button>
           </div>
         </div>
       </div>
       <button type="button" className="pf-notify">
-        <img src={`/icons/bell.svg`} alt="" />
+        <img src="/icons/bell.svg" alt="" />
         <span>Manage notifications</span>
       </button>
     </div>
@@ -152,7 +152,7 @@ function BalanceCard({ balance, onTopUp, hidden }: Pick<ProfileViewProps, 'balan
       <div className="pf-balance__head">
         <div className="pf-balance__title-row">
           <span className="pf-balance__title">Balance</span>
-          <img className="pf-balance__stack" src={`/icons/balance-gray.svg`} alt="" />
+          <img className="pf-balance__stack" src="/icons/balance-gray.svg" alt="" />
         </div>
         <div className="pf-balance__value">
           {hidden
@@ -162,37 +162,31 @@ function BalanceCard({ balance, onTopUp, hidden }: Pick<ProfileViewProps, 'balan
         </div>
         <button type="button" className="pf-balance__history">
           <span>Payment History</span>
-          <img src={`/icons/arrow-right.svg`} alt="" />
+          <img src="/icons/arrow-right.svg" alt="" />
         </button>
       </div>
       <label className="pf-promo">
         <div className="pf-promo__ticket">
-          <img src={`/icons/kupon-black.svg`} alt="" />
+          <img src="/icons/kupon-black.svg" alt="" />
         </div>
         <input type="text" className="pf-promo__input" placeholder="Enter coupon" />
         <span className="pf-promo__apply">Apply</span>
       </label>
       <button type="button" className="pf-topup" onClick={onTopUp}>
-        <img src={`/icons/top-up-mobile.svg`} alt="" />
+        <img src="/icons/top-up-mobile.svg" alt="" />
         Top up balance
       </button>
     </div>
   )
 }
 
-/* Ряд шевронов с шагом в полшага покоя: чётные видны всегда, нечётные проявляются на время движения */
-const CHEVRON_SLOTS = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8]
+/* Ряд из 9 шевронов за предметом: положение, размер и прозрачность каждого ведёт своя @keyframes (profile.css) */
+const CHEVRON_COUNT = 9
 
-/* Цельный шеврон «^» (единый полигон, размеры задаются через CSS-переменные .pf-bestdrop__chevrons) */
-function Chevron({ className, slot }: { className: string; slot: number }) {
+/* Цельный шеврон «^» (единый полигон; размеры — переменные .pf-bestdrop__chevrons) */
+function Chevron({ className }: { className: string }) {
   return (
-    <svg
-      className={className}
-      style={{ '--j': slot } as CSSProperties}
-      viewBox="0 0 74 48"
-      preserveAspectRatio="none"
-      focusable="false"
-    >
+    <svg className={className} viewBox="0 0 74 48" preserveAspectRatio="none" focusable="false">
       <polygon points="37,0 74,23 74,48 37,25 0,48 0,23" />
     </svg>
   )
@@ -206,16 +200,14 @@ function BestDropCard({ bestDrop }: { bestDrop: BestDrop | null }) {
       {bestDrop ? (
         <>
           <div className="pf-bestdrop__chance">
-            <img src={`/icons/up-arrow-yellow.svg`} alt="" />
+            <img src="/icons/up-arrow-yellow.svg" alt="" />
             <span>{bestDrop.chance.toFixed(2)}%</span>
           </div>
           <div className="pf-bestdrop__glow" />
           <div className="pf-bestdrop__chevrons" aria-hidden="true">
-            <div className="pf-chev-train">
-              {CHEVRON_SLOTS.map((j) => (
-                <Chevron key={j} className={`pf-chev pf-chev--a${j + 1} ${j % 2 ? 'pf-chev--odd' : 'pf-chev--even'}`} slot={j} />
-              ))}
-            </div>
+            {Array.from({ length: CHEVRON_COUNT }, (_, n) => (
+              <Chevron key={n} className={`pf-chev pf-chev--k${n}`} />
+            ))}
           </div>
           <img className="pf-bestdrop__img" src={bestDrop.skin.image} alt={bestDrop.skin.name} draggable={false} />
           <div className="pf-bestdrop__text">
@@ -271,7 +263,7 @@ function StatsBlock({ stats, bestDrop }: { stats: ProfileViewProps['stats']; bes
           <div className="pf-withdrawn__head">
             <span>Withdrawn</span>
             <div className="pf-withdrawn__steam">
-              <img src={`/icons/steam-gray.svg`} alt="" />
+              <img src="/icons/steam-gray.svg" alt="" />
             </div>
           </div>
           <span className="pf-withdrawn__count">{stats.withdrawnCount} items</span>
@@ -285,7 +277,7 @@ function StatsBlock({ stats, bestDrop }: { stats: ProfileViewProps['stats']; bes
             <span className="pf-stat__label">Upgrades</span>
             <span className="pf-stat__value">
               <span className="pf-gradient-text">{stats.upgrades}</span>
-              <img src={`/icons/arrow-logo.svg`} alt="" />
+              <img src="/icons/arrow-logo.svg" alt="" />
             </span>
           </div>
           <div className="pf-stat" data-testid="user-stats-battles">
