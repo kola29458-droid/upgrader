@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { OwnedSkin } from '../../hooks/useInventory'
-import { ITEM_EVENT_LABEL } from '../../profileStore'
+import { ITEM_EVENT_LABEL, MAX_GAME_HISTORY } from '../../profileStore'
 import type { GameRecord, ItemEvent } from '../../profileStore'
 import ProfileItemCard from './ProfileItemCard'
+import { formatPrice } from '../SkinCatalog'
 
 const COIN = '/coins.png'
 const ITEMS_PAGE = 24 // предметов за раз (Load more подгружает следующие)
-const GAMES_PAGE = 9
 
 function SellIcon({ disabled, loading }: { disabled?: boolean; loading?: boolean }) {
   if (loading) {
@@ -181,11 +181,49 @@ function Chevrons() {
 }
 
 function GameRow({ game }: { game: GameRecord }) {
-  // Слева — то, что поставили: самый дорогой скин (если ставили только монеты — карточка с монетой)
-  const topBet = [...game.betSkins].sort((a, b) => b.price - a.price)[0]
-  const extra = game.betSkins.length - 1
+  // Слева — ставка: сетка из скинов betSkins + (betCoins > 0 ? карточка монет : ничего)
+  // N = число ячеек, максимум 6. Раскладка: 1→1×1, 2→2×1, 3-4→2×2, 5-6→3×2
   const resultLabel = game.compensation ? 'Compensation' : game.win ? 'Win' : 'Lose'
   const resultClass = game.compensation ? 'comp' : game.win ? 'win' : 'lose'
+
+  // Собираем ячейки ставки
+  const betSkins = game.betSkins ?? []
+  const hasCoins = (game.betCoins ?? 0) > 0
+  const maxCells = 6
+
+  // Если скинов 6 и есть монеты — показываем 5 скинов + монеты (чтобы монеты не пропали)
+  let cells: Array<{ type: 'skin'; skin: any } | { type: 'coin' }> = betSkins
+    .slice(0, hasCoins && betSkins.length >= maxCells ? maxCells - 1 : maxCells)
+    .map((skin) => ({ type: 'skin' as const, skin }))
+
+  if (hasCoins && cells.length < maxCells) {
+    cells.push({ type: 'coin' })
+  }
+
+  // Fallback для старых записей: если нет скинов и нет монет — показываем одну карточку монет
+  if (cells.length === 0) {
+    cells.push({ type: 'coin' })
+  }
+
+  const N = cells.length
+
+  // Определяем сетку
+  let cols = 1
+  let rows = 1
+  let showEmpty = false
+  if (N === 1) {
+    cols = 1; rows = 1
+  } else if (N === 2) {
+    cols = 2; rows = 1
+  } else if (N === 3 || N === 4) {
+    cols = 2; rows = 2; showEmpty = N === 3
+  } else if (N >= 5) {
+    cols = 3; rows = 2; showEmpty = N === 5
+  }
+
+  // Подпись в плашке
+  const betLabel = N === 1 ? 'Your bet' : 'Your bet, amount'
+
   return (
     <div className="pf-game">
       <div className="pf-game__gameid">
@@ -199,20 +237,71 @@ function GameRow({ game }: { game: GameRecord }) {
       </div>
 
       <div className="pf-game__sector">
-        <div className="pf-game__cardwrap">
-          {topBet ? (
-            <ProfileItemCard skin={topBet} variant="plain" />
-          ) : (
-            <div className="pf-card pf-card--coins">
-              <div className="pf-card__inner">
-                <img className="pf-card__coin" src={COIN} alt="" />
-              </div>
+        <div className="pf-game__bet-grid" style={{ '--cols': cols, '--rows': rows } as React.CSSProperties}>
+          {cells.map((cell, idx) => {
+            const isSingleBet = N === 1
+            if (cell.type === 'skin') {
+              const skin = cell.skin
+              const showPrice = !isSingleBet // в сетке (N≥2) показываем цену, в одиночной ставке — нет
+              return (
+                <div key={idx} className="pf-game__tip-wrap">
+                  <div className="pf-game__bet-card">
+                    <ProfileItemCard skin={skin} variant="plain" />
+                  </div>
+                  <div className="pf-tip">
+                    {skin.weapon && (
+                      <div className="pf-tip__line">
+                        <span className="pf-tip__type">{skin.weapon}</span>
+                      </div>
+                    )}
+                    <div className="pf-tip__line">
+                      <span className="pf-tip__name">{skin.name}</span>
+                    </div>
+                    {showPrice && (
+                      <div className="pf-tip__line pf-tip__price">
+                        <span>{formatPrice(skin.price)}</span>
+                        <img className="pf-tip__price-coin" src={COIN} alt="" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            } else {
+              // Coin cell: only betCoins amount with coin icon
+              return (
+                <div key={idx} className="pf-game__tip-wrap pf-game__tip-wrap--coins">
+                  <div className="pf-game__bet-card pf-game__bet-card--coins">
+                    <div className="pf-game__coins-inner">
+                      <div className="pf-game__coins-glow" />
+                    </div>
+                  </div>
+                  <div className="pf-tip">
+                    <div className="pf-tip__line pf-tip__coins-only">
+                      <span>{formatPrice(game.betCoins)}</span>
+                      <img src={COIN} alt="" />
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+          })}
+          {showEmpty && (
+            <div className="pf-game__bet-card pf-game__bet-empty">
+              <svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" viewBox="0 0 31 31" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="pf-empty-g" x1="15.3909" y1="0" x2="15.3909" y2="28.2174" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="white" />
+                    <stop offset="1" stopColor="white" stopOpacity="0.2" />
+                  </linearGradient>
+                </defs>
+                <path fillRule="evenodd" clipRule="evenodd" d="M28.064 17.9083L15.3909 8.6311L2.71777 17.9083V9.27723L15.3909 0L28.064 9.27723V17.9083Z" fill="url(#pf-empty-g)" fillOpacity="0.05" />
+                <path d="M25.6515 21.4176V28.2174L15.3906 20.9085L5.12973 28.2174V21.4176L15.3906 14.1087L25.6515 21.4176Z" fill="url(#pf-empty-g)" fillOpacity="0.05" />
+              </svg>
             </div>
           )}
-          {extra > 0 && <span className="pf-game__extra">+{extra}</span>}
         </div>
         <div className="pf-game__info">
-          <span className="pf-game__info-label">Your bet</span>
+          <span className="pf-game__info-label">{betLabel}</span>
           <span className="pf-game__info-value">
             {game.betTotal.toFixed(2)}
             <img src={COIN} alt="" />
@@ -224,7 +313,19 @@ function GameRow({ game }: { game: GameRecord }) {
 
       <div className="pf-game__sector">
         <div className="pf-game__cardwrap pf-game__cardwrap--target">
-          <ProfileItemCard skin={game.target} variant="plain" showPrice />
+          <div className="pf-game__tip-wrap">
+            <ProfileItemCard skin={game.target} variant="plain" showPrice />
+            <div className="pf-tip">
+              {game.target.weapon && (
+                <div className="pf-tip__line">
+                  <span className="pf-tip__type">{game.target.weapon}</span>
+                </div>
+              )}
+              <div className="pf-tip__line">
+                <span className="pf-tip__name">{game.target.name}</span>
+              </div>
+            </div>
+          </div>
           <div className={`pf-game__badge pf-game__badge--${resultClass}`}>{resultLabel}</div>
           {game.compensation && (
             <div className="pf-game__comp">
@@ -254,17 +355,13 @@ function GameRow({ game }: { game: GameRecord }) {
 }
 
 export function GamesHistoryTab({ games }: { games: GameRecord[] }) {
-  const [visible, setVisible] = useState(GAMES_PAGE)
   if (games.length === 0) return <EmptyState text="You don't have any games yet" />
   return (
-    <>
-      <div className="pf-games-grid">
-        {games.slice(0, visible).map((game) => (
-          <GameRow key={game.id} game={game} />
-        ))}
-      </div>
-      {games.length > visible && <LoadMore onClick={() => setVisible((v) => v + GAMES_PAGE)} />}
-    </>
+    <div className="pf-games-grid">
+      {games.slice(0, MAX_GAME_HISTORY).map((game) => (
+        <GameRow key={game.id} game={game} />
+      ))}
+    </div>
   )
 }
 

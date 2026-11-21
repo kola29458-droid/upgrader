@@ -229,7 +229,7 @@ function BestDropCard({ bestDrop }: { bestDrop: BestDrop | null }) {
   )
 }
 
-function SellToast({ onClose }: { onClose: () => void }) {
+function SellToast({ onClose, totalAmount }: { onClose: () => void; totalAmount?: number }) {
   const [closing, setClosing] = useState(false)
 
   useEffect(() => {
@@ -243,15 +243,20 @@ function SellToast({ onClose }: { onClose: () => void }) {
     return () => window.clearTimeout(timer)
   }, [closing, onClose])
 
-  return (
-    <div className={`pf-toast ${closing ? 'pf-toast--closing' : ''}`} role="status" aria-live="polite">
-      <span className="pf-toast__icon" aria-hidden="true" />
-      <span className="pf-toast__message">Item sold</span>
-      <button type="button" className="pf-toast__close" aria-label="Close notification" onClick={() => setClosing(true)}>
-        ×
-      </button>
-    </div>
-  )
+  const message = totalAmount != null
+    ? `Items sold for a total of ${formatPrice(totalAmount)}`
+    : 'Item sold'
+
+  const isBulk = totalAmount != null
+    return (
+      <div className={`pf-toast ${isBulk ? 'pf-toast--bulk' : ''} ${closing ? 'pf-toast--closing' : ''}`} role="status" aria-live="polite">
+        <span className="pf-toast__icon" aria-hidden="true" />
+        <span className="pf-toast__message">{message}</span>
+        <button type="button" className="pf-toast__close" aria-label="Close notification" onClick={() => setClosing(true)}>
+          ×
+        </button>
+      </div>
+    )
 }
 
 function StatsBlock({ stats, bestDrop }: { stats: ProfileViewProps['stats']; bestDrop: BestDrop | null }) {
@@ -308,13 +313,15 @@ export default function ProfileView(props: ProfileViewProps) {
   const [confirmSellAll, setConfirmSellAll] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soldToastId, setSoldToastId] = useState(0)
-  const [sellingAll, setSellingAll] = useState(false)
-  const sellAllTimer = useRef<number | null>(null)
-  useEffect(() => () => {
-    if (sellAllTimer.current !== null) window.clearTimeout(sellAllTimer.current)
+  const [soldToastAmount, setSoldToastAmount] = useState<number | undefined>()
+  const closeSoldToast = useCallback(() => {
+    setSoldToastId(0)
+    setSoldToastAmount(undefined)
   }, [])
-  const closeSoldToast = useCallback(() => setSoldToastId(0), [])
-  const showSoldToast = () => setSoldToastId((id) => id + 1)
+  const showSoldToast = useCallback((amount?: number) => {
+    setSoldToastAmount(amount)
+    setSoldToastId((id) => id + 1)
+  }, [])
 
   const inventoryTotal = inventory.reduce((sum, item) => sum + item.price, 0)
   const canSellAll = inventory.length > 0
@@ -393,42 +400,53 @@ export default function ProfileView(props: ProfileViewProps) {
       )}
 
       {confirmSellAll && (
-        <div className="pf-modal-backdrop" onClick={() => !sellingAll && setConfirmSellAll(false)}>
-          <div className="pf-modal" onClick={(event) => event.stopPropagation()}>
-            <h3>Sell all items?</h3>
-            <p>
-              {inventory.length} items for{' '}
-              <b>
-                {formatPrice(inventoryTotal)} <img src={COIN} alt="" />
-              </b>{' '}
-              will be added to your virtual balance.
+        <div className="pf-modal-backdrop" onClick={() => setConfirmSellAll(false)}>
+          <div className="pf-modal pf-modal--sale" onClick={(event) => event.stopPropagation()}>
+            <div className="pf-modal__header">
+              <span className="pf-modal__title">Sale confirmation</span>
+              <button
+                type="button"
+                className="pf-modal__close"
+                onClick={() => setConfirmSellAll(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <p className="pf-modal__question">
+              Are you sure you want to sell <span className="pf-gradient-text">{inventory.length}</span> items?
             </p>
+            <div className="pf-modal__total">
+              <span className="pf-modal__total-label">Total amount:</span>
+              <div className="pf-modal__total-amount">
+                <span className="pf-gradient-text">{formatPrice(inventoryTotal)}</span>
+                <img src={COIN} alt="" />
+              </div>
+            </div>
             <div className="pf-modal__actions">
-              <button type="button" className="pf-modal__btn" disabled={sellingAll} onClick={() => setConfirmSellAll(false)}>
+              <button
+                type="button"
+                className="pf-modal__btn pf-modal__btn--cancel"
+                onClick={() => setConfirmSellAll(false)}
+              >
                 Cancel
               </button>
               <button
                 type="button"
-                className="pf-modal__btn pf-modal__btn--yellow"
-                disabled={sellingAll}
+                className="pf-modal__btn pf-modal__btn--sell"
                 onClick={() => {
-                  if (sellingAll) return
-                  setSellingAll(true)
-                  sellAllTimer.current = window.setTimeout(() => {
-                    onSell(inventory.map((item) => item.uid))
-                    setSellingAll(false)
-                    setConfirmSellAll(false)
-                    showSoldToast()
-                  }, 1050)
+                  setConfirmSellAll(false)
+                  onSell(inventory.map((item) => item.uid))
+                  showSoldToast(inventoryTotal)
                 }}
               >
-                {sellingAll ? <><span className="pf-item__spinner" aria-hidden="true" /> Selling...</> : 'Sell all'}
+                Sell all
               </button>
             </div>
           </div>
         </div>
       )}
-      {soldToastId > 0 && <SellToast key={soldToastId} onClose={closeSoldToast} />}
+      {soldToastId > 0 && <SellToast key={soldToastId} onClose={closeSoldToast} totalAmount={soldToastAmount} />}
     </div>
   )
 }

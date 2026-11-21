@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { Skin } from '../components/SkinCatalog'
-import { newGameId, nextEventId } from '../profileStore'
+import { newGameId, nextEventId, MAX_GAME_HISTORY } from '../profileStore'
 import type { BestDrop, GameRecord, ItemEvent, ItemEventKind } from '../profileStore'
 
 // Журнал операций и игр. Новые записи добавляются в начало (сверху самые свежие).
@@ -16,7 +16,10 @@ export function useProfileLog() {
   }, [])
 
   const logGame = useCallback((game: Omit<GameRecord, 'id' | 'time'>) => {
-    setGames((current) => [{ ...game, id: newGameId(), time: Date.now() }, ...current])
+    setGames((current) => {
+      const next = [{ ...game, id: newGameId(), time: Date.now() }, ...current]
+      return next.slice(0, MAX_GAME_HISTORY)
+    })
   }, [])
 
   const stats = useMemo(() => {

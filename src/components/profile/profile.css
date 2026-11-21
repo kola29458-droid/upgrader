@@ -1515,6 +1515,12 @@ button.pf-user__id {
 
 .pf-toast__close:hover { opacity: 1; }
 
+/* ───────── Bulk sale toast (Sell all) — smaller font only ───────── */
+.pf-toast--bulk .pf-toast__message {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
 @keyframes pf-toast-enter {
   from { opacity: 0; transform: translateX(1.5rem); }
   to { opacity: 1; transform: translateX(0); }
@@ -1598,21 +1604,263 @@ button.pf-user__id {
   font-weight: 600;
 }
 
+/* ───────── Bet grid (left sector of Games history) ───────── */
+.pf-game__bet-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 1), minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  height: 8.125rem; /* same as .pf-game__cardwrap */
+}
+
+.pf-game__bet-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 0.375rem;
+  background: linear-gradient(137deg, var(--rarity, #5e98d9) 10%, rgb(28, 28, 32) 75%);
+}
+
+/* Tooltip wrapper: relative, no overflow, high z-index on hover */
+.pf-game__tip-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pf-game__tip-wrap:hover {
+  z-index: 20;
+}
+
+.pf-game__bet-card .pf-card {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  padding: 1px;
+  border-radius: 0.375rem;
+  background: linear-gradient(137deg, var(--rarity, #5e98d9) 10%, rgb(28, 28, 32) 75%);
+  overflow: hidden;
+}
+
+.pf-game__bet-card .pf-card__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  background: #151518 url('/icons/light-gray-logo.png') center / 50% no-repeat;
+}
+
+.pf-game__bet-card .pf-card__img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Coin card: gradient gold border, bet-coins.webp background, gold glow */
+.pf-game__bet-card--coins {
+  padding: 1px;
+  border-radius: 0.375rem;
+  background: linear-gradient(137deg, rgb(189, 156, 79) 10%, rgb(38, 38, 42) 75%);
+}
+
+.pf-game__coins-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.3rem;
+  overflow: hidden;
+  background: #151518 url('/bet-coins.webp') center / 70% auto no-repeat;
+}
+
+.pf-game__coins-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(189,156,79,0.4) 0%, rgba(189,156,79,0.2) 30%, rgba(189,156,79,0.1) 45%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Empty placeholder: dark panel, thin border, centered chevron */
+.pf-game__bet-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid #ffffff0d;
+  border-radius: 0.375rem;
+}
+
+.pf-game__bet-empty svg {
+  width: 31px;
+  height: 31px;
+  display: block;
+}
+
+/* ───────── Tooltip (Games history) ───────── */
+.pf-tip {
+  /* CSS variables for easy tuning */
+  --pf-tip-bg: rgba(255, 255, 255, 0.14);
+  --pf-tip-radius: 8px;
+  --pf-tip-padding: 8px 16px;
+  --pf-tip-gap: 3px;
+  --pf-tip-font-sm: 9px;
+  --pf-tip-font-sm-color: #b8b8c0;
+  --pf-tip-font-lg: 11px;
+  --pf-tip-font-lg-color: #fff;
+  --pf-tip-font-price: 11px;
+  --pf-tip-font-price-color: #fbd506;
+  --pf-tip-coin-size: 11px;
+  --pf-tip-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  --pf-tip-z: 1000;
+  --pf-tip-transition: 180ms;
+  --pf-tip-triangle: 6px;
+  --pf-tip-min-width: 150px;
+
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px); /* 6px gap above card */
+  transform: translateX(-50%) translateY(4px);
+  z-index: var(--pf-tip-z);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pf-tip-gap);
+  padding: var(--pf-tip-padding);
+  border-radius: var(--pf-tip-radius);
+  background: var(--pf-tip-bg);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  border: none;
+  outline: none;
+  box-shadow: var(--pf-tip-shadow);
+  pointer-events: none;
+  white-space: nowrap;
+  width: max-content;
+  min-width: var(--pf-tip-min-width);
+  box-sizing: border-box;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--pf-tip-transition) ease-out, transform var(--pf-tip-transition) ease-out, visibility 0s linear var(--pf-tip-transition);
+}
+
+/* Coin tooltip: no min-width, stays narrow */
+.pf-game__tip-wrap--coins .pf-tip {
+  min-width: 0;
+}
+
+/* Triangle pointing down */
+.pf-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: var(--pf-tip-triangle);
+  border-style: solid;
+  border-color: var(--pf-tip-bg) transparent transparent transparent;
+}
+
+/* Show on hover of wrapper */
+.pf-game__tip-wrap:hover .pf-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity var(--pf-tip-transition) ease-out, transform var(--pf-tip-transition) ease-out, visibility 0s;
+}
+
+/* Tooltip text lines */
+.pf-tip__line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pf-tip-gap);
+  line-height: 1.3;
+}
+
+.pf-tip__type {
+  font-size: var(--pf-tip-font-sm);
+  color: var(--pf-tip-font-sm-color);
+  font-weight: 400;
+}
+
+.pf-tip__name {
+  font-size: var(--pf-tip-font-lg);
+  color: var(--pf-tip-font-lg-color);
+  font-weight: 600;
+}
+
+.pf-tip__price {
+  font-size: var(--pf-tip-font-price);
+  color: var(--pf-tip-font-price-color);
+  font-weight: 600;
+  font-family: 'Tektur', 'Exo 2', sans-serif;
+}
+
+.pf-tip__price-coin {
+  width: var(--pf-tip-coin-size);
+  height: var(--pf-tip-coin-size);
+  flex-shrink: 0;
+}
+
+.pf-tip__coins-only {
+  font-size: var(--pf-tip-font-price);
+  color: var(--pf-tip-font-price-color);
+  font-weight: 600;
+  font-family: 'Tektur', 'Exo 2', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: var(--pf-tip-gap);
+  line-height: 1.3;
+}
+
+.pf-tip__coins-only img {
+  width: var(--pf-tip-coin-size);
+  height: var(--pf-tip-coin-size);
+}
+
+.pf-tip__coins-only img {
+  width: var(--pf-tip-coin-size);
+  height: var(--pf-tip-coin-size);
+}
+
+/* Ensure game row and sector allow tooltip to overflow */
+.pf-game:hover {
+  z-index: 20;
+}
+
+.pf-game__sector:hover {
+  z-index: 20;
+}
+
 .pf-game__info {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.125rem;
+  gap: 0;
   width: 100%;
   height: 2.5rem;
-  padding: 0.375rem 0;
+  padding: 0 0 0.625rem;
   border-radius: 0.5rem;
   background: #ffffff0a;
 }
 
 .pf-game__info-label {
+  position: relative;
+  top: 8px;
   font-size: 0.5rem;
   color: #ffffff80;
 }
@@ -1641,24 +1889,24 @@ button.pf-user__id {
   bottom: 0.375rem;
   left: 0.375rem;
   z-index: 2;
-  padding: 0.25rem 0.5rem;
+  padding: 0.05rem 0.7rem;
   border-radius: 0.25rem;
-  font-size: 0.625rem;
+  font-size: 0.5rem;
 }
 
 .pf-game__badge--win {
-  background: #24d17a1a;
-  color: #24d17a;
+  background: rgba(20, 80, 30, 0.35);
+  color: #8fff8f;
 }
 
 .pf-game__badge--lose {
-  background: #e7463d1a;
-  color: #e7463d;
+  background: rgba(80, 20, 20, 0.35);
+  color: #ffaaa8;
 }
 
 .pf-game__badge--comp {
-  background: #fbd5061a;
-  color: #fbd506;
+  background: rgba(80, 70, 15, 0.35);
+  color: #fff8aa;
 }
 
 .pf-game__comp {
@@ -1807,7 +2055,9 @@ button.pf-user__id {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.08);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .pf-modal {
@@ -1865,6 +2115,183 @@ button.pf-user__id {
 .pf-modal__btn--yellow {
   background: linear-gradient(93deg, #fbc206 1.16%, #ffdd23 50.58%, #fbd506 100%);
   color: #17181c;
+}
+
+/* ───────── Окно подтверждения продажи (Sell all) ───────── */
+.pf-modal--sale {
+  width: 36rem;
+  padding: 0.75rem 0.67rem 1.3rem;
+  border-radius: 0.45rem;
+  border: none;
+  box-shadow: none;
+}
+
+.pf-modal--sale .pf-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.pf-modal--sale .pf-modal__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  position: relative;
+  top: -4px;
+}
+
+.pf-modal--sale .pf-modal__close {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: #8f8f97;
+  font-size: 1.4rem;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s;
+  margin-left: auto;
+}
+
+.pf-modal--sale .pf-modal__close:hover:not(:disabled) {
+  color: #fff;
+}
+
+.pf-modal--sale .pf-modal__close:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pf-modal--sale .pf-modal__question {
+  margin: 0 0 1.1rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.pf-modal--sale .pf-modal__question .pf-gradient-text {
+  font-weight: 700;
+}
+
+.pf-modal--sale .pf-modal__total {
+  padding: 0.9rem;
+  border-radius: 0.35rem;
+  background: #202022;
+  text-align: center;
+}
+
+.pf-modal--sale .pf-modal__total-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  color: #a7a7a7;
+  position: relative;
+  top: -3px;
+}
+
+.pf-modal--sale .pf-modal__total-amount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 1.39rem;
+  font-weight: 700;
+  color: #fbd506;
+  position: relative;
+  top: -3px;
+}
+
+.pf-modal--sale .pf-modal__total-amount img {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.pf-modal--sale .pf-modal__total-amount .pf-gradient-text {
+  position: relative;
+  left: 6px;
+}
+
+.pf-modal--sale .pf-modal__actions {
+  display: flex;
+  gap: 0.67rem;
+  margin-top: 2rem;
+}
+
+.pf-modal--sale .pf-modal__btn {
+  flex: 1;
+  height: 2.55rem;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.pf-modal--sale .pf-modal__btn--cancel {
+  background: #141518;
+  border: 1px solid #ffffff73;
+  color: #b5b5ba;
+}
+
+.pf-modal--sale .pf-modal__btn--cancel:hover:not(:disabled) {
+  background: #18181c;
+  border-color: #ffffff8c;
+  color: #fff;
+}
+
+.pf-modal--sale .pf-modal__btn--sell {
+  background: #1a1f17;
+  border: 1px solid #fbd506;
+  color: #fbd506;
+}
+
+.pf-modal--sale .pf-modal__btn--sell:hover:not(:disabled) {
+  background: #1a2217;
+  border-color: #ffdd23;
+}
+
+.pf-modal--sale .pf-modal__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* анимации появления окна Sell all */
+@keyframes pf-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pf-modal-pop {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pf-modal-backdrop {
+  animation: pf-modal-fade 300ms ease-out both;
+}
+
+.pf-modal--sale {
+  animation: pf-modal-pop 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-chev {
+    animation: none;
+  }
+  .pf-modal-backdrop,
+  .pf-modal--sale {
+    animation: none;
+  }
 }
 
 /* ───────── Окно Settings (шестерёнка) ───────── */

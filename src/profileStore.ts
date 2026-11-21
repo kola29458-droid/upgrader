@@ -45,6 +45,9 @@ export function newGameId() {
   return String(600000000 + Math.floor(Math.random() * 99999999))
 }
 
+// Максимальное число записей в истории игр
+export const MAX_GAME_HISTORY = 300
+
 // Аватар по умолчанию (пока пользователь не выбрал свой файл)
 export const AVATAR_PLACEHOLDER =
   "data:image/svg+xml;utf8," +
