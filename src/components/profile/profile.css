@@ -480,8 +480,8 @@ button.pf-user__id {
   --pf-chevron-width: 19.58cqw;  /* ширина шеврона */
   --pf-chevron-height: 12.7cqw;  /* высота шеврона */
   --pf-chevron-center: 67.7%;    /* горизонтальный центр шеврона — % ширины карточки */
-  --pf-chevron-color: #fff;      /* цвет; поверх свечения карточки, прозрачность в keyframes */
-  --pf-chevron-alpha: 1;         /* общий множитель яркости (0…1.15) */
+  --pf-chevron-color: var(--rarity, #fff);      /* цвет; поверх свечения карточки, прозрачность в keyframes */
+  --pf-chevron-alpha: 1.15;         /* общий множитель яркости (0…1.15) */
   --pf-chevron-cycle: 4s;        /* период: пауза 0.73 с + движение 1.2 с + пауза */
 
   position: absolute;
@@ -505,6 +505,7 @@ button.pf-user__id {
   animation-duration: var(--pf-chevron-cycle);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  filter: saturate(1.8) brightness(1.15);
 }
 
 .pf-chev polygon {
@@ -1357,13 +1358,13 @@ button.pf-user__id {
   height: 100%;
   overflow: hidden;
   border-radius: 0.375rem;
-  background: #1d1e22 url('/icons/light-gray-logo.png') center / 50% no-repeat;
+  background: #151518 url('/icons/light-gray-logo.png') center / 50% no-repeat;
 }
 
 .pf-card__img {
   position: relative;
   z-index: 1;
-  width: 86%;
+  width: 82%;
   object-fit: cover;
   pointer-events: none;
 }
@@ -1387,11 +1388,6 @@ button.pf-user__id {
   pointer-events: none;
 }
 
-.pf-card:hover .pf-card__glow {
-  transform: translate(-50%, -50%) scale(1.1);
-  filter: brightness(2);
-}
-
 .pf-card__top {
   position: absolute;
   top: 0.375rem;
@@ -1407,18 +1403,19 @@ button.pf-user__id {
   align-items: center;
   gap: 0.125rem;
   font-family: 'Tektur', 'Exo 2', sans-serif;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 700;
   background: linear-gradient(93deg, #fbc206 1.16%, #ffdd23 50.58%, #fbd506 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  position: relative;
+  top: -9px;
 }
 
 .pf-card__price img {
-  width: 0.6875rem;
-  height: 0.6875rem;
-  transform: translateY(-0.25rem);
+  width: 0.625rem;
+  height: 0.625rem;
 }
 
 .pf-card__wear {
@@ -1427,6 +1424,8 @@ button.pf-user__id {
   font-size: 0.5625rem;
   font-weight: 600;
   color: #a7a7a7;
+  position: relative;
+  top: 3px;
 }
 
 .pf-card__bottom {
@@ -1443,20 +1442,24 @@ button.pf-user__id {
 }
 
 .pf-card__weapon {
-  font-size: 0.5rem;
+  font-size: 0.40625rem;
   font-weight: 600;
   color: #a7a7a7;
   white-space: nowrap;
+  position: relative;
+  top: 17px;
 }
 
 .pf-card__name {
   max-width: 100%;
   overflow: hidden;
   font-family: 'Tektur', 'Exo 2', sans-serif;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+  position: relative;
+  top: 4px;
 }
 
 .pf-toast {
