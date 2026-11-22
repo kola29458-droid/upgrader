@@ -42,16 +42,20 @@ import type { GameRecord, ItemEventKind, ProfileSettings } from './profileStore'
 import { CASE_THRESHOLD, pickCompensation } from './compensation'
 import { COMP_CARD_TIMING } from './rouletteProfile'
 
+// Статистика в шапке — стартовые значения (менять только здесь)
+const STATS_UPGRADES = 639723928
+const STATS_BATTLES = 872121
+
 const COUNTER_SETTINGS = {
   onlineMin: 1500,
   onlineMax: 4000,
   onlineSpeed: 2500,
-  upgradesStart: 639360270,
+  upgradesStart: STATS_UPGRADES,
   upgradesSpeed: 40,
   upgradesChance: 0.65,
   upgradesMinAdd: 1,
   upgradesMaxAdd: 3,
-  battlesStart: 869555,
+  battlesStart: STATS_BATTLES,
   battlesSpeed: 8000,
   battlesChance: 0.2,
 }
