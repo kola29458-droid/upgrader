@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { isTargetAllowed } from '../upgraderMath'
 import '../catalogLocks.css'
+import '../catalogEmpty.css'
 
 const PAGE_SIZE = 19
 const ARROW_ICON = '/icons/arrow.svg'
@@ -353,9 +354,6 @@ useEffect(() => {
         onToggleName={toggleName}
       />
 
-      {sortedSkins.length === 0 ? (
-        <div className="skin-catalog__message">Скины не найдены</div>
-      ) : (
         <div className="skin-grid">
           <div className="skin-grid__reserved" aria-hidden="true" />
 
@@ -421,10 +419,13 @@ useEffect(() => {
             </article>
             )
           })}
+
+          {Array.from({ length: PAGE_SIZE - visible.length }, (_, index) => (
+            <div key={`empty-${index}`} className="skin-empty" aria-hidden="true" />
+          ))}
         </div>
-      )}
 
       <CatalogPagination page={page} totalPages={totalPages} onChange={setPage} />
     </section>
   )
-}
+}

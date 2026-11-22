@@ -1,0 +1,16 @@
+/* Пустые клетки каталога (когда скинов меньше 19 на странице) */
+.skin-empty {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.4rem;
+  background-color: #17181c;
+  background-image: url('/icons/usp.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 60%;
+  box-shadow: 0 0 4px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
