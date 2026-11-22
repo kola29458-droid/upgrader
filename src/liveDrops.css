@@ -229,17 +229,20 @@
 /* ---------- метка VS ---------- */
 .ld-vs {
   position: absolute;
-  top: calc(var(--u) * 0.25);
-  right: calc(var(--u) * 0.25);
-  z-index: 5;
-  padding: calc(var(--u) * 0.125) calc(var(--u) * 0.3125);
-  background: #fbd506;
-  color: #111;
-  border-radius: calc(var(--u) * 0.25);
+  top: calc(var(--u) * 0.3);
+  right: calc(var(--u) * 0.375);
+  z-index: 3;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   font-family: 'Tektur', sans-serif;
   font-weight: 800;
-  font-size: calc(var(--u) * 0.5625);
+  font-style: italic;
+  font-size: calc(var(--u) * 0.75);
   line-height: 1;
+  color: #fbd506;
+  text-shadow: 0 0 calc(var(--u) * 0.25) rgba(0, 0, 0, 0.6);
   pointer-events: none;
 }
 
