@@ -122,6 +122,13 @@ function UserInfo({
                       setEditingId(false)
                     }
                   }}
+                  onBlur={() => {
+                    if (idIsValid) saveProfileId()
+                    else {
+                      setIdDraft(profileId)
+                      setEditingId(false)
+                    }
+                  }}
                 />
               </label>
             ) : (

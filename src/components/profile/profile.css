@@ -1637,6 +1637,11 @@ button.pf-user__id {
   z-index: 20;
 }
 
+/* у выпавшего скина щит и бейдж Win должны оставаться поверх карточки при наведении */
+.pf-game__cardwrap--target .pf-game__tip-wrap:hover {
+  z-index: 1;
+}
+
 .pf-game__bet-card .pf-card {
   width: 100%;
   height: 100%;

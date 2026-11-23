@@ -191,6 +191,43 @@ function formatCounter(value: number) {
   return Math.floor(value).toLocaleString('en-US').replace(/,/g, ' ')
 }
 
+
+function useAnimatedCounter(target: number) {
+  const [display, setDisplay] = useState(target)
+
+  useEffect(() => {
+    const start = display
+    const difference = target - start
+
+    if (difference === 0) return
+
+    const duration = 1200
+    const startTime = performance.now()
+    let frameId = 0
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1)
+
+      // Быстрое начало и постепенное замедление
+      const eased = 1 - Math.pow(1 - progress, 3)
+
+      const current = Math.round(start + difference * eased)
+      setDisplay(current)
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(animate)
+      }
+    }
+
+    frameId = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(frameId)
+  }, [target])
+
+  return display
+}
+
+
 function useSiteCounters() {
   const [online, setOnline] = useState(() => {
     const saved = localStorage.getItem('upgrader-online')
@@ -207,6 +244,46 @@ function useSiteCounters() {
     return saved ? Number(saved) : COUNTER_SETTINGS.battlesStart
   })
 
+  const animatedOnline = useAnimatedCounter(online)
+  const animatedUpgrades = useAnimatedCounter(upgrades)
+  const animatedBattles = useAnimatedCounter(battles)
+
+  useEffect(() => {
+    let active = true
+
+    const loadStats = async () => {
+      try {
+        const response = await fetch(
+          'http://127.0.0.1:8765/stats',
+          { cache: 'no-store' },
+        )
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        if (!active) return
+
+        if (Number.isFinite(data.online)) setOnline(data.online)
+        if (Number.isFinite(data.upgrades)) setUpgrades(data.upgrades)
+        if (Number.isFinite(data.battles)) setBattles(data.battles)
+      } catch (error) {
+        console.error('[STATS] Не удалось получить статистику:', error)
+      }
+    }
+
+    loadStats()
+
+    const timer = window.setInterval(loadStats, 1000)
+
+    return () => {
+      active = false
+      window.clearInterval(timer)
+    }
+  }, [])
+
   useEffect(() => {
     localStorage.setItem('upgrader-online', String(online))
   }, [online])
@@ -219,66 +296,13 @@ function useSiteCounters() {
     localStorage.setItem('upgrader-battles', String(battles))
   }, [battles])
 
-  useEffect(() => {
-    const onlineTimer = window.setInterval(() => {
-      setOnline((current) => {
-        const direction = Math.random() < 0.5 ? -1 : 1
-        const change = Math.floor(Math.random() * 25) + 1
-        const next = current + direction * change
-
-        if (next < COUNTER_SETTINGS.onlineMin) {
-          return COUNTER_SETTINGS.onlineMin + change
-        }
-
-        if (next > COUNTER_SETTINGS.onlineMax) {
-          return COUNTER_SETTINGS.onlineMax - change
-        }
-
-        return next
-      })
-    }, COUNTER_SETTINGS.onlineSpeed)
-
-    const upgradesTimer = window.setInterval(() => {
-      if (Math.random() < COUNTER_SETTINGS.upgradesChance) {
-        const amount =
-          Math.floor(
-            Math.random() *
-              (COUNTER_SETTINGS.upgradesMaxAdd -
-                COUNTER_SETTINGS.upgradesMinAdd +
-                1),
-          ) + COUNTER_SETTINGS.upgradesMinAdd
-
-        setUpgrades((current) => current + amount)
-      }
-    }, COUNTER_SETTINGS.upgradesSpeed)
-
-    const battlesTimer = window.setInterval(() => {
-      if (Math.random() < COUNTER_SETTINGS.battlesChance) {
-        setBattles((current) => current + 1)
-      }
-    }, COUNTER_SETTINGS.battlesSpeed)
-
-    return () => {
-      window.clearInterval(onlineTimer)
-      window.clearInterval(upgradesTimer)
-      window.clearInterval(battlesTimer)
-    }
-  }, [])
-
   return {
-    online: formatCounter(online),
-    upgrades: formatCounter(upgrades),
-    battles: formatCounter(battles),
+    online: formatCounter(animatedOnline),
+    upgrades: formatCounter(animatedUpgrades),
+    battles: formatCounter(animatedBattles),
   }
 }
 
-type ButtonName = 'battle' | 'upgrader' | 'vip'
-
-type DepositNotification = {
-  id: number
-  date: string
-  coins: string
-}
 
 function WeeklyDepositProgress({ value }: { value: number }) {
   const displayedProgress = Math.max(0, value)
@@ -859,7 +883,22 @@ function Site() {
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [isPayScreenOpen, setIsPayScreenOpen] = useState(false)
   const [balance, setBalance] = useState(0)
-  const [profileId, setProfileId] = useState('1000001')
+  const [profileId, setProfileId] = useState(() => {
+    try {
+      const saved = localStorage.getItem('upgrader-profile-id')
+      return saved && /^\d{7}$/.test(saved) ? saved : '1000001'
+    } catch {
+      return '1000001'
+    }
+  })
+
+  function changeProfileId(id: string) {
+    setProfileId(id)
+    try {
+      localStorage.setItem('upgrader-profile-id', id)
+    } catch {}
+  }
+
   const inventory = useInventory()
   const profileLog = useProfileLog()
 
@@ -1322,7 +1361,7 @@ function Site() {
               <ProfilePage
                 balance={balance}
                 profileId={profileId}
-                onProfileIdChange={setProfileId}
+                onProfileIdChange={changeProfileId}
                 avatar={avatar}
                 onAvatarChange={changeAvatar}
                 onTopUp={() => setIsTopUpOpen(true)}

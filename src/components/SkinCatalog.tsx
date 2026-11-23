@@ -428,4 +428,4 @@ useEffect(() => {
       <CatalogPagination page={page} totalPages={totalPages} onChange={setPage} />
     </section>
   )
-}
+}

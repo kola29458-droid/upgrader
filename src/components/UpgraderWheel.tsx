@@ -12,9 +12,11 @@ const C = SIZE / 2
 
 const THICK_R = 130
 const THICK_W = 28
-const THIN_R = 161
+const THICK_OFFSET_X = 0.5
+const THIN_R = 162
 const THIN_W = 2
-const THIN_OFFSET_X = 1
+const THIN_OFFSET_X = 0.5
+const SQUEEZE = 362 / 365     // фон колеса сжат по высоте, дуга должна быть овальной так же
 const OFFSET_X = -5
 const OFFSET_Y = 1
 
@@ -47,9 +49,12 @@ function getLabel(chance: number) {
 function arcPath(r: number, chance: number) {
   const clamped = Math.min(100, Math.max(0, chance))
   if (clamped <= 0) return ''
+  const rx = r * SQUEEZE
   if (clamped >= 99.99) {
-    return `M ${C - r} ${C} A ${r} ${r} 0 1 0 ${C + r} ${C} A ${r} ${r} 0 1 0 ${C - r} ${C}`
+    return `M ${C - rx} ${C} A ${rx} ${r} 0 1 0 ${C + rx} ${C} A ${rx} ${r} 0 1 0 ${C - rx} ${C}`
   }
+
+ 
 
   const angleDeg = clamped * ARC_DEG_PER_PERCENT
   const angleRad = (angleDeg * Math.PI) / 180
@@ -200,7 +205,7 @@ export default function UpgraderWheel({ chance, active, spin = null, result = nu
           </linearGradient>
         </defs>
         
-        <Arc r={THICK_R} w={THICK_W} chance={displayChance} />
+        <Arc r={THICK_R} w={THICK_W} chance={displayChance} offsetX={THICK_OFFSET_X} />
         <Arc r={THIN_R} w={THIN_W} chance={displayChance} offsetX={THIN_OFFSET_X} />
       </svg>
 
